@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Avaliar {{ colaborador.nome }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --background-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --star-color: #fbbf24;
+            --text-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 0 0 2rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .avatar-image {
+            width: 80px; /* Ajuste o tamanho conforme necessário */
+            height: 80px;
+            border-radius: 50%; /* Deixa a imagem arredondada */
+            object-fit: cover; /* Para ajustar o conteúdo da imagem ao contêiner */
+        }
+
+        .avatar {
+            margin-right: 15px; /* Espaço entre a imagem do avatar e o nome */
+        }
+
+        .evaluation-form {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .rating-group {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: #f8fafc;
+            transition: transform 0.2s;
+        }
+
+        .rating-group:hover {
+            transform: translateY(-2px);
+        }
+
+        .rating-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .emoji {
+            font-size: 2rem;
+        }
+
+        .stars {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .star-rating {
+            display: none;
+        }
+
+        .star-label {
+            cursor: pointer;
+            font-size: 2rem;
+            color: #d1d5db;
+            transition: color 0.2s;
+        }
+
+        .star-label:hover,
+        .star-label:hover ~ .star-label,
+        .star-rating:checked ~ .star-label {
+            color: var(--star-color);
+        }
+
+        .help-text {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .emoji-feedback {
+            margin-top: 1rem;
+            height: 2rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .submit-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .submit-button:hover {
+            background-color: #4338ca;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .rating-group {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" style="display: flex; align-items: center;">
+        <a href="{% url 'home' %}" style="color: white; text-decoration: none; font-weight: bold; margin-right: 10px;">Voltar</a>
+        <div class="avatar" style="display: flex; align-items: center;">
+            <img src="{{ colaborador.imagem.url }}" alt="Avatar do Usuário" class="avatar-image" style="width: 50px; height: 50px; border-radius: 50%;">
+        </div>
+        <h1 style="margin-left: 10px;">Avaliar {{ colaborador.nome }}</h1>
+    </div>
+    
+    
+
+    <div class="container">
+        <form method="post" class="evaluation-form">
+            {% csrf_token %}
+            
+            <div class="rating-group">
+                <div class="rating-header">
+                    {{ form.avaliador.label_tag }}
+                    {{ form.avaliador }}
+                </div>
+            </div>
+        
+            <!-- Pontualidade -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">⏰</span>
+                    <h3 class="rating-title">Pontualidade</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="pontualidade" value="{{ i }}" id="pontualidade_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="pontualidade_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="pontualidade_feedback"></div>
+                <p class="help-text">Avalie a pontualidade nas entregas e compromissos</p>
+            </div>
+        
+            <!-- Organização -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">📊</span>
+                    <h3 class="rating-title">Organização</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="organizacao" value="{{ i }}" id="organizacao_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="organizacao_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="organizacao_feedback"></div>
+                <p class="help-text">Avalie a organização no trabalho</p>
+            </div>
+        
+            <!-- Comunicação -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">💬</span>
+                    <h3 class="rating-title">Comunicação</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="comunicacao" value="{{ i }}" id="comunicacao_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="comunicacao_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="comunicacao_feedback"></div>
+                <p class="help-text">Avalie a comunicação com a equipe</p>
+            </div>
+        
+            <!-- Resolução de Problemas -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">🔧</span>
+                    <h3 class="rating-title">Resolução de Problemas</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="resolucao_problemas" value="{{ i }}" id="resolucao_problemas_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="resolucao_problemas_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="resolucao_problemas_feedback"></div>
+                <p class="help-text">Avalie a capacidade de resolver problemas</p>
+            </div>
+        
+            <!-- Precisão -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">🎯</span>
+                    <h3 class="rating-title">Precisão</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="precisao" value="{{ i }}" id="precisao_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="precisao_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="precisao_feedback"></div>
+                <p class="help-text">Avalie a precisão do trabalho</p>
+            </div>
+        
+            <!-- Velocidade -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">⚡</span>
+                    <h3 class="rating-title">Velocidade</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="velocidade" value="{{ i }}" id="velocidade_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="velocidade_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="velocidade_feedback"></div>
+                <p class="help-text">Avalie a velocidade de execução</p>
+            </div>
+        
+            <!-- Conhecimento de Ferramentas -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">💻</span>
+                    <h3 class="rating-title">Conhecimento de Ferramentas</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="conhecimento_ferramentas" value="{{ i }}" id="conhecimento_ferramentas_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="conhecimento_ferramentas_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="conhecimento_ferramentas_feedback"></div>
+                <p class="help-text">Avalie o domínio das ferramentas</p>
+            </div>
+        
+            <!-- Flexibilidade -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">🔄</span>
+                    <h3 class="rating-title">Flexibilidade</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="flexibilidade" value="{{ i }}" id="flexibilidade_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="flexibilidade_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="flexibilidade_feedback"></div>
+                <p class="help-text">Avalie a adaptabilidade</p>
+            </div>
+        
+            <!-- Postura Profissional -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">👔</span>
+                    <h3 class="rating-title">Postura Profissional</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="postura_profissional" value="{{ i }}" id="postura_profissional_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="postura_profissional_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="postura_profissional_feedback"></div>
+                <p class="help-text">Avalie o profissionalismo</p>
+            </div>
+        
+            <!-- Priorização de Tarefas -->
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">📋</span>
+                    <h3 class="rating-title">Priorização de Tarefas</h3>
+                </div>
+                <div class="stars">
+                    {% for i in '54321'|make_list %}
+                    <input type="radio" name="priorizacao_tarefas" value="{{ i }}" id="priorizacao_tarefas_{{ i }}" class="star-rating" required>
+                    <label class="star-label" for="priorizacao_tarefas_{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+                <div class="emoji-feedback" id="priorizacao_tarefas_feedback"></div>
+                <p class="help-text">Avalie a capacidade de priorização</p>
+            </div>
+            
+            <div class="rating-group">
+                <div class="rating-header">
+                    <span class="emoji">📝</span>
+                    <h3 class="rating-title">Comentário</h3>
+                </div>
+                <textarea name="comentario" rows="4" placeholder="Deixe seu comentário aqui..." required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: none;"></textarea>
+                <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
+            </div>
+        
+            <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
+        </form>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emojiMap = {
+                1: '😢',
+                2: '😕',
+                3: '😊',
+                4: '😃',
+                5: '🤩'
+            };
+
+            const fields = [
+                'pontualidade', 'organizacao', 'comunicacao',
+                'resolucao_problemas', 'precisao', 'velocidade',
+                'conhecimento_ferramentas', 'flexibilidade',
+                'postura_profissional', 'priorizacao_tarefas'
+            ];
+
+            fields.forEach(field => {
+                const inputs = document.querySelectorAll(`input[name="${field}"]`);
+                const feedback = document.getElementById(`${field}_feedback`);
+
+                inputs.forEach(input => {
+                    input.addEventListener('change', function() {
+                        feedback.textContent = emojiMap[this.value];
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

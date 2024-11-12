@@ -378,6 +378,29 @@
                 <h2>Evolução das Avaliações</h2>
                 <canvas id="lineChart"></canvas>
             </div>
+
+
+            <h3>Média das Avaliações por Loja</h3>
+
+            <!-- Canvas para o gráfico -->
+            <canvas id="barChartLoja"></canvas>
+            {% comment %} <h3>Média das Avaliações por Avaliador</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Avaliador</th>
+                        <th>Média da Avaliação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avaliador in medias_por_avaliador %}
+                    <tr>
+                        <td>{{ avaliador.avaliador }}</td>
+                        <td>{{ avaliador.media_avaliador|floatformat:2 }}</td> <!-- Exibe a média com 2 casas decimais -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table> {% endcomment %}
         
             <h3>Comentários sobre o Colaborador</h3>
             <ul class="comentarios-list">
@@ -503,6 +526,51 @@
     const lineChart = new Chart(
         document.getElementById('lineChart'),
         lineConfig
+    );
+
+    // Extraindo os dados de lojas e suas médias do template
+    const lojas = [
+    {% for loja in medias_por_loja %}
+        "{{ loja.loja }}",  // Nome da loja
+    {% endfor %}
+    ];
+
+    const mediasLoja = [
+    {% for loja in medias_por_loja %}
+        {{ loja.media_loja|floatformat:2 }},  // Média das avaliações por loja
+    {% endfor %}
+    ];
+
+    // Configuração dos dados para o gráfico de barras por loja
+    const barDataLoja = {
+    labels: lojas,  // Labels (nomes das lojas)
+    datasets: [{
+        label: 'Média das Avaliações por Loja',
+        data: mediasLoja,  // Dados (média das avaliações por loja)
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',  // Cor de fundo das barras
+        borderColor: 'rgb(153, 102, 255)',  // Cor da borda das barras
+        borderWidth: 1
+    }]
+    };
+
+    // Configuração do gráfico de barras
+    const barConfigLoja = {
+    type: 'bar',
+    data: barDataLoja,
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true  // Inicia o eixo Y do gráfico em 0
+            }
+        }
+    }
+    };
+
+    // Renderiza o gráfico
+    const barChartLoja = new Chart(
+    document.getElementById('barChartLoja'),
+    barConfigLoja
     );
     </script>
 

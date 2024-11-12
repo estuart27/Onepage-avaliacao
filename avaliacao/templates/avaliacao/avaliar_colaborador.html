@@ -2,95 +2,108 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Avaliar {{ colaborador.nome }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação de Equipe</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
+        /* [Previous styles remain the same until .rating-group] */
         :root {
-            --primary-color: #4f46e5;
-            --background-color: #f3f4f6;
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --background-color: #f8fafc;
             --card-bg: #ffffff;
             --star-color: #fbbf24;
             --text-color: #1f2937;
+            --gradient-start: #6366f1;
+            --gradient-end: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: var(--background-color);
             color: var(--text-color);
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 2rem;
         }
 
         .header {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: white;
             padding: 2rem;
-            text-align: center;
-            border-radius: 0 0 2rem 2rem;
+            border-radius: 0 0 2.5rem 2.5rem;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 2rem;
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .avatar-image {
-            width: 80px; /* Ajuste o tamanho conforme necessário */
-            height: 80px;
-            border-radius: 50%; /* Deixa a imagem arredondada */
-            object-fit: cover; /* Para ajustar o conteúdo da imagem ao contêiner */
-        }
-
-        .avatar {
-            margin-right: 15px; /* Espaço entre a imagem do avatar e o nome */
-        }
-
-        .evaluation-form {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
-
-        .rating-group {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            background: #f8fafc;
+        .back-button {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             transition: transform 0.2s;
         }
 
+        .rating-group {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
         .rating-group:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px -8px rgba(99, 102, 241, 0.2);
         }
 
         .rating-header {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .rating-title {
             font-size: 1.25rem;
             font-weight: 600;
-            margin: 0;
+            color: var(--text-color);
         }
 
         .emoji {
             font-size: 2rem;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .stars {
             display: flex;
             gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
         }
 
         .star-rating {
@@ -99,73 +112,154 @@
 
         .star-label {
             cursor: pointer;
-            font-size: 2rem;
-            color: #d1d5db;
-            transition: color 0.2s;
+            font-size: 2.5rem;
+            color: #e5e7eb;
+            transition: all 0.2s;
         }
 
         .star-label:hover,
         .star-label:hover ~ .star-label,
         .star-rating:checked ~ .star-label {
             color: var(--star-color);
-        }
-
-        .help-text {
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            color: #6b7280;
+            transform: scale(1.1);
         }
 
         .emoji-feedback {
-            margin-top: 1rem;
-            height: 2rem;
+            height: 3rem;
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 2rem;
+            transition: all 0.3s;
+        }
+
+        .help-text {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .comment-area {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s;
+            font-family: inherit;
         }
 
         .submit-button {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: white;
             border: none;
-            padding: 1rem 2rem;
-            border-radius: 0.75rem;
+            padding: 1.25rem 2rem;
+            border-radius: 1rem;
             font-size: 1.125rem;
             font-weight: 600;
-            width: 100%;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s;
+            margin-top: 2rem;
+            width: 100%;
         }
 
         .submit-button:hover {
-            background-color: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .container {
                 padding: 1rem;
             }
-            
+
             .rating-group {
-                padding: 1rem;
+                padding: 1.5rem;
+            }
+
+            .star-label {
+                font-size: 2rem;
             }
         }
+        .avatar-container {
+          width: 80px;
+          height: 80px;
+          overflow: hidden;
+          border-radius: 50%;
+          flex-shrink: 0;
+      }
+  
+      .avatar-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+      }
+      /* Estilo para a lista de sugestões */
+      .suggestions {
+          position: absolute;
+          width: 100%;
+          max-height: 150px;
+          overflow-y: auto;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          background-color: white;
+          z-index: 999;
+          margin-top: 5px;
+      }
+      .suggestion-item {
+          padding: 0.5rem;
+          cursor: pointer;
+      }
+      .suggestion-item:hover {
+          background-color: #f0f0f0;
+      }
     </style>
 </head>
 <body>
-    <div class="header" style="display: flex; align-items: center;">
-        <a href="{% url 'home' %}" style="color: white; text-decoration: none; font-weight: bold; margin-right: 10px;">Voltar</a>
-        <div class="avatar" style="display: flex; align-items: center;">
-            <img src="{{ colaborador.imagem.url }}" alt="Avatar do Usuário" class="avatar-image" style="width: 50px; height: 50px; border-radius: 50%;">
+    <div class="header">
+        <div class="header-content">
+            <a href="{% url 'home' %}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Voltar
+            </a>
+            <div class="avatar-container">
+                <img src="{{ colaborador.imagem.url }}" alt="Avatar do Colaborador" class="avatar-image">
+            </div>
+            <div class="employee-info">
+                <h1>{{ colaborador.nome }}</h1>
+            </div>
         </div>
-        <h1 style="margin-left: 10px;">Avaliar {{ colaborador.nome }}</h1>
     </div>
-    
-    
 
     <div class="container">
-        <form method="post" class="evaluation-form">
-            {% csrf_token %}
-        
+      <form method="post" class="evaluation-form" id="evaluationForm">
+          {% csrf_token %}
+  
+          <!-- Campo Avaliador -->
+          <div class="rating-group">
+              <div class="rating-header">
+                  <span class="emoji">📝</span>
+                  <h3 class="rating-title">Avaliador</h3>
+              </div>
+              <input type="text" name="avaliador" placeholder="Avaliador" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
+              <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
+          </div>
+  
+          <div class="rating-group" style="position: relative;">
+            <div class="rating-header">
+                <span class="emoji">🏬</span>
+                <h3 class="rating-title">Loja</h3>
+            </div>
+            <input type="text" name="loja" id="loja" placeholder="Nome da loja" required 
+                   style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
+            <p class="help-text">Nome da loja que está sendo avaliada</p>
+    
+            <!-- Div onde as sugestões vão aparecer -->
+            <div id="suggestions-container" class="suggestions" style="display: none;">
+                <!-- As sugestões serão inseridas aqui dinamicamente -->
+            </div>
+        </div>
+
             <!-- Pontualidade -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -181,7 +275,7 @@
                 <div class="emoji-feedback" id="pontualidade_feedback"></div>
                 <p class="help-text">Avalie a pontualidade nas entregas e compromissos</p>
             </div>
-        
+
             <!-- Organização -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -197,7 +291,7 @@
                 <div class="emoji-feedback" id="organizacao_feedback"></div>
                 <p class="help-text">Avalie a organização no trabalho</p>
             </div>
-        
+
             <!-- Comunicação -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -213,7 +307,7 @@
                 <div class="emoji-feedback" id="comunicacao_feedback"></div>
                 <p class="help-text">Avalie a comunicação com a equipe</p>
             </div>
-        
+
             <!-- Resolução de Problemas -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -229,7 +323,7 @@
                 <div class="emoji-feedback" id="resolucao_problemas_feedback"></div>
                 <p class="help-text">Avalie a capacidade de resolver problemas</p>
             </div>
-        
+
             <!-- Precisão -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -245,7 +339,7 @@
                 <div class="emoji-feedback" id="precisao_feedback"></div>
                 <p class="help-text">Avalie a precisão do trabalho</p>
             </div>
-        
+
             <!-- Velocidade -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -261,7 +355,7 @@
                 <div class="emoji-feedback" id="velocidade_feedback"></div>
                 <p class="help-text">Avalie a velocidade de execução</p>
             </div>
-        
+
             <!-- Conhecimento de Ferramentas -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -277,7 +371,7 @@
                 <div class="emoji-feedback" id="conhecimento_ferramentas_feedback"></div>
                 <p class="help-text">Avalie o domínio das ferramentas</p>
             </div>
-        
+
             <!-- Flexibilidade -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -293,7 +387,7 @@
                 <div class="emoji-feedback" id="flexibilidade_feedback"></div>
                 <p class="help-text">Avalie a adaptabilidade</p>
             </div>
-        
+
             <!-- Postura Profissional -->
             <div class="rating-group">
                 <div class="rating-header">
@@ -309,65 +403,132 @@
                 <div class="emoji-feedback" id="postura_profissional_feedback"></div>
                 <p class="help-text">Avalie o profissionalismo</p>
             </div>
-        
+
             <!-- Priorização de Tarefas -->
             <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">📋</span>
-                    <h3 class="rating-title">Priorização de Tarefas</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="priorizacao_tarefas" value="{{ i }}" id="priorizacao_tarefas_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="priorizacao_tarefas_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="priorizacao_tarefas_feedback"></div>
-                <p class="help-text">Avalie a capacidade de priorização</p>
-            </div>
-            
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">📝</span>
-                    <h3 class="rating-title">Comentário</h3>
-                </div>
-                <textarea name="comentario" rows="4" placeholder="Deixe seu comentário aqui..." required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: none;"></textarea>
-                <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
-            </div>
-        
-            <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
-        </form>
-        
-    </div>
+              <div class="rating-header">
+                  <span class="emoji">📋</span>
+                  <h3 class="rating-title">Priorização de Tarefas</h3>
+              </div>
+              <div class="stars">
+                  {% for i in '54321'|make_list %}
+                  <input type="radio" name="priorizacao_tarefas" value="{{ i }}" id="priorizacao_tarefas_{{ i }}" class="star-rating" required>
+                  <label class="star-label" for="priorizacao_tarefas_{{ i }}">★</label>
+                  {% endfor %}
+              </div>
+              <div class="emoji-feedback" id="priorizacao_tarefas_feedback"></div>
+              <p class="help-text">Avalie a capacidade de priorização</p>
+          </div>
+          
+          <div class="rating-group">
+              <div class="rating-header">
+                  <span class="emoji">📝</span>
+                  <h3 class="rating-title">Comentário</h3>
+              </div>
+              <textarea name="comentario" rows="4" placeholder="Deixe seu comentário aqui..." required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: none;"></textarea>
+              <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
+          </div>
+      
+          <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
+      </form>
+      
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const emojiMap = {
-                1: '😢',
-                2: '😕',
-                3: '😊',
-                4: '😃',
-                5: '🤩'
-            };
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const emojiMap = {
+              1: '😢',
+              2: '😕',
+              3: '😊',
+              4: '😃',
+              5: '🤩'
+          };
 
-            const fields = [
-                'pontualidade', 'organizacao', 'comunicacao',
-                'resolucao_problemas', 'precisao', 'velocidade',
-                'conhecimento_ferramentas', 'flexibilidade',
-                'postura_profissional', 'priorizacao_tarefas'
-            ];
+          const fields = [
+              'pontualidade', 'organizacao', 'comunicacao',
+              'resolucao_problemas', 'precisao', 'velocidade',
+              'conhecimento_ferramentas', 'flexibilidade',
+              'postura_profissional', 'priorizacao_tarefas'
+          ];
 
-            fields.forEach(field => {
-                const inputs = document.querySelectorAll(`input[name="${field}"]`);
-                const feedback = document.getElementById(`${field}_feedback`);
+          fields.forEach(field => {
+              const inputs = document.querySelectorAll(`input[name="${field}"]`);
+              const feedback = document.getElementById(`${field}_feedback`);
 
-                inputs.forEach(input => {
-                    input.addEventListener('change', function() {
-                        feedback.textContent = emojiMap[this.value];
-                    });
-                });
-            });
-        });
-    </script>
+              inputs.forEach(input => {
+                  input.addEventListener('change', function() {
+                      feedback.textContent = emojiMap[this.value];
+                  });
+              });
+          });
+      });
+      const lojas = [
+      "Arabi´s", "Bello Pastel", "Cacau Show", "Chikens do Mc", 
+      "Croasonho", "Di Gramado", "Gelobel", 
+      "Ice Creamy", "Kekala", "Mc Donald´s", "Milanetto", 
+      "Mister Cuca", "Mr. Cheff", "Naturela", "Patroni Pizza",
+      "Pop Corn Gourmet", "Popeyes Chiken", "Santo Strogonoff",
+      "Spedini Trattoria", "The B Burger", "Trilha Verde", "Ponto Grill",
+      "Subway", "10 Pastéis", "Johnny Smash Burger", "The B Burger Executivo",
+      "Toutsie", "The Waffle King - Londrina", "Havanna", "Mr. Fritz",
+      "Doce Mania", "Baldes do Popeyes", "Biscoitê Boulevard Londrina",
+      "Mania de Churrasco - Boulevard Londrina", "Burger King", "Feijuca",
+      "Hot and Roll", "Naturela", "Menu Poke", "Montana Burger", 
+      "Montana Churrascaria", "Montana Grill", "Original Prime Grill",
+      "Spoleto", "Oakberry Açai", "Pastel Mel", "Praça Food", 
+      "Kopenhagen Chocolates", "Ponto Grill", "Sucão", "Mr Cheff",
+      "Lugano", "La Pasta Gialla", "Saladas do Spoleto", 
+      "Risotos Do Spoleto", "Villa Fontana", "Splash Bebidas Urbanas"
+  ];
+  
+
+  // Função para filtrar lojas com base no que o usuário digita
+  document.getElementById('loja').addEventListener('input', function() {
+      const inputValue = this.value.toLowerCase(); // Obtém o texto digitado
+      const suggestionsContainer = document.getElementById('suggestions-container'); // Acessa o container das sugestões
+
+      // Se não houver nada digitado, esconde as sugestões
+      if (inputValue === '') {
+          suggestionsContainer.style.display = 'none';
+          return;
+      }
+
+      // Filtra as lojas que contêm o texto digitado
+      const lojasFiltradas = lojas.filter(loja => loja.toLowerCase().includes(inputValue));
+
+      // Limpa as sugestões anteriores
+      suggestionsContainer.innerHTML = '';
+
+      // Se houver sugestões, exibe o container, caso contrário, esconde
+      if (lojasFiltradas.length > 0) {
+          suggestionsContainer.style.display = 'block';
+
+          // Cria e adiciona as opções filtradas
+          lojasFiltradas.forEach(loja => {
+              const suggestionItem = document.createElement('div');
+              suggestionItem.classList.add('suggestion-item');
+              suggestionItem.textContent = loja;
+
+              // Ao clicar na sugestão, preenche o campo de entrada
+              suggestionItem.addEventListener('click', function() {
+                  document.getElementById('loja').value = loja;
+                  suggestionsContainer.style.display = 'none'; // Esconde as sugestões
+              });
+
+              suggestionsContainer.appendChild(suggestionItem);
+          });
+      } else {
+          suggestionsContainer.style.display = 'none'; // Esconde se não houver sugestões
+      }
+  });
+
+  // Esconde as sugestões ao clicar fora do campo de entrada
+  document.addEventListener('click', function(event) {
+      if (!document.getElementById('loja').contains(event.target)) {
+          document.getElementById('suggestions-container').style.display = 'none';
+      }
+  });
+
+  </script>
 </body>
 </html>

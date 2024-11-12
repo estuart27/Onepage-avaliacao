@@ -81,8 +81,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,  # Tempo em segundos (aumente conforme necessário)
+        },
     }
 }
+
 
 
 # Password validation

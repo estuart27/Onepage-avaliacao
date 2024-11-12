@@ -1,185 +1,431 @@
 {% load static %}
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>Avaliação Hub Colaboladores</title>
-    <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico'%}" />
-    <!-- Bootstrap icons-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet"
-        type="text/css" />
-    <!-- Google fonts-->
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet"
-        type="text/css" />
-    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-
 </head>
 
 <body>
     <!-- Navigation-->
-    <nav class="navbar navbar-light bg-light static-top">
-        <div class="container d-flex align-items-center justify-content-between">
-            <!-- Logo e nome da marca -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light static-top">
+        <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <!-- Logo iFood -->
-                <img src="{% static 'assets/img/ifood.jpg' %}" alt="Logo iFood" style="height: 40px; margin-right: 10px;">
-                Avaliação Hub
+                <img src="{% static 'assets/img/ifood.jpg' %}" alt="Logo iFood" class="navbar-logo">
+                <span class="brand-text">Avaliação Hub</span>
             </a>
-            <!-- Botão Fale Conosco -->
-            <a class="btn btn-primary" href="https://wa.me/557798503042">Fale conosco</a>
+            <div class="navbar-actions">
+                <a class="btn btn-primary contact-btn" href="https://wa.me/557798503042">
+                    <i class="bi-whatsapp me-2"></i>Fale conosco
+                </a>
+            </div>
         </div>
     </nav>
-    
-    <!-- Masthead-->
 
-    <!-- Testimonials-->
-<!-- Testimonials-->
-<!-- Filtros -->
-<section class="filter-section text-center bg-light py-4">
-    <div class="container">
-        <h3 class="mb-4">Filtrar Colaboradores</h3>
-        <form method="GET" action="{% url 'home' %}" class="d-flex justify-content-center">
-            <!-- Filtro por Cargo -->
-            <select name="cargo" class="form-select me-3" style="max-width: 200px;">
-                <option value="">Todos os Cargos</option>
-                {% for cargo in cargos %}
-                    <option value="{{ cargo }}" {% if request.GET.cargo == cargo %}selected{% endif %}>{{ cargo }}</option>
-                {% endfor %}
-            </select>
+    <!-- Filtros -->
+    <section class="filter-section">
+        <div class="container">
+            <h2 class="section-title">Filtrar Colaboradores</h2>
+            <form method="GET" action="{% url 'home' %}" class="filter-form">
+                <div class="filter-group">
+                    <select name="cargo" class="form-select">
+                        <option value="">Todos os Cargos</option>
+                        {% for cargo in cargos %}
+                            <option value="{{ cargo }}" {% if request.GET.cargo == cargo %}selected{% endif %}>{{ cargo }}</option>
+                        {% endfor %}
+                    </select>
 
-            <!-- Filtro por Hub -->
-            <select name="hub" class="form-select me-3" style="max-width: 200px;">
-                <option value="">Todos os Hubs</option>
-                {% for hub in hubs %}
-                    <option value="{{ hub }}" {% if request.GET.hub == hub %}selected{% endif %}>{{ hub }}</option>
-                {% endfor %}
-            </select>
+                    <select name="hub" class="form-select">
+                        <option value="">Todos os Hubs</option>
+                        {% for hub in hubs %}
+                            <option value="{{ hub }}" {% if request.GET.hub == hub %}selected{% endif %}>{{ hub }}</option>
+                        {% endfor %}
+                    </select>
 
-            <!-- Botão Filtrar -->
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-        </form>
-    </div>
-</section>
+                    <button type="submit" class="btn btn-primary filter-btn">
+                        <i class="bi-funnel-fill me-2"></i>Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
 
-<!-- Testimonials -->
-<section class="testimonials text-center bg-light" style="padding: 40px 0;">
-    <div class="container" style="max-width: 1200px;">
-        <h2 class="mb-5">Equipe Hub IFood</h2>
-        <div class="row">
-            {% for colaborador in colaboradores %}
-            <div class="col-lg-4" style="margin-bottom: 20px;">
-                <div class="testimonial-item mx-auto mb-5 mb-lg-0" 
-                     style="margin-bottom: 40px; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                    <img class="img-fluid rounded-circle mb-3" src="{{ colaborador.imagem.url }}" alt="..." style="margin-bottom: 15px;" />
-                    <h5>{{ colaborador.nome }}</h5>
-                    <p class="font-weight-light mb-0">{{ colaborador.cargo }} - {{ colaborador.hub }}</p>
-                    <!-- Botões Avaliar e Ver Perfil -->
-                    <div class="mt-3">
-                        <!-- Botão Avaliar -->
-                        <a href="{% url 'avaliar_colaborador' colaborador.id %}" class="btn btn-outline-primary btn-sm me-2" style="margin-top: 5px;">
-                            <i class="bi-star-fill"></i> Avaliar
-                        </a>
-                        <!-- Botão Ver Perfil -->
-                        <a href="{% url 'perfil_colaborador' colaborador.id %}" class="btn btn-outline-secondary btn-sm" style="margin-top: 5px;">
-                            <i class="bi-person-fill"></i> Ver Perfil
-                        </a>
+    <!-- Grid de Colaboradores -->
+    <section class="team-grid">
+        <div class="container">
+            <h1 class="section-title">Equipe Hub IFood</h1>
+            <div class="row g-4">
+                {% for colaborador in colaboradores %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="team-card">
+                        <div class="profile-image-wrapper">
+                            <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="profile-image" />
+                        </div>
+                        <div class="team-card-content">
+                            <h3 class="member-name">{{ colaborador.nome }}</h3>
+                            <p class="member-role">{{ colaborador.cargo }}</p>
+                            <p class="member-hub">{{ colaborador.hub }}</p>
+                            <div class="member-stats">
+                                <div class="stat-item">
+                                    <i class="bi-star-fill"></i>
+                                    <span>{{ colaborador.media_avaliacao|floatformat:1 }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="bi-people-fill"></i>
+                                    <span>{{ colaborador.total_avaliacoes }}</span>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <a href="{% url 'avaliar_colaborador' colaborador.id %}" class="btn btn-primary btn-action">
+                                    <i class="bi-star-fill me-2"></i>Avaliar
+                                </a>
+                                <a href="{% url 'perfil_colaborador' colaborador.id %}" class="btn btn-outline-primary btn-action">
+                                    <i class="bi-person-fill me-2"></i>Ver Perfil
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
-    </div>
-</section>
+    </section>
 
 
-    
-<!-- Call to Action-->
-<section class="call-to-action text-white text-center py-5" id="connect" style="background-color: #007bff;">
-    <div class="container position-relative">
-        <div class="row justify-content-center">
-            <div class="col-xl-8">
-                <!-- Chamada motivacional -->
-                <h2 class="mb-4 fw-bold">Junte-se ao Nosso Grupo!</h2>
-                <p class="lead mb-5">
-                    Entre em nosso grupo e receba novidades e promoções exclusivas! Fique sempre atualizado sobre o que está acontecendo.
-                </p>
-
-                <!-- Botão de entrada no grupo -->
-                <div class="d-grid gap-2 col-md-6 mx-auto">
-                    <a href="https://wa.me/557798503042" class="btn btn-light btn-lg" target="_blank">
-                        <i class="bi-whatsapp me-2"></i> Junte-se ao nosso grupo no WhatsApp
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Junte-se ao Nosso Grupo!</h2>
+                <p class="cta-text">Participe do nosso grupo e fique por dentro de todas as novidades e promoções exclusivas.</p>
+                <a href="https://wa.me/557798503042" class="btn btn-light btn-lg cta-button">
+                    <i class="bi-whatsapp me-2"></i>Entrar no Grupo do WhatsApp
+                </a>
+                <div class="social-links">
+                    <a href="https://wa.me/557798503042" class="social-link">
+                        <i class="bi-whatsapp"></i>
+                    </a>
+                    <a href="mailto:hub.esilvestre@hubentregas.com.br" class="social-link">
+                        <i class="bi-envelope"></i>
                     </a>
                 </div>
-
-                <!-- Ícones de redes sociais -->
-                <div class="mt-5">
-                    <p class="mb-2">Siga-nos nas redes sociais:</p>
-                    <ul class="list-inline mb-0">
-                        <li class="list-inline-item">
-                            <a href="https://wa.me/557798503042" class="text-white fs-3"><i class="bi-whatsapp"></i></a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a href="mailto:seuemail@example.com" class="text-white fs-3"><i class="bi-envelope"></i></a>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-    
-    <!-- Footer-->
-    <footer class="footer bg-light">
+    <!-- Footer -->
+    <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-6 h-100 text-center text-lg-start my-auto">
-                    <ul class="list-inline mb-2">
-                        <li class="list-inline-item"><a href="#!">Contato</a></li>
-                        <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Email</a></li>
-                        <li class="list-inline-item">⋅</li>
-                        {% comment %} <li class="list-inline-item"><a href="#!">Terms of Use</a></li>
-                        <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Privacy Policy</a></li> {% endcomment %}
-                    </ul>
-                    <p class="text-muted small mb-4 mb-lg-0">&copy; Your Website 2024. Hub IFood </p>
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2024 Hub IFood. Todos os direitos reservados.</p>
+                    <div class="footer-links">
+                        <a href="#!">Contato</a>
+                        <a href="#!">Email</a>
+                    </div>
                 </div>
-                <div class="col-lg-6 h-100 text-center text-lg-end my-auto">
-                    <ul class="list-inline mb-0">
-                        <!-- Ícone do WhatsApp -->
-                        <li class="list-inline-item me-4">
-                            <a href="https://wa.me/557798503042" target="_blank">
-                                <i class="bi-whatsapp fs-3"></i>
-                            </a>
-                        </li>
-                        <!-- Ícone do Gmail -->
-                        <li class="list-inline-item">
-                            <a href="mailto:hub.esilvestre@hubentregas.com.br">
-                                <i class="bi-envelope fs-3"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                
+                <div class="footer-social">
+                    <a href="https://wa.me/557798503042" class="social-link">
+                        <i class="bi-whatsapp"></i>
+                    </a>
+                    <a href="mailto:hub.esilvestre@hubentregas.com.br" class="social-link">
+                        <i class="bi-envelope"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </footer>
-    <!-- Bootstrap core JS-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Core theme JS-->
-    <script src="{% static 'js/scripts.js'%}"></script>
-    <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
-    <!-- * *                               SB Forms JS                               * *-->
-    <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
-    <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
-    <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
-</body>
 
+    <style>
+        :root {
+            --ifood-red: #ea1d2c;
+            --ifood-red-dark: #d41824;
+            --dark-gray: #3e3e3e;
+            --light-gray: #f8f9fa;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .navbar-logo {
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+        }
+
+        .contact-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--dark-gray);
+            text-align: center;
+        }
+
+        .filter-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .form-select {
+            min-width: 200px;
+            padding: 0.8rem 1rem;
+            border-radius: var(--border-radius);
+            border: 2px solid #e0e0e0;
+            font-size: 1.1rem;
+        }
+
+        .filter-btn {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* Team Grid */
+        .team-grid {
+            padding: 4rem 0;
+            background-color: #fff;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: var(--transition);
+            height: 100%;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .profile-image-wrapper {
+            position: relative;
+            padding-top: 100%;
+            overflow: hidden;
+        }
+
+        .profile-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .team-card:hover .profile-image {
+            transform: scale(1.05);
+        }
+
+        .team-card-content {
+            padding: 2rem;
+        }
+
+        .member-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark-gray);
+        }
+
+        .member-role {
+            font-size: 1.1rem;
+            color: var(--ifood-red);
+            margin-bottom: 0.25rem;
+        }
+
+        .member-hub {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .member-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+        }
+
+        .stat-item i {
+            color: var(--ifood-red);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--ifood-red) 0%, var(--ifood-red-dark) 100%);
+            padding: 5rem 0;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .social-link {
+            color: white;
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            transform: scale(1.2);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: white;
+            padding: 3rem 0;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--ifood-red);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .filter-group {
+                flex-direction: column;
+            }
+
+            .form-select, .filter-btn {
+                width: 100%;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
 </html>

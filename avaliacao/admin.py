@@ -11,13 +11,35 @@ class ColaboradorAdmin(admin.ModelAdmin):
     search_fields = ['nome', 'cargo','hub']
     inlines = [AvaliacaoInline]
 
+
 class AvaliacaoAdmin(admin.ModelAdmin):
-    list_display = ['colaborador', 'pontualidade', 'organizacao', 'comunicacao', 'resolucao_problemas', 
-                    'precisao', 'velocidade', 'conhecimento_ferramentas', 'flexibilidade', 
-                    'postura_profissional', 'priorizacao_tarefas',]
-    list_filter = ['colaborador']
-    search_fields = ['colaborador__nome']
+    list_display = ['avaliador', 'loja', 'media_geral', 'ver_comentario']
+    list_filter = ['avaliador']
+    search_fields = ['avaliador']
+    
+    def media_geral(self, obj):
+        campos_avaliacao = [
+            obj.organizacao, obj.comunicacao, obj.resolucao_problemas,
+            obj.precisao, obj.velocidade, obj.conhecimento_ferramentas,
+            obj.flexibilidade, obj.postura_profissional, obj.priorizacao_tarefas
+        ]
+        media = sum(filter(None, campos_avaliacao)) / len([nota for nota in campos_avaliacao if nota is not None])
+        return round(media, 2)
+
+    media_geral.short_description = 'Média Geral'
+    
+    def ver_comentario(self, obj):
+        return obj.comentario if obj.comentario else "Sem comentário"
+    
+    ver_comentario.short_description = 'Comentário'
+
+    # Especifica quais campos adicionais mostrar na visualização detalhada
+    fields = ('avaliador', 'loja', 'organizacao', 'comunicacao', 'resolucao_problemas', 
+              'precisao', 'velocidade', 'conhecimento_ferramentas', 'flexibilidade', 
+              'postura_profissional', 'priorizacao_tarefas', 'comentario')
+              
 
 # Registrando os modelos no admin
 admin.site.register(Colaborador, ColaboradorAdmin)
 admin.site.register(Avaliacao, AvaliacaoAdmin)
+
