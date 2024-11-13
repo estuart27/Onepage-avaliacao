@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback do Colaborador</title>
+</head>
+<body>
+    <h1>Feedback para {{ colaborador.nome }}</h1>
+    <p><strong>Cargo:</strong> {{ colaborador.cargo }}</p>
+
+    <h2>Média das Avaliações</h2>
+    <ul>
+        {% for campo, media in medias_avaliacoes.items %}
+            <li><strong>{{ campo|title }}:</strong> {{ media|floatformat:2 }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Comentários</h2>
+    <p>{{ comentarios }}</p>
+
+    <h2>Feedback Gerado</h2>
+    <p>{{ feedback }}</p>
+</body>
+</html>

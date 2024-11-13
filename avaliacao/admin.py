@@ -1,6 +1,6 @@
 # avaliacao/admin.py
 from django.contrib import admin
-from .models import Colaborador, Avaliacao
+from .models import Colaborador, Avaliacao,Hub
 
 class AvaliacaoInline(admin.TabularInline):
     model = Avaliacao
@@ -39,7 +39,8 @@ class AvaliacaoAdmin(admin.ModelAdmin):
               'postura_profissional', 'priorizacao_tarefas', 'comentario')
               
 
-# Registrando os modelos no admin
+
+admin.site.register(Hub)
 admin.site.register(Colaborador, ColaboradorAdmin)
 admin.site.register(Avaliacao, AvaliacaoAdmin)
 

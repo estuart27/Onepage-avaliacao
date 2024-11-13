@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Perfil de {{ colaborador.nome }}</title>
+    <a href="{% url 'feedback_colaborador' colaborador_id=colaborador.id %}">
+        <button>Ver Feedback</button>
+    </a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
         :root {
@@ -380,28 +383,11 @@
             </div>
 
 
-            <h3>Média das Avaliações por Loja</h3>
+            <h3>Contentamento dos Restaurantes - Média das Avaliações por Loja</h3>
 
             <!-- Canvas para o gráfico -->
             <canvas id="barChartLoja"></canvas>
-            {% comment %} <h3>Média das Avaliações por Avaliador</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Avaliador</th>
-                        <th>Média da Avaliação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for avaliador in medias_por_avaliador %}
-                    <tr>
-                        <td>{{ avaliador.avaliador }}</td>
-                        <td>{{ avaliador.media_avaliador|floatformat:2 }}</td> <!-- Exibe a média com 2 casas decimais -->
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table> {% endcomment %}
-        
+
             <h3>Comentários sobre o Colaborador</h3>
             <ul class="comentarios-list">
                 {% for avaliacao in avaliacoes %}

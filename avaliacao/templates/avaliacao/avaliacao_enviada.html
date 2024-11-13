@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação Enviada</title>
+    <style>
+        /* Estilos Gerais */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        /* Container Principal */
+        .confirmation-container {
+            text-align: center;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        /* Animação da Confirmação */
+        .checkmark {
+            font-size: 3rem;
+            color: #4CAF50;
+            animation: pop 0.3s ease forwards;
+        }
+
+        /* Mensagem de Sucesso */
+        h1 {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+            color: #333;
+        }
+
+        p {
+            color: #777;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Rodapé com Tempo de Espera */
+        .redirecting-message {
+            font-size: 0.9rem;
+            color: #555;
+            animation: fade-in 1s ease-in-out;
+        }
+
+        /* Animações */
+        @keyframes pop {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+
+    <script type="text/javascript">
+        function redirecionarParaHome() {
+            window.location.href = "{% url 'home' %}";
+        }
+
+        window.onload = function() {
+            setTimeout(() => {
+                alert("Sua avaliação foi enviada com sucesso!");
+                redirecionarParaHome();
+            }, 2000); // Redireciona em 5 segundos
+        };
+    </script>
+</head>
+<body>
+    <div class="confirmation-container">
+        <div class="checkmark">✔️</div>
+        <h1>Avaliação Enviada!</h1>
+        <p>Obrigado por compartilhar sua opinião. 😊</p>
+        <div class="redirecting-message">Redirecionando para a página inicial ...</div>
+    </div>
+</body>
+</html>

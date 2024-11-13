@@ -4,7 +4,16 @@ from django.db import models
 from django.core.files.base import ContentFile
 from PIL import Image as PilImage
 import io
+from datetime import date, timedelta
 
+
+class Hub(models.Model):
+    nome = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.nome
+    
+    
 class Colaborador(models.Model):
     # Definindo as opções de seleção para os cargos e hubs
     CARGO_CHOICES = [
@@ -16,18 +25,55 @@ class Colaborador(models.Model):
 
     ]
 
-    HUB_CHOICES = [
-        ('Shopping Boulevard', 'Shopping Boulevard'),
-        ('Aurora Shopping', 'Aurora Shopping'),
-        ('Híbrido', 'Híbrido'),
+    # HUB_CHOICES = [
+    #     ('Shopping Boulevard', 'Shopping Boulevard'),
+    #     ('Aurora Shopping', 'Aurora Shopping'),
+    #     ('Híbrido', 'Híbrido'),
 
-    ]
+    # ]
     
     nome = models.CharField(max_length=100)
     cargo = models.CharField(max_length=100, choices=CARGO_CHOICES, null=True)  # Permitir nulo
     data_contratacao = models.DateField()  # Este campo está correto
     imagem = models.ImageField(upload_to='media/')
-    hub = models.CharField(max_length=255, choices=HUB_CHOICES, null=True, blank=True)  # Permitir nulo e vazio
+    hub = models.ForeignKey(Hub, on_delete=models.SET_NULL, null=True, blank=True)
+
+    from datetime import date, timedelta
+
+    @property
+    def tempo_na_empresa(self):
+        hoje = date.today()
+        anos = hoje.year - self.data_contratacao.year
+        meses = hoje.month - self.data_contratacao.month
+        dias = hoje.day - self.data_contratacao.day
+
+        # Ajuste se o mês atual é anterior ao mês de contratação ou dia anterior
+        if meses < 0 or (meses == 0 and dias < 0):
+            anos -= 1
+            meses += 12
+
+        if dias < 0:
+            # Ajuste a quantidade de dias
+            ultimo_dia_mes_anterior = (hoje.replace(month=hoje.month-1, day=1) - timedelta(days=1)).day
+            dias += ultimo_dia_mes_anterior
+
+        # Formatar a string de tempo
+        tempo_formatado = ""
+        
+        if anos > 0:
+            tempo_formatado += f"{anos} anos"
+        
+        if meses > 0 or anos > 0:  # Exibe meses somente se houver anos ou meses
+            if tempo_formatado:  # Se já tiver anos, coloca uma vírgula
+                tempo_formatado += ", "
+            tempo_formatado += f"{meses} meses"
+
+        if dias > 0 or anos > 0 or meses > 0:  # Exibe dias apenas se houver algum valor de tempo
+            if tempo_formatado:  # Se já tiver anos ou meses, coloca uma vírgula
+                tempo_formatado += ", "
+            tempo_formatado += f"{dias} dias"
+
+        return tempo_formatado
 
 
     def save(self, *args, **kwargs):
