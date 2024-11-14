@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Perfil de {{ colaborador.nome }}</title>
-    <a href="{% url 'feedback_colaborador' colaborador_id=colaborador.id %}">
-        <button>Ver Feedback</button>
-    </a>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
         :root {
@@ -123,6 +121,34 @@
         .poor {
             color: red;
         }
+        /* Estilos para o botão */
+        #toggleCommentsButton {
+            background: linear-gradient(135deg, #6e8efb, #a777e3); /* Gradiente de cor */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px; /* Botão arredondado */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+        }
+    
+        /* Efeito de hover no botão */
+        #toggleCommentsButton:hover {
+            background: linear-gradient(135deg, #a777e3, #6e8efb); /* Inverte o gradiente no hover */
+            transform: scale(1.05); /* Aumenta levemente o botão */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Sombra mais intensa no hover */
+        }
+    
+        /* Efeito de foco no botão */
+        #toggleCommentsButton:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Efeito de foco */
+        }
+
+        
         
     </style>
 </head>
@@ -130,10 +156,20 @@
     <div class="header">
         {% comment %} <div class="container"> {% endcomment %}
             <h4>
-                <a href="{% url 'home' %}" style="color: white;" class="name-link">Voltar pro inicio
+                <a href="{% url 'home' %}" style="color: white;" class="name-link">Voltar pro inicio</a>
             </h4>
         </div> 
     </div>
+    
+    <!-- Adicionando o Font Awesome no cabeçalho -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    
+    <!-- Botão fixado no lado direito -->
+    <a href="{% url 'feedback_colaborador' colaborador_id=colaborador.id %}">
+        <button class="social-btn">
+            <i class="fas fa-robot"></i> Guia de feedback com IA
+        </button>
+    </a>
     
 
     <div class="container">
@@ -374,6 +410,35 @@
                     text-align: center; /* Centraliza o título do gráfico */
                     margin: 30px 0; /* Margem em cima e embaixo */
                 }
+                .social-btn {
+                    background-color: #3b5998; /* Cor do Facebook */
+                    color: white;
+                    padding: 10px 20px;
+                    font-size: 16px;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px; /* Espaço entre o ícone e o texto */
+                    transition: background-color 0.3s ease;
+                }
+            
+                .social-btn:hover {
+                    background-color: #2d4373; /* Cor mais escura no hover */
+                }
+            
+                .social-btn i {
+                    font-size: 18px;
+                }
+            
+                /* Posicionamento fixo no lado direito da tela */
+                .social-btn {
+                    position: fixed;
+                    right: 20px; /* Distância da borda direita */
+                    bottom: 20px; /* Distância da borda inferior */
+                    z-index: 1000; /* Garante que o botão fique sobre outros elementos */
+                }
             </style>
         </head>
         <body>
@@ -389,19 +454,33 @@
             <canvas id="barChartLoja"></canvas>
 
             <h3>Comentários sobre o Colaborador</h3>
-            <ul class="comentarios-list">
-                {% for avaliacao in avaliacoes %}
-                    {% if avaliacao.comentario %}
+
+            <!-- Botão personalizado para exibir ou ocultar comentários -->
+            <button id="toggleCommentsButton" onclick="toggleComments()">Ver Comentários</button>
+            
+            <!-- Lista de comentários -->
+            <div id="commentsSection" style="display: none;">
+                <ul class="comentarios-list">
+                    {% if avaliacoes %}
+                        {% for avaliacao in avaliacoes %}
+                            {% if avaliacao.comentario %}
+                                <li class="comentario">
+                                    <img src="{% static 'assets/img/Perfil1.jpg' %}" alt="Usuário" class="comentario-img"> <!-- Imagem do usuário -->
+                                    <div class="comentario-conteudo">
+                                        <p class="comentario-texto">{{ avaliacao.comentario }}</p>
+                                        <span class="comentario-data">{{ avaliacao.data }}</span> <!-- Se você tiver uma data -->
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
                         <li class="comentario">
-                            <img src="{% static 'assets/img/Perfil1.jpg' %}" alt="Usuário" class="comentario-img"> <!-- Imagem do usuário -->
-                            <div class="comentario-conteudo">
-                                <p class="comentario-texto">{{ avaliacao.comentario }}</p>
-                                <span class="comentario-data">{{ avaliacao.data }}</span> <!-- Se você tiver uma data -->
-                            </div>
+                            <p class="comentario-texto">Nenhum comentário disponível.</p>
                         </li>
                     {% endif %}
-                {% endfor %}
-            </ul>
+                </ul>
+            </div>
+            
         </body>
         
     <script>
@@ -558,6 +637,19 @@
     document.getElementById('barChartLoja'),
     barConfigLoja
     );
+
+    function toggleComments() {
+        var commentsSection = document.getElementById('commentsSection');
+        var toggleButton = document.getElementById('toggleCommentsButton');
+        
+        if (commentsSection.style.display === 'none') {
+            commentsSection.style.display = 'block';
+            toggleButton.textContent = 'Ocultar Comentários';
+        } else {
+            commentsSection.style.display = 'none';
+            toggleButton.textContent = 'Ver Comentários';
+        }
+    }
     </script>
 
 </body>

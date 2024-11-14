@@ -3,7 +3,9 @@ from .models import Colaborador, Avaliacao
 from .forms import AvaliacaoForm
 from django.db.models import Avg, Count
 from django.shortcuts import get_object_or_404
-from .utils import resposta_bot  # Certifique-se de que a função resposta_bot está no arquivo correto
+from .utils import analizar_partida  # Certifique-se de que a função resposta_bot está no arquivo correto
+from datetime import datetime, timedelta
+
 
 
 def home(request):
@@ -98,31 +100,24 @@ def perfil_colaborador(request, colaborador_id):
         'medias_por_loja': medias_por_loja  # Passa as médias por loja
     })
 
-
-
-
-
-
-
-
-
-
-
-
-from django.shortcuts import render
-from .models import Colaborador, Avaliacao
-from .utils import resposta_bot
-
 def feedback_colaborador(request, colaborador_id):
-    try:
+    try:        
         # Obtém o colaborador com o ID fornecido
         colaborador = Colaborador.objects.get(id=colaborador_id)
-        
-        # Obtemos todas as avaliações do colaborador
-        avaliacoes = Avaliacao.objects.filter(colaborador=colaborador)
-        
+
+        # Calcula a data de um mês atrás
+        data_um_mes_atras = datetime.now() - timedelta(days=30)
+
+        # Obtemos todas as avaliações do colaborador que são do último mês
+        avaliacoes = Avaliacao.objects.filter(colaborador=colaborador, data__gte=data_um_mes_atras).order_by('-data')
+
+        # Pega os comentários do último mês
+        comentarios_mais_recentes = [avaliacao.comentario for avaliacao in avaliacoes if avaliacao.comentario]
+
+
+
         if not avaliacoes:
-            # Caso não haja avaliações, podemos definir valores padrão para a média
+            # Caso não haja avaliações, definimos valores padrão para a média
             dados_avaliacao = {
                 'nome': colaborador.nome,
                 'pontualidade': 0,
@@ -150,17 +145,20 @@ def feedback_colaborador(request, colaborador_id):
                 'flexibilidade': sum([a.flexibilidade for a in avaliacoes]) / len(avaliacoes),
                 'postura_profissional': sum([a.postura_profissional for a in avaliacoes]) / len(avaliacoes),
                 'priorizacao_tarefas': sum([a.priorizacao_tarefas for a in avaliacoes]) / len(avaliacoes),
+                'comentario': comentarios_mais_recentes,
             }
         
+        
         # Chama a função que gera o feedback com base nas avaliações
-        feedback = resposta_bot(dados_avaliacao)
+        feedback = analizar_partida(dados_avaliacao)
 
         # Renderiza a resposta no template
-        return render(request, 'avaliacao/feedback.html', {'feedback': feedback, 'colaborador': colaborador})
+        return render(request, 'avaliacao/feedback.html', {'feedback': feedback, 'colaborador': colaborador, 'comentarios': comentarios_mais_recentes})
     
     except Colaborador.DoesNotExist:
         # Caso o colaborador não exista, podemos tratar o erro de forma apropriada
         return render(request, 'erro.html', {'message': 'Colaborador não encontrado.'})
+
 
 
 

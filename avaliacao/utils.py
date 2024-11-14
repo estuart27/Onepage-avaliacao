@@ -1,16 +1,10 @@
-import os
-from langchain_groq import ChatGroq
+from langchain_community.document_loaders import WebBaseLoader
 from langchain.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+import os
 
-# Função única para gerar e processar o feedback
-def resposta_bot(dados_avaliacao):
-    """
-    Gera o feedback para o colaborador com base nos dados de avaliação.
-    A nota máxima é ajustada para 5 e o feedback é refinado pela IA.
-    """
-    # Gera o feedback inicial com base nas avaliações
+def analizar_partida(dados_avaliacao):
     feedback = f"Feedback para {dados_avaliacao['nome']}:\n"
-    
     # Avaliações individuais (Nota máxima 5)
     feedback += f"Pontualidade: {dados_avaliacao['pontualidade']}/5\n"
     feedback += f"Organização: {dados_avaliacao['organizacao']}/5\n"
@@ -22,26 +16,35 @@ def resposta_bot(dados_avaliacao):
     feedback += f"Flexibilidade: {dados_avaliacao['flexibilidade']}/5\n"
     feedback += f"Postura Profissional: {dados_avaliacao['postura_profissional']}/5\n"
     feedback += f"Priorização de Tarefas: {dados_avaliacao['priorizacao_tarefas']}/5\n"
+    feedback += f"Pontualidade: {dados_avaliacao['comentario']}/5\n"
+
     
     # Calculando a nota média (com base em 5)
-    nota_media = sum([dados_avaliacao[key] for key in dados_avaliacao if key != 'nome']) / 10
+    # nota_media = sum([dados_avaliacao[key] for key in dados_avaliacao if key != 'nome' and key != 'comentarios']) / 
+    nota_media = sum([dados_avaliacao[key] for key in dados_avaliacao if key != 'nome' and key != 'comentarios' and isinstance(dados_avaliacao[key], (int, float))]) / 10
+
     feedback += f"\nNota Média: {nota_media:.2f}/5\n"
-    
-    # Configuração da chave da API para a IA (ChatGroq)
+
+    # Concatena conteúdo dos documentos
+    documento = feedback
+    # for doc in feedback:
+    #     documento = documento + doc.page_content
+
     api_key = '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'
+
     os.environ['GROQ_API_KEY'] = api_key
-    
-    # Criação do objeto de modelo de chat
+
+    # Inicializa o ChatGroq
     chat = ChatGroq(model='llama-3.1-70b-versatile')
-    
-    # Ajustando as mensagens para não usar 'role'
-    mensagens_modelo = [
-        f"Você é um assistente que fornece feedback detalhado para colaboradores com base nas suas avaliações.",
-        f"Aqui está o feedback gerado: {feedback}"
-    ]
-    
-    # Gera o feedback final usando o modelo
-    resposta_ia = chat.generate(messages=mensagens_modelo)  # Usando o método generate corretamente
-    
-    # Retorna o feedback gerado
-    return resposta_ia['text']
+
+    template = ChatPromptTemplate.from_messages([
+        ('system', 'Você será um analista de colaboradores e, com base nos dados fornecidos, irá fornecer feedback direto e objetivo sobre o colaborador. Seu feedback deve ser assertivo e focado nas ações e comportamentos descritos, evitando listas, tópicos ou formatação de quebra. Seja específico e claro, buscando sempre uma abordagem construtiva e prática. Os dados fornecidos são: {documentos_informados}.'),
+        ('user', '{input}')
+    ])
+
+
+    chain = template | chat
+    resposta = chain.invoke({'documentos_informados': documento, 'input': "Forneça uma análise objetiva e prática sobre o colaborador, com base nos dados fornecidos, para que o gestor possa dar um feedback claro e construtivo. Destaque pontos fortes, áreas para desenvolvimento e recomendações diretas que o gestor possa comunicar ao colaborador de forma eficaz."})
+
+    return resposta.content
+
