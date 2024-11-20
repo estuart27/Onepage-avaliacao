@@ -1,4 +1,6 @@
 {% load static %}
+{% load repeat %}  <!-- Certifique-se de carregar o filtro aqui -->
+
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -44,7 +46,9 @@
                     <select name="hub" class="form-select">
                         <option value="">Todos os Hubs</option>
                         {% for hub in hubs %}
-                            <option value="{{ hub }}" {% if request.GET.hub == hub %}selected{% endif %}>{{ hub }}</option>
+                            <option value="{{ hub.id }}" {% if request.GET.hub == hub.id|stringformat:"s" %}selected{% endif %}>
+                                {{ hub.nome }}
+                            </option>
                         {% endfor %}
                     </select>
 
@@ -56,7 +60,7 @@
         </div>
     </section>
 
-    <!-- Grid de Colaboradores -->
+    {% comment %} <!-- Grid de Colaboradores -->
     <section class="team-grid">
         <div class="container">
             <h1 class="section-title">Equipe Hub IFood</h1>
@@ -99,7 +103,87 @@
                 {% endfor %}
             </div>
         </div>
-    </section>
+    </section> {% endcomment %}
+
+    <!-- Grid de Colaboradores -->
+<section class="team-grid">
+    <div class="container">
+        <h1 class="section-title">Equipe Hub IFood</h1>
+        <div class="row g-4">
+            {% for colaborador in colaboradores %}
+            <div class="col-md-6 col-lg-4">
+                <div class="team-card">
+                    <div class="profile-image-wrapper">
+                        <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="profile-image" />
+                    </div>
+                    <div class="team-card-content">
+                        <h3 class="member-name">
+                            {{ colaborador.nome }}
+                            <!-- Exibe as medalhas -->
+                            {% if colaborador.medalhas.all %}
+                                <span class="medal-icons">
+                                    {% for medalha in colaborador.medalhas.all %}
+                                        {% for i in "0"|repeat:medalha.quantidade %}
+                                            <img src="{% static 'assets/img/premi.png' %}" alt="Ícone de Premiação" class="medal-image">
+                                        {% endfor %}
+                                    {% endfor %}
+                                </span>
+                            {% endif %}
+                        </h3>
+                        
+                        
+                        <p class="member-role">{{ colaborador.cargo }}</p>
+                        <p class="member-hub">{{ colaborador.hub }}</p>
+                        <div class="member-stats">
+                            <div class="stat-item">
+                                <i class="bi-star-fill"></i>
+                                <span>{{ colaborador.media_avaliacao|floatformat:1 }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="bi-people-fill"></i>
+                                <span>{{ colaborador.total_avaliacoes }}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="bi bi-hourglass"></i>
+                                <span>{{ colaborador.tempo_na_empresa }}</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <a href="{% url 'avaliar_colaborador' colaborador.id %}" class="btn btn-primary btn-action">
+                                <i class="bi-star-fill me-2"></i>Avaliar
+                            </a>
+                            <a href="{% url 'perfil_colaborador' colaborador.id %}" class="btn btn-outline-primary btn-action">
+                                <i class="bi-person-fill me-2"></i>Ver Perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CSS Inline -->
+<style>
+    .member-name {
+        display: flex;
+        align-items: center;
+    }
+    
+    .medal-icons {
+        display: inline-flex;
+        margin-left: 8px;  /* Ajuste o espaço entre o nome e as medalhas */
+    }
+    
+    .medal-image {
+        width: 40px;  /* Ajuste o tamanho da imagem conforme necessário */
+        height: auto;
+    }
+    
+    
+</style>
+
 
 
     <!-- Call to Action -->

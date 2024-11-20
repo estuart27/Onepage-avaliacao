@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,7 @@
     <title>Avaliação de Equipe</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico'%}" />
     <style>
         /* [Previous styles remain the same until .rating-group] */
         :root {
@@ -421,13 +422,14 @@
           </div>
           
           <div class="rating-group">
-              <div class="rating-header">
-                  <span class="emoji">📝</span>
-                  <h3 class="rating-title">Comentário</h3>
-              </div>
-              <textarea name="comentario" rows="4" placeholder="Deixe seu comentário aqui..." required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: none;"></textarea>
-              <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
-          </div>
+            <div class="rating-header">
+                <span class="emoji">📝</span>
+                <h3 class="rating-title">Comentário</h3>
+            </div>
+            <textarea name="comentario" rows="4" placeholder="Deixe seu comentário ou observação (opcional)" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: none;"></textarea>
+            <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
+        </div>
+        
       
           <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
       </form>

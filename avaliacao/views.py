@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Colaborador, Avaliacao
+from .models import Colaborador, Avaliacao,Hub
 from .forms import AvaliacaoForm
 from django.db.models import Avg, Count
 from django.shortcuts import get_object_or_404
@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 def home(request):
     # Obter opções de cargo e hub distintos
     cargos = Colaborador.objects.values_list('cargo', flat=True).distinct()
-    hubs = Colaborador.objects.values_list('hub', flat=True).distinct()
+    hubs = Hub.objects.all()
 
     # Obter todos os colaboradores e aplicar filtros, se fornecidos
     colaboradores = Colaborador.objects.all().annotate(
@@ -23,8 +23,10 @@ def home(request):
 
     if cargo_selecionado:
         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
+    # if hub_selecionado:
+    #     colaboradores = colaboradores.filter(hub=hub_selecionado)
     if hub_selecionado:
-        colaboradores = colaboradores.filter(hub=hub_selecionado)
+        colaboradores = colaboradores.filter(hub_id=hub_selecionado)
 
     context = {
         'colaboradores': colaboradores,

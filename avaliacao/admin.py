@@ -1,6 +1,6 @@
 # avaliacao/admin.py
 from django.contrib import admin
-from .models import Colaborador, Avaliacao,Hub
+from .models import Colaborador, Avaliacao,Hub,Medalha
 
 class AvaliacaoInline(admin.TabularInline):
     model = Avaliacao
@@ -39,8 +39,18 @@ class AvaliacaoAdmin(admin.ModelAdmin):
               'postura_profissional', 'priorizacao_tarefas', 'comentario')
               
 
+from django.contrib import admin
+from .models import Medalha
+
+@admin.register(Medalha)
+class MedalhaAdmin(admin.ModelAdmin):
+    list_display = ('colaborador', 'quantidade', 'tipo', 'descricao')  # Exibe o nome do colaborador na lista
+    search_fields = ('colaborador__nome',)  # Permite buscar medalhas pelo nome do colaborador
+
+
 
 admin.site.register(Hub)
 admin.site.register(Colaborador, ColaboradorAdmin)
 admin.site.register(Avaliacao, AvaliacaoAdmin)
+
 
