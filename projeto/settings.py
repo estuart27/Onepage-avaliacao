@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-x1o-=4nw^vi34n8je=b)bkr8%tp6i^8e(-jjy6&wckx31qqi+f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -77,15 +77,27 @@ WSGI_APPLICATION = 'projeto.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'OPTIONS': {
+#             'timeout': 20,  # Tempo em segundos (aumente conforme necessário)
+#         },
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,  # Tempo em segundos (aumente conforme necessário)
-        },
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'bancohub',                            # Nome do banco de dados
+        'USER': 'hub',        # Usuário do banco (confirme se é o correto)
+        'PASSWORD': 'estuart123040506',                 # Senha correta
+        'HOST': 'localhost',  # Host do Supabase
+        'PORT': '5432',                              # Porta confirmada como 6543
     }
 }
+
 
 
 
