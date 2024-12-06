@@ -76,26 +76,26 @@ WSGI_APPLICATION = 'projeto.wsgi.application'
 
 # Database
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,  # Tempo em segundos (aumente conforme necessário)
-        },
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'bancohub',                            # Nome do banco de dados
-#         'USER': 'hub',        # Usuário do banco (confirme se é o correto)
-#         'PASSWORD': 'estuart123040506',                 # Senha correta
-#         'HOST': 'localhost',  # Host do Supabase
-#         'PORT': '5432',                              # Porta confirmada como 6543
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'OPTIONS': {
+#             'timeout': 20,  # Tempo em segundos (aumente conforme necessário)
+#         },
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'bancohub',                            # Nome do banco de dados
+        'USER': 'hub',        # Usuário do banco (confirme se é o correto)
+        'PASSWORD': 'estuart123040506',                 # Senha correta
+        'HOST': 'localhost',  # Host do Supabase
+        'PORT': '5432',                              # Porta confirmada como 6543
+    }
+}
 
 
 
