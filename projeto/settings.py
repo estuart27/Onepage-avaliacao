@@ -29,6 +29,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["digital.silvestrecode.shop"]
 
+# DEBUG = True
+
+# ALLOWED_HOSTS = ["*"]
+
 
 # Application definition
 
@@ -135,9 +139,16 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = '/var/www/Onepage-avaliacao/static'
 
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),  # Adicione aqui o diretório que contém seus arquivos estáticos
+# ]
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Para coletar arquivos estáticos
+
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = '/var/www/Onepage-avaliacao/media'
+
 
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 

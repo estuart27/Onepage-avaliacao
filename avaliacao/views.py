@@ -18,22 +18,58 @@ def home(request):
         media_avaliacao=Avg('avaliacoes__nota'),
         total_avaliacoes=Count('avaliacoes')
     )
+    
     cargo_selecionado = request.GET.get('cargo')
     hub_selecionado = request.GET.get('hub')
+    search = request.GET.get('search', '')  # Captura o valor do campo de pesquisa
 
+    # Aplicar filtro de cargo, se fornecido
     if cargo_selecionado:
         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
-    # if hub_selecionado:
-    #     colaboradores = colaboradores.filter(hub=hub_selecionado)
+
+    # Aplicar filtro de hub, se fornecido
     if hub_selecionado:
         colaboradores = colaboradores.filter(hub_id=hub_selecionado)
+
+    # Aplicar filtro de pesquisa pelo nome, se fornecido
+    if search:
+        colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
 
     context = {
         'colaboradores': colaboradores,
         'cargos': cargos,
         'hubs': hubs,
+        'request': request  # Incluindo request no contexto para usar no template
     }
     return render(request, 'avaliacao/home.html', context)
+
+
+# def home(request):
+#     # Obter opções de cargo e hub distintos
+#     cargos = Colaborador.objects.values_list('cargo', flat=True).distinct()
+#     hubs = Hub.objects.all()
+
+#     # Obter todos os colaboradores e aplicar filtros, se fornecidos
+#     colaboradores = Colaborador.objects.all().annotate(
+#         media_avaliacao=Avg('avaliacoes__nota'),
+#         total_avaliacoes=Count('avaliacoes')
+#     )
+#     cargo_selecionado = request.GET.get('cargo')
+#     hub_selecionado = request.GET.get('hub')
+
+#     if cargo_selecionado:
+#         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
+#     # if hub_selecionado:
+#     #     colaboradores = colaboradores.filter(hub=hub_selecionado)
+#     if hub_selecionado:
+#         colaboradores = colaboradores.filter(hub_id=hub_selecionado)
+
+#     context = {
+#         'colaboradores': colaboradores,
+#         'cargos': cargos,
+#         'hubs': hubs,
+#     }
+#     return render(request, 'avaliacao/home.html', context)
 
 # Página de avaliação do colaborador
 def avaliar_colaborador(request, colaborador_id):

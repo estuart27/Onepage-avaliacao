@@ -42,7 +42,7 @@
                             <option value="{{ cargo }}" {% if request.GET.cargo == cargo %}selected{% endif %}>{{ cargo }}</option>
                         {% endfor %}
                     </select>
-
+    
                     <select name="hub" class="form-select">
                         <option value="">Todos os Hubs</option>
                         {% for hub in hubs %}
@@ -51,7 +51,12 @@
                             </option>
                         {% endfor %}
                     </select>
-
+    
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" placeholder="Pesquisar colaboradores..." class="form-control filter-search" value="{{ request.GET.search }}">
+                    </div>
+    
                     <button type="submit" class="btn btn-primary filter-btn">
                         <i class="bi-funnel-fill me-2"></i>Filtrar
                     </button>
@@ -59,6 +64,7 @@
             </form>
         </div>
     </section>
+    
 
     {% comment %} <!-- Grid de Colaboradores -->
     <section class="team-grid">
