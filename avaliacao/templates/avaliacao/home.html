@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Avaliação Hub Colaboladores</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico'%}" />
+    <title>Sistema de avaliacação</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/12.png'%}" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
@@ -19,8 +19,8 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light static-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <img src="{% static 'assets/img/ifood.jpg' %}" alt="Logo iFood" class="navbar-logo">
-                <span class="brand-text">Avaliação Hub</span>
+                {% comment %} <img src="{% static 'assets/img/ifood.png' %}" alt="Logo iFood" class="navbar-logo"> {% endcomment %}
+                <span class="brand-text">Feedback Otimizado</span>
             </a>
             <div class="navbar-actions">
                 <a class="btn btn-primary contact-btn" href="https://wa.me/message/AQEJXX47PJOLO1">
@@ -64,52 +64,6 @@
             </form>
         </div>
     </section>
-    
-
-    {% comment %} <!-- Grid de Colaboradores -->
-    <section class="team-grid">
-        <div class="container">
-            <h1 class="section-title">Equipe Hub IFood</h1>
-            <div class="row g-4">
-                {% for colaborador in colaboradores %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="team-card">
-                        <div class="profile-image-wrapper">
-                            <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="profile-image" />
-                        </div>
-                        <div class="team-card-content">
-                            <h3 class="member-name">{{ colaborador.nome }}</h3>
-                            <p class="member-role">{{ colaborador.cargo }}</p>
-                            <p class="member-hub">{{ colaborador.hub }}</p>
-                            <div class="member-stats">
-                                <div class="stat-item">
-                                    <i class="bi-star-fill"></i>
-                                    <span>{{ colaborador.media_avaliacao|floatformat:1 }}</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="bi-people-fill"></i>
-                                    <span>{{ colaborador.total_avaliacoes }}</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="bi bi-hourglass"></i>
-                                    <span>{{ colaborador.tempo_na_empresa }}</span>
-                                </div>
-                            </div>
-                            <div class="action-buttons">
-                                <a href="{% url 'avaliar_colaborador' colaborador.id %}" class="btn btn-primary btn-action">
-                                    <i class="bi-star-fill me-2"></i>Avaliar
-                                </a>
-                                <a href="{% url 'perfil_colaborador' colaborador.id %}" class="btn btn-outline-primary btn-action">
-                                    <i class="bi-person-fill me-2"></i>Ver Perfil
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section> {% endcomment %}
 
     <!-- Grid de Colaboradores -->
 <section class="team-grid">
@@ -205,8 +159,8 @@
                     <a href="https://wa.me/message/AQEJXX47PJOLO1" class="social-link">
                         <i class="bi-whatsapp"></i>
                     </a>
-                    <a href="mailto:hub.esilvestre@hubentregas.com.br" class="social-link">
-                        <i class="bi-envelope"></i>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hub.rmarques@hubentregas.com.br" target="_blank" class="social-link">Enviar e-mail</a>
+                    <i class="bi-envelope"></i>
                     </a>
                 </div>
             </div>
@@ -218,7 +172,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p>&copy; 2024 Hub IFood. Todos os direitos reservados.</p>
+                    <p>&copy; 2024 <a href="https://www.silvestrecode.shop" target="_blank">SilvestreCode</a>. Todos os direitos reservados.</p>
                     <div class="footer-links">
                         <a href="#!">Contato</a>
                         <a href="#!">Email</a>
@@ -228,7 +182,7 @@
                     <a href="https://wa.me/557798503042" class="social-link">
                         <i class="bi-whatsapp"></i>
                     </a>
-                    <a href="mailto:hub.esilvestre@hubentregas.com.br" class="social-link">
+                     <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hub.rmarques@hubentregas.com.br" class="social-link">
                         <i class="bi-envelope"></i>
                     </a>
                 </div>
