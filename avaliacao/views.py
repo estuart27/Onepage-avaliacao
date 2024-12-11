@@ -37,7 +37,7 @@ def home(request):
         colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
 
     # Paginação
-    paginator = Paginator(colaboradores, 10)  # Exiba 10 colaboradores por página
+    paginator = Paginator(colaboradores, 9)  # Exiba 10 colaboradores por página
     page_number = request.GET.get('page')  # Obtém o número da página da URL
     colaboradores_paginated = paginator.get_page(page_number)  # Obtém os colaboradores da página solicitada
 
