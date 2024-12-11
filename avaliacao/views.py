@@ -5,6 +5,7 @@ from django.db.models import Avg, Count
 from django.shortcuts import get_object_or_404
 from .utils import analizar_partida  # Certifique-se de que a função resposta_bot está no arquivo correto
 from datetime import datetime, timedelta
+from django.core.paginator import Paginator
 
 
 
@@ -35,8 +36,13 @@ def home(request):
     if search:
         colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
 
+    # Paginação
+    paginator = Paginator(colaboradores, 10)  # Exiba 10 colaboradores por página
+    page_number = request.GET.get('page')  # Obtém o número da página da URL
+    colaboradores_paginated = paginator.get_page(page_number)  # Obtém os colaboradores da página solicitada
+
     context = {
-        'colaboradores': colaboradores,
+        'colaboradores': colaboradores_paginated,  # Passa a lista paginada para o contexto
         'cargos': cargos,
         'hubs': hubs,
         'request': request  # Incluindo request no contexto para usar no template
@@ -54,22 +60,31 @@ def home(request):
 #         media_avaliacao=Avg('avaliacoes__nota'),
 #         total_avaliacoes=Count('avaliacoes')
 #     )
+    
 #     cargo_selecionado = request.GET.get('cargo')
 #     hub_selecionado = request.GET.get('hub')
+#     search = request.GET.get('search', '')  # Captura o valor do campo de pesquisa
 
+#     # Aplicar filtro de cargo, se fornecido
 #     if cargo_selecionado:
 #         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
-#     # if hub_selecionado:
-#     #     colaboradores = colaboradores.filter(hub=hub_selecionado)
+
+#     # Aplicar filtro de hub, se fornecido
 #     if hub_selecionado:
 #         colaboradores = colaboradores.filter(hub_id=hub_selecionado)
+
+#     # Aplicar filtro de pesquisa pelo nome, se fornecido
+#     if search:
+#         colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
 
 #     context = {
 #         'colaboradores': colaboradores,
 #         'cargos': cargos,
 #         'hubs': hubs,
+#         'request': request  # Incluindo request no contexto para usar no template
 #     }
 #     return render(request, 'avaliacao/home.html', context)
+
 
 # Página de avaliação do colaborador
 def avaliar_colaborador(request, colaborador_id):
