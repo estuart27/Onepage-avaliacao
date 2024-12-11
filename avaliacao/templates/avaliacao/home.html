@@ -147,11 +147,13 @@
         display: flex;
         justify-content: center; /* Centraliza a paginação */
         margin: 20px 0; /* Margem acima e abaixo */
+        flex-wrap: wrap; /* Permite que os itens se movam para a próxima linha em telas pequenas */
     }
 
     .pagination .step-links {
         display: flex;
         align-items: center; /* Alinha os itens no centro verticalmente */
+        flex-wrap: wrap; /* Permite que os itens se movam para a próxima linha em telas pequenas */
     }
 
     .pagination a {
@@ -160,8 +162,11 @@
         padding: 10px 15px; /* Espaçamento interno */
         border: 1px solid #007BFF; /* Borda azul dos links */
         border-radius: 5px; /* Bordas arredondadas */
-        margin: 0 5px; /* Margem lateral entre os links */
+        margin: 5px; /* Margem lateral entre os links */
         transition: background-color 0.3s, color 0.3s; /* Transição suave para hover */
+        flex: 1 0 100px; /* Permite que os links se ajustem e tenham um tamanho mínimo */
+        max-width: 150px; /* Tamanho máximo para cada link */
+        text-align: center; /* Centraliza o texto dentro do link */
     }
 
     .pagination a:hover {
@@ -171,10 +176,26 @@
 
     .pagination .current {
         padding: 10px 15px; /* Espaçamento interno para o texto da página atual */
-        margin: 0 5px; /* Margem lateral */
+        margin: 5px; /* Margem lateral */
         border-radius: 5px; /* Bordas arredondadas */
         background-color: #007BFF; /* Cor de fundo azul para a página atual */
         color: white; /* Cor do texto da página atual */
+        flex: 1 0 100px; /* Permite que o texto atual se ajuste e tenha um tamanho mínimo */
+        max-width: 150px; /* Tamanho máximo para o texto atual */
+        text-align: center; /* Centraliza o texto dentro do link */
+    }
+
+    /* Estilos adicionais para melhorar a visualização em dispositivos móveis */
+    @media (max-width: 600px) {
+        .pagination {
+            flex-direction: column; /* Muda a direção para coluna em telas pequenas */
+            align-items: center; /* Centraliza os itens na coluna */
+        }
+
+        .pagination a, .pagination .current {
+            width: 100%; /* Faz com que os links ocupem toda a largura disponível */
+            margin: 5px 0; /* Margem vertical entre os links */
+        }
     }
     .member-name {
         display: flex;
