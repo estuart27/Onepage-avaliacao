@@ -36,14 +36,18 @@ def home(request):
     if search:
         colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
 
+    # Paginação
+    paginator = Paginator(colaboradores, 9)  # Exiba 10 colaboradores por página
+    page_number = request.GET.get('page')  # Obtém o número da página da URL
+    colaboradores_paginated = paginator.get_page(page_number)  # Obtém os colaboradores da página solicitada
+
     context = {
-        'colaboradores': colaboradores,  # Passa a lista completa para o contexto
+        'colaboradores': colaboradores_paginated,  # Passa a lista paginada para o contexto
         'cargos': cargos,
         'hubs': hubs,
         'request': request  # Incluindo request no contexto para usar no template
     }
     return render(request, 'avaliacao/home.html', context)
-
 
 
 # def home(request):

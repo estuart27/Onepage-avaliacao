@@ -124,7 +124,7 @@
     </div>
 </section>
 <div class="pagination">
-    {% comment %} <span class="step-links">
+    <span class="step-links">
         {% if colaboradores.has_previous %}
             <a href="?page=1{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">&laquo; primeiro</a>
             <a href="?page={{ colaboradores.previous_page_number }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">anterior</a>
@@ -138,7 +138,7 @@
             <a href="?page={{ colaboradores.next_page_number }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">próximo</a>
             <a href="?page={{ colaboradores.paginator.num_pages }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">último &raquo;</a>
         {% endif %}
-    </span> {% endcomment %}
+    </span>
 </div>
 
 <!-- CSS Inline -->
