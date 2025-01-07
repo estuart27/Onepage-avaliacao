@@ -13,76 +13,67 @@ class Hub(models.Model):
     def __str__(self):
         return self.nome
     
-    
+
+
 class Colaborador(models.Model):
-    # Definindo as opções de seleção para os cargos e hubs
     CARGO_CHOICES = [
         ('Líder de Logística', 'Líder de Logística'),
         ('Assistente de Logística', 'Assistente de Logística'),
         ('Mensageiro', 'Mensageiro'),
         ('Supervisor', 'Supervisor'),
         ('Staf', 'Staf'),
-
     ]
 
-    # HUB_CHOICES = [
-    #     ('Shopping Boulevard', 'Shopping Boulevard'),
-    #     ('Aurora Shopping', 'Aurora Shopping'),
-    #     ('Híbrido', 'Híbrido'),
-
-    # ]
-    
     nome = models.CharField(max_length=100)
     cargo = models.CharField(max_length=100, choices=CARGO_CHOICES, null=True)  # Permitir nulo
-    data_contratacao = models.DateField()  # Este campo está correto
+    data_contratacao = models.DateField(null=True, blank=True)  # Permitir nulo e vazio
     imagem = models.ImageField(upload_to='media/')
     hub = models.ForeignKey(Hub, on_delete=models.SET_NULL, null=True, blank=True)
 
     def total_medalhas(self):
-            return sum(medalha.quantidade for medalha in self.medalhas.all())  # Soma as medalhas do colaborador
-    
+        return sum(medalha.quantidade for medalha in self.medalhas.all())  # Soma as medalhas do colaborador
+
     @property
     def tempo_na_empresa(self):
-        hoje = date.today()
-        anos = hoje.year - self.data_contratacao.year
-        meses = hoje.month - self.data_contratacao.month
-        dias = hoje.day - self.data_contratacao.day
-
-        # Ajuste se o mês atual é anterior ao mês de contratação ou dia anterior
-        if meses < 0 or (meses == 0 and dias < 0):
-            anos -= 1
-            meses += 12
-
-        if dias < 0:
-            # Ajuste a quantidade de dias
-            ultimo_dia_mes_anterior = (hoje.replace(month=hoje.month-1, day=1) - timedelta(days=1)).day
-            dias += ultimo_dia_mes_anterior
-
-        # Formatar a string de tempo
-        tempo_formatado = ""
+        if not self.data_contratacao:
+            return "Data de contratação não definida"
         
-        if anos > 0:
-            tempo_formatado += f"{anos} anos"
+        try:
+            hoje = date.today()
+            anos = hoje.year - self.data_contratacao.year
+            meses = hoje.month - self.data_contratacao.month
+            dias = hoje.day - self.data_contratacao.day
+
+            # Ajuste se o mês atual é anterior ao mês de contratação ou dia anterior
+            if meses < 0 or (meses == 0 and dias < 0):
+                anos -= 1
+                meses += 12
+
+            if dias < 0:
+                # Ajuste a quantidade de dias
+                ultimo_dia_mes_anterior = (hoje.replace(day=1) - timedelta(days=1)).day
+                dias += ultimo_dia_mes_anterior
+
+            # Formatar a string de tempo
+            partes_tempo = []
+            if anos > 0:
+                partes_tempo.append(f"{anos} anos")
+            if meses > 0:
+                partes_tempo.append(f"{meses} meses")
+            if dias > 0:
+                partes_tempo.append(f"{dias} dias")
+
+            return ", ".join(partes_tempo) if partes_tempo else "Menos de 1 dia"
         
-        if meses > 0 or anos > 0:  # Exibe meses somente se houver anos ou meses
-            if tempo_formatado:  # Se já tiver anos, coloca uma vírgula
-                tempo_formatado += ", "
-            tempo_formatado += f"{meses} meses"
-
-        if dias > 0 or anos > 0 or meses > 0:  # Exibe dias apenas se houver algum valor de tempo
-            if tempo_formatado:  # Se já tiver anos ou meses, coloca uma vírgula
-                tempo_formatado += ", "
-            tempo_formatado += f"{dias} dias"
-
-        return tempo_formatado
-
+        except Exception as e:
+            return f"Erro ao calcular o tempo na empresa: {e}"
 
     def save(self, *args, **kwargs):
         # Redimensionar a imagem
         if self.imagem:
             img = PilImage.open(self.imagem)
             img = img.convert('RGB')  # Converter para RGB se a imagem for PNG ou com canal alfa
-            
+
             # Dimensões desejadas
             target_size = (816, 816)
 
@@ -101,13 +92,14 @@ class Colaborador(models.Model):
             self.imagem = img_file
 
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return self.nome  # Retorna o nome do colaborador
 
     class Meta:
         verbose_name = "Colaborador"
         verbose_name_plural = "Colaboradores"
+
 
 
 
