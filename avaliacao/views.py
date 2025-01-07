@@ -18,7 +18,7 @@ def home(request):
     colaboradores = Colaborador.objects.all().annotate(
         media_avaliacao=Avg('avaliacoes__nota'),
         total_avaliacoes=Count('avaliacoes')
-    )
+    ).order_by('nome')  # Adiciona ordenação aqui
     
     cargo_selecionado = request.GET.get('cargo')
     hub_selecionado = request.GET.get('hub')
@@ -37,7 +37,7 @@ def home(request):
         colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
 
     # Paginação
-    paginator = Paginator(colaboradores, 9)  # Exiba 10 colaboradores por página
+    paginator = Paginator(colaboradores, 9)  # Exiba 9 colaboradores por página
     page_number = request.GET.get('page')  # Obtém o número da página da URL
     colaboradores_paginated = paginator.get_page(page_number)  # Obtém os colaboradores da página solicitada
 
@@ -48,6 +48,7 @@ def home(request):
         'request': request  # Incluindo request no contexto para usar no template
     }
     return render(request, 'avaliacao/home.html', context)
+
 
 
 # def home(request):
