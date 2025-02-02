@@ -35,7 +35,7 @@ def analizar_partida(dados_avaliacao):
     os.environ['GROQ_API_KEY'] = api_key
 
     # Inicializa o ChatGroq
-    chat = ChatGroq(model='llama-3.1-70b-versatile')
+    chat = ChatGroq(model='llama-3.3-70b-versatile')
 
     template = ChatPromptTemplate.from_messages([
         ('system', 'Você será um analista de colaboradores e, com base nos dados fornecidos, irá fornecer feedback direto e objetivo sobre o colaborador. Seu feedback deve ser assertivo e focado nas ações e comportamentos descritos, evitando listas, tópicos ou formatação de quebra. Seja específico e claro, buscando sempre uma abordagem construtiva e prática. Os dados fornecidos são: {documentos_informados}.'),
