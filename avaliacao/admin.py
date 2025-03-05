@@ -1,15 +1,19 @@
 # avaliacao/admin.py
 from django.contrib import admin
-from .models import Colaborador, Avaliacao,Hub,Medalha
+from .models import Colaborador, Avaliacao,Hub,Medalha,Avaliacao_Restaurante
 
 class AvaliacaoInline(admin.TabularInline):
     model = Avaliacao
     extra = 1  # Número de formulários em branco a serem exibidos
 
+class AvaliacaoRestauranteInline(admin.TabularInline):
+    model = Avaliacao_Restaurante
+    extra = 1  # Número de formulários em branco a serem exibidos
+
 class ColaboradorAdmin(admin.ModelAdmin):
-    list_display = ['nome', 'cargo','hub']
-    search_fields = ['nome', 'cargo','hub']
-    inlines = [AvaliacaoInline]
+    list_display = ['nome', 'cargo', 'hub']
+    search_fields = ['nome', 'cargo', 'hub']
+    inlines = [AvaliacaoInline, AvaliacaoRestauranteInline] 
 
 
 class AvaliacaoAdmin(admin.ModelAdmin):
@@ -39,18 +43,29 @@ class AvaliacaoAdmin(admin.ModelAdmin):
               'postura_profissional', 'priorizacao_tarefas', 'comentario')
               
 
-from django.contrib import admin
-from .models import Medalha
+from django.utils.safestring import mark_safe
 
-@admin.register(Medalha)
 class MedalhaAdmin(admin.ModelAdmin):
-    list_display = ('colaborador', 'quantidade', 'tipo', 'descricao')  # Exibe o nome do colaborador na lista
-    search_fields = ('colaborador__nome',)  # Permite buscar medalhas pelo nome do colaborador
+    list_display = ("colaborador", "tipo", "preview_medalha")
+    list_filter = ("tipo",)
+    search_fields = ("colaborador__nome", "tipo")
+
+    def preview_medalha(self, obj):
+        """Exibe a imagem da medalha no Django Admin"""
+        if obj.tipo:
+            return mark_safe(f'<img src="{obj.get_medalha_url()}" width="50" height="50" style="border-radius:8px;"/>')
+        return "Sem imagem"
+
+    preview_medalha.short_description = "Prévia"
+
+admin.site.register(Medalha, MedalhaAdmin)
+
 
 
 
 admin.site.register(Hub)
 admin.site.register(Colaborador, ColaboradorAdmin)
 admin.site.register(Avaliacao, AvaliacaoAdmin)
+admin.site.register(Avaliacao_Restaurante)
 
 

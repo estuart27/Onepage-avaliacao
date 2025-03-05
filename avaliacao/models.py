@@ -42,31 +42,24 @@ class Colaborador(models.Model):
             hoje = date.today()
             anos = hoje.year - self.data_contratacao.year
             meses = hoje.month - self.data_contratacao.month
-            dias = hoje.day - self.data_contratacao.day
-
-            # Ajuste se o mês atual é anterior ao mês de contratação ou dia anterior
-            if meses < 0 or (meses == 0 and dias < 0):
+            
+            # Ajuste se o mês atual é anterior ao mês de contratação
+            if meses < 0:
                 anos -= 1
                 meses += 12
-
-            if dias < 0:
-                # Ajuste a quantidade de dias
-                ultimo_dia_mes_anterior = (hoje.replace(day=1) - timedelta(days=1)).day
-                dias += ultimo_dia_mes_anterior
-
+            
             # Formatar a string de tempo
             partes_tempo = []
             if anos > 0:
                 partes_tempo.append(f"{anos} anos")
             if meses > 0:
                 partes_tempo.append(f"{meses} meses")
-            if dias > 0:
-                partes_tempo.append(f"{dias} dias")
-
-            return ", ".join(partes_tempo) if partes_tempo else "Menos de 1 dia"
+            
+            return ", ".join(partes_tempo) if partes_tempo else "Menos de 1 mês"
         
         except Exception as e:
             return f"Erro ao calcular o tempo na empresa: {e}"
+
 
     def save(self, *args, **kwargs):
         # Redimensionar a imagem
@@ -151,19 +144,160 @@ class Avaliacao(models.Model):
         return f"Avaliação de {self.colaborador} em {self.data}"
 
 
+from django.db import models
+
 class Medalha(models.Model):
-    colaborador = models.ForeignKey(Colaborador, related_name="medalhas", on_delete=models.CASCADE)
-    quantidade = models.PositiveIntegerField(default=0)  # Quantidade de medalhas
-    tipo = models.CharField(max_length=100, blank=True, null=True)  # Tipo de medalha (opcional)
-    descricao = models.TextField(blank=True, null=True)  # Descrição da medalha (opcional)
+    TIPOS_MEDALHA = [
+        ("1_ano", "1 Ano de Hub"),
+        ("2_anos", "2 Anos de Hub"),
+        ("3_anos", "3 Anos de Hub"),
+        ("logistica", "Logística Implacável"),
+        ("mensageiro", "1# Mensageiro"),
+        ("pontual", "Super Pontual"),
+        ("criatividade", "Criatividade"),
+        ("destaque", "Colaborador Destaque"),
+        ("comunicação", "Comunicação Eficiente"),
+        ("carisma", "Carisma"),
+        ("dedicação", "Dedicação"),
+        ("analista", "Analista de Dados"),
+
+
+    ]
+
+    colaborador = models.ForeignKey("Colaborador", related_name="medalhas", on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=50, choices=TIPOS_MEDALHA, blank=True, null=True)  # Tipo fixo
+    descricao = models.TextField(blank=True, null=True)  # Descrição opcional
+
+    def get_medalha_url(self):
+        """Retorna a URL da imagem correspondente ao tipo de medalha"""
+        return f"/static/medalhas/{self.tipo}.png" if self.tipo else None
 
     def __str__(self):
-        return f'{self.colaborador.nome} - {self.quantidade} medalhas'
+        return f"{self.colaborador.nome} - {self.get_tipo_display()}"
 
     class Meta:
         verbose_name = "Medalha"
         verbose_name_plural = "Medalhas"
 
 
-  
 
+
+# from django.db import models
+# from django.core.validators import MinValueValidator, MaxValueValidator
+
+# class Avaliacao_Restaurante(models.Model):
+#     # Informações do avaliador e do colaborador avaliado
+#     avaliador = models.CharField(max_length=255)
+#     loja = models.CharField(max_length=255)
+#     colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE, related_name="avaliacoes_restaurantes")
+
+#     # Critérios de avaliação (notas de 1 a 5)
+#     rapidez_atendimento = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+#     eficiencia_resolucao = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+#     clareza_comunicacao = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+#     profissionalismo = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+#     suporte_gestao_pedidos = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+#     proatividade = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+#     disponibilidade = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+#     satisfacao_geral = models.IntegerField(
+#         validators=[MinValueValidator(1), MaxValueValidator(5)]
+#     )
+
+#     # Comentário opcional
+#     comentario = models.TextField(null=True, blank=True)
+
+#     # Data da avaliação
+#     data = models.DateField(auto_now_add=True)
+
+#     # Nota final calculada automaticamente
+#     nota = models.FloatField(null=True, blank=True)
+
+#     def save(self, *args, **kwargs):
+#         # Calcula a média das avaliações e armazena em `nota`
+#         campos_avaliacao = [
+#             self.rapidez_atendimento,
+#             self.eficiencia_resolucao,
+#             self.clareza_comunicacao,
+#             self.profissionalismo,
+#             self.suporte_gestao_pedidos,
+#             self.proatividade,
+#             self.disponibilidade,
+#             self.satisfacao_geral
+#         ]
+        
+#         # Substitui None por 0 e calcula a média
+#         campos_validos = [campo for campo in campos_avaliacao if campo is not None]
+#         self.nota = sum(campos_validos) / len(campos_validos) if campos_validos else None
+
+#         super().save(*args, **kwargs)
+
+#     def __str__(self):
+#         return f"Avaliação de {self.colaborador} em {self.loja} - {self.data}"
+
+#     class Meta:
+#         verbose_name = "Avaliação de Restaurante"
+#         verbose_name_plural = "Avaliações de Restaurante"
+
+
+  
+class Avaliacao_Restaurante(models.Model):
+    # Informações do avaliador e do colaborador avaliado
+    avaliador = models.CharField(max_length=255)
+    loja = models.CharField(max_length=255)
+    colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE, related_name="avaliacoes_restaurantes")
+
+    # Critérios de avaliação (notas de 1 a 5)
+    rapidez_atendimento = models.IntegerField()
+    eficiencia_resolucao = models.IntegerField()
+    clareza_comunicacao = models.IntegerField()
+    profissionalismo = models.IntegerField()
+    suporte_gestao_pedidos = models.IntegerField()
+    proatividade = models.IntegerField()
+    disponibilidade = models.IntegerField()
+    satisfacao_geral = models.IntegerField()
+
+    # Comentário opcional
+    comentario = models.TextField(null=True, blank=True)
+
+    # Data da avaliação
+    data = models.DateField(auto_now_add=True)
+
+    # Nota final calculada automaticamente
+    nota = models.FloatField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Substituindo campos None por 0 antes do cálculo
+        self.rapidez_atendimento = self.rapidez_atendimento or 0
+        self.eficiencia_resolucao = self.eficiencia_resolucao or 0
+        self.clareza_comunicacao = self.clareza_comunicacao or 0
+        self.profissionalismo = self.profissionalismo or 0
+        self.suporte_gestao_pedidos = self.suporte_gestao_pedidos or 0
+        self.proatividade = self.proatividade or 0
+        self.disponibilidade = self.disponibilidade or 0
+        self.satisfacao_geral = self.satisfacao_geral or 0
+
+        # Calcula a média das avaliações e armazena em `nota`
+        self.nota = (
+            self.rapidez_atendimento + self.eficiencia_resolucao + self.clareza_comunicacao +
+            self.profissionalismo + self.suporte_gestao_pedidos + self.proatividade +
+            self.disponibilidade + self.satisfacao_geral
+        ) / 8
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Avaliação de {self.colaborador} - Nota: {self.nota:.2f}"

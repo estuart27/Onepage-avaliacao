@@ -31,9 +31,15 @@
         .header {
             background-color: var(--primary-color);
             color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 0 0 1rem 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
         }
 
         .profile-info {
@@ -148,8 +154,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>Perfil de {{ colaborador.nome }} - Visão Restaurante</h1>
-        <a href="{% url 'home' %}" class="back-button" style="color: white; text-decoration: none;">Voltar</a>
+        {% comment %} <div class="container"> {% endcomment %}
+            <h4>
+                <a href="{% url 'home' %}" style="color: white;" class="name-link">Voltar pro inicio</a>
+            </h4>
+        </div> 
     </div>
     
     <!-- Adicionando o Font Awesome no cabeçalho -->
@@ -169,37 +178,27 @@
                 <div class="avatar">
                     {{ colaborador.nome.0 }}
                 </div>
-        
+                
                 <h2 style="text-align: center; margin-bottom: 1rem;">{{ colaborador.nome }}</h2>
-        
-                <div style="text-align: center; color: var(--secondary-color); margin-bottom: 10px;">
+                <p></p>
+
+                <div style="text-align: center; color: var(--secondary-color);">
+                    <!-- Adicione mais informações do colaborador aqui -->
                     <strong>Cargo Atual |</strong> {{ colaborador.cargo }}
                 </div>
-        
-                <div style="text-align: center; color: var(--secondary-color); margin-bottom: 10px;">
+                <p></p>
+
+                <div style="text-align: center; color: var(--secondary-color);">
+                    <!-- Adicione a data de contratação do colaborador -->
                     <strong>Data de Admissão |</strong> {{ colaborador.data_contratacao|date:"d/m/Y" }}
                 </div>
-        
-                <div style="text-align: center; color: var(--secondary-color); margin-bottom: 20px;">
+                <p></p>
+
+                <div style="text-align: center; color: var(--secondary-color);">
+                    <!-- Adicione o hub do colaborador -->
                     <strong>Hub |</strong> {{ colaborador.hub }}
                 </div>
-        
-                {% if colaborador.medalhas.all %}
-                    <hr style="margin: 20px 0;"> <!-- Linha divisória para organização -->
-                    <div class="medals-container" style="text-align: center;">
-                        <h2 style="margin-bottom: 10px;">Medalhas</h2>
-                        <div class="medals-list" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px;">
-                            {% for medalha in colaborador.medalhas.all %}
-                                <div class="medalha-item" style="display: flex; flex-direction: column; align-items: center;">
-                                    <img src="{{ medalha.get_medalha_url }}" alt="{{ medalha.get_tipo_display }}" class="medalha-icon-small" style="width: 50px; height: 50px;">
-                                    <span class="medalha-nome" style="font-size: 14px; margin-top: 5px;">{{ medalha.get_tipo_display }}</span>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
             </div>
-        
 
             <div class="chart-container">
                 <h2>Resumo das Avaliações</h2>
@@ -469,7 +468,7 @@
                                     <img src="{% static 'assets/img/Perfil1.jpg' %}" alt="Usuário" class="comentario-img"> <!-- Imagem do usuário -->
                                     <div class="comentario-conteudo">
                                         <p class="comentario-texto">{{ avaliacao.comentario }}</p>
-                                        <span class="comentario-data">{{ avaliacao.data }} - {{ avaliacao.avaliador }}</span> <!-- Se você tiver uma data -->
+                                        <span class="comentario-data">{{ avaliacao.data }}</span> <!-- Se você tiver uma data -->
                                     </div>
                                 </li>
                             {% endif %}
@@ -484,173 +483,174 @@
             
         </body>
         
-        <script>
-            // Dados para o gráfico radar
-            const radarData = {
-                labels: [
-                    'Pontualidade',
-                    'Organização',
-                    'Comunicação',
-                    'Resolução de Problemas',
-                    'Precisão',
-                    'Velocidade',
-                    'Conhecimento de Ferramentas',
-                    'Flexibilidade',
-                    'Postura Profissional',
-                    'Priorização de Tarefas'
+    <script>
+        // Dados para o gráfico radar
+        const radarData = {
+            labels: [
+                'Pontualidade',
+                'Organização',
+                'Comunicação',
+                'Resolução de Problemas',
+                'Precisão',
+                'Velocidade',
+                'Conhecimento de Ferramentas',
+                'Flexibilidade',
+                'Postura Profissional',
+                'Priorização de Tarefas'
+            ],
+            datasets: [{
+                label: 'Avaliação Atual',
+                data: [
+                    {{ media.pontualidade_media }},
+                    {{ media.organizacao_media }},
+                    {{ media.comunicacao_media }},
+                    {{ media.resolucao_problemas_media }},
+                    {{ media.precisao_media }},
+                    {{ media.velocidade_media }},
+                    {{ media.conhecimento_ferramentas_media }},
+                    {{ media.flexibilidade_media }},
+                    {{ media.postura_profissional_media }},
+                    {{ media.priorizacao_tarefas_media }}
                 ],
-                datasets: [{
-                    label: 'Avaliação Atual',
-                    data: [
-                        {{ media.pontualidade_media }},
-                        {{ media.organizacao_media }},
-                        {{ media.comunicacao_media }},
-                        {{ media.resolucao_problemas_media }},
-                        {{ media.precisao_media }},
-                        {{ media.velocidade_media }},
-                        {{ media.conhecimento_ferramentas_media }},
-                        {{ media.flexibilidade_media }},
-                        {{ media.postura_profissional_media }},
-                        {{ media.priorizacao_tarefas_media }}
-                    ],
-                    fill: true,
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                    borderColor: 'rgb(37, 99, 235)',
-                    pointBackgroundColor: 'rgb(37, 99, 235)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(37, 99, 235)'
-                }]
-            };
-        
-            // Configuração do gráfico radar
-            const radarConfig = {
-                type: 'radar',
-                data: radarData,
-                options: {
-                    elements: {
-                        line: {
-                            borderWidth: 3
-                        }
-                    },
-                    scales: {
-                        r: {
-                            angleLines: {
-                                display: true
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 5
-                        }
+                fill: true,
+                backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                borderColor: 'rgb(37, 99, 235)',
+                pointBackgroundColor: 'rgb(37, 99, 235)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(37, 99, 235)'
+            }]
+        };
+
+        // Configuração do gráfico radar
+        const radarConfig = {
+            type: 'radar',
+            data: radarData,
+            options: {
+                elements: {
+                    line: {
+                        borderWidth: 3
                     }
-                }
-            };
-        
-            // Renderizar gráfico radar
-            const radarChart = new Chart(
-                document.getElementById('radarChart'),
-                radarConfig
-            );
-        
-            const labels = [
-            {% for avaliacao in avaliacoes %}
-                "{{ avaliacao.data|date:"F" }}",
-            {% endfor %}
-            ];
-        
-            const dataValues = [
-            {% for nota in notas_evolucao %}
-                {{ nota }},
-            {% endfor %}
-            ];
-        
-            // Configuração dos dados para o gráfico de linha
-            const lineData = {
-                labels: labels,
-                datasets: [{
-                    label: 'Evolução da Avaliação',
-                    data: dataValues,
-                    fill: false,
-                    borderColor: 'rgb(37, 99, 235)',
-                    tension: 0.1
-                }]
-            };
-        
-            // Configuração do gráfico de linha
-            const lineConfig = {
-                type: 'line',
-                data: lineData,
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                },
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 5
                     }
-                }
-            };
-        
-            // Renderizar gráfico de linha
-            const lineChart = new Chart(
-                document.getElementById('lineChart'),
-                lineConfig
-            );
-        
-            // Extraindo os dados de lojas e suas médias do template
-            const lojas = [
-            {% for loja in medias_por_loja %}
-                "{{ loja.loja }}",  // Nome da loja
-            {% endfor %}
-            ];
-        
-            const mediasLoja = [
-            {% for loja in medias_por_loja %}
-                {{ loja.media_loja|floatformat:2 }},  // Média das avaliações por loja
-            {% endfor %}
-            ];
-        
-            // Configuração dos dados para o gráfico de barras por loja
-            const barDataLoja = {
-                labels: lojas,  // Labels (nomes das lojas)
-                datasets: [{
-                    label: 'Média das Avaliações por Loja',
-                    data: mediasLoja,  // Dados (média das avaliações por loja)
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',  // Cor de fundo das barras
-                    borderColor: 'rgb(37, 99, 235)',  // Cor da borda das barras
-                    borderWidth: 1
-                }]
-            };
-        
-            // Configuração do gráfico de barras
-            const barConfigLoja = {
-                type: 'bar',
-                data: barDataLoja,
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true  // Inicia o eixo Y do gráfico em 0
-                        }
-                    }
-                }
-            };
-        
-            // Renderiza o gráfico
-            const barChartLoja = new Chart(
-                document.getElementById('barChartLoja'),
-                barConfigLoja
-            );
-        
-            function toggleComments() {
-                var commentsSection = document.getElementById('commentsSection');
-                var toggleButton = document.getElementById('toggleCommentsButton');
-                
-                if (commentsSection.style.display === 'none') {
-                    commentsSection.style.display = 'block';
-                    toggleButton.textContent = 'Ocultar Comentários';
-                } else {
-                    commentsSection.style.display = 'none';
-                    toggleButton.textContent = 'Ver Comentários';
                 }
             }
-        </script>
+        };
+
+        // Renderizar gráfico radar
+        const radarChart = new Chart(
+            document.getElementById('radarChart'),
+            radarConfig
+        );
+
+        const labels = [
+        {% for avaliacao in avaliacoes %}
+            "{{ avaliacao.data|date:"F" }}",
+        {% endfor %}
+    ];
+
+    const dataValues = [
+        {% for nota in notas_evolucao %}
+            {{ nota }},
+        {% endfor %}
+    ];
+
+    // Configuração dos dados para o gráfico de linha
+    const lineData = {
+        labels: labels,
+        datasets: [{
+            label: 'Evolução da Avaliação',
+            data: dataValues,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    };
+
+    // Configuração do gráfico de linha
+    const lineConfig = {
+        type: 'line',
+        data: lineData,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    };
+
+    // Renderizar gráfico de linha
+    const lineChart = new Chart(
+        document.getElementById('lineChart'),
+        lineConfig
+    );
+
+    // Extraindo os dados de lojas e suas médias do template
+    const lojas = [
+    {% for loja in medias_por_loja %}
+        "{{ loja.loja }}",  // Nome da loja
+    {% endfor %}
+    ];
+
+    const mediasLoja = [
+    {% for loja in medias_por_loja %}
+        {{ loja.media_loja|floatformat:2 }},  // Média das avaliações por loja
+    {% endfor %}
+    ];
+
+    // Configuração dos dados para o gráfico de barras por loja
+    const barDataLoja = {
+    labels: lojas,  // Labels (nomes das lojas)
+    datasets: [{
+        label: 'Média das Avaliações por Loja',
+        data: mediasLoja,  // Dados (média das avaliações por loja)
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',  // Cor de fundo das barras
+        borderColor: 'rgb(153, 102, 255)',  // Cor da borda das barras
+        borderWidth: 1
+    }]
+    };
+
+    // Configuração do gráfico de barras
+    const barConfigLoja = {
+    type: 'bar',
+    data: barDataLoja,
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true  // Inicia o eixo Y do gráfico em 0
+            }
+        }
+    }
+    };
+
+    // Renderiza o gráfico
+    const barChartLoja = new Chart(
+    document.getElementById('barChartLoja'),
+    barConfigLoja
+    );
+
+    function toggleComments() {
+        var commentsSection = document.getElementById('commentsSection');
+        var toggleButton = document.getElementById('toggleCommentsButton');
+        
+        if (commentsSection.style.display === 'none') {
+            commentsSection.style.display = 'block';
+            toggleButton.textContent = 'Ocultar Comentários';
+        } else {
+            commentsSection.style.display = 'none';
+            toggleButton.textContent = 'Ver Comentários';
+        }
+    }
+    </script>
+
 </body>
 </html>
