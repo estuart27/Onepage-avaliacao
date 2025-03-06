@@ -94,8 +94,6 @@ class Colaborador(models.Model):
         verbose_name_plural = "Colaboradores"
 
 
-
-
 class Avaliacao(models.Model):
     # Campos de avaliação
     avaliador = models.CharField(max_length=255)
@@ -181,79 +179,6 @@ class Medalha(models.Model):
 
 
 
-
-# from django.db import models
-# from django.core.validators import MinValueValidator, MaxValueValidator
-
-# class Avaliacao_Restaurante(models.Model):
-#     # Informações do avaliador e do colaborador avaliado
-#     avaliador = models.CharField(max_length=255)
-#     loja = models.CharField(max_length=255)
-#     colaborador = models.ForeignKey(Colaborador, on_delete=models.CASCADE, related_name="avaliacoes_restaurantes")
-
-#     # Critérios de avaliação (notas de 1 a 5)
-#     rapidez_atendimento = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-#     eficiencia_resolucao = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-#     clareza_comunicacao = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-#     profissionalismo = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-#     suporte_gestao_pedidos = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-#     proatividade = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-#     disponibilidade = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-#     satisfacao_geral = models.IntegerField(
-#         validators=[MinValueValidator(1), MaxValueValidator(5)]
-#     )
-
-#     # Comentário opcional
-#     comentario = models.TextField(null=True, blank=True)
-
-#     # Data da avaliação
-#     data = models.DateField(auto_now_add=True)
-
-#     # Nota final calculada automaticamente
-#     nota = models.FloatField(null=True, blank=True)
-
-#     def save(self, *args, **kwargs):
-#         # Calcula a média das avaliações e armazena em `nota`
-#         campos_avaliacao = [
-#             self.rapidez_atendimento,
-#             self.eficiencia_resolucao,
-#             self.clareza_comunicacao,
-#             self.profissionalismo,
-#             self.suporte_gestao_pedidos,
-#             self.proatividade,
-#             self.disponibilidade,
-#             self.satisfacao_geral
-#         ]
-        
-#         # Substitui None por 0 e calcula a média
-#         campos_validos = [campo for campo in campos_avaliacao if campo is not None]
-#         self.nota = sum(campos_validos) / len(campos_validos) if campos_validos else None
-
-#         super().save(*args, **kwargs)
-
-#     def __str__(self):
-#         return f"Avaliação de {self.colaborador} em {self.loja} - {self.data}"
-
-#     class Meta:
-#         verbose_name = "Avaliação de Restaurante"
-#         verbose_name_plural = "Avaliações de Restaurante"
-
-
-  
 class Avaliacao_Restaurante(models.Model):
     # Informações do avaliador e do colaborador avaliado
     avaliador = models.CharField(max_length=255)

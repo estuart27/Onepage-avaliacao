@@ -12,6 +12,8 @@ urlpatterns = [
     path('perfil/<int:colaborador_id>/', views.perfil_colaborador, name='perfil_colaborador'),
     path('colaborador/<int:colaborador_id>/feedback/', views.feedback_colaborador, name='feedback_colaborador'),
     path('perfil-restaurante/<int:colaborador_id>/', views.perfil_colaborador_restaurante, name='perfil_colaborador_restaurante'),
+    path('feedback-restaurante/<int:colaborador_id>/', views.feedback_colaborador_restaurante, name='feedback_colaborador_restaurante'),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

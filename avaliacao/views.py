@@ -2,14 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Colaborador, Avaliacao,Hub,Avaliacao_Restaurante
 from .forms import AvaliacaoForm,AvaliacaoMensageiroForm
 from django.db.models import Avg, Count
-from django.shortcuts import get_object_or_404
-from .utils import analizar_partida  # Certifique-se de que a função resposta_bot está no arquivo correto
+from .utils import analizar_partida,gerar_feedback_restaurante  # Certifique-se de que a função resposta_bot está no arquivo correto
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator
-
-
-from django.db.models import Avg, Count, F, FloatField, Value, Sum, Subquery, OuterRef, DecimalField
 from django.db.models.functions import Coalesce
+from django.db.models import OuterRef, Count, Avg, Value, FloatField, Subquery, F, Case, When
 
 def home(request):
     # Subquery para contar avaliadores únicos para colaboradores
@@ -32,28 +29,26 @@ def home(request):
 
     # Realizar join para combinar avaliações de colaboradores e restaurante
     colaboradores = Colaborador.objects.annotate(
-        # Contagem de avaliadores únicos
-        total_avaliadores_colaborador=Subquery(colaborador_reviewers_subquery),
-        total_avaliadores_restaurante=Subquery(restaurante_reviewers_subquery),
-        
-        # Média de avaliações
+        total_avaliadores_colaborador=Coalesce(Subquery(colaborador_reviewers_subquery), Value(0)),
+        total_avaliadores_restaurante=Coalesce(Subquery(restaurante_reviewers_subquery), Value(0)),
         media_avaliacao_colaborador=Coalesce(Avg('avaliacoes__nota'), Value(0.0), output_field=FloatField()),
         media_avaliacao_restaurante=Coalesce(Avg('avaliacoes_restaurantes__nota'), Value(0.0), output_field=FloatField()),
     ).annotate(
-        # Calcular total de avaliadores únicos
         total_avaliadores_total=F('total_avaliadores_colaborador') + F('total_avaliadores_restaurante'),
-        
-        # Calcular média total ponderada
         media_avaliacao_total=Coalesce(
-            (
-                (F('media_avaliacao_colaborador') * F('total_avaliadores_colaborador') + 
-                 F('media_avaliacao_restaurante') * F('total_avaliadores_restaurante')) / 
-                (F('total_avaliadores_colaborador') + F('total_avaliadores_restaurante'))
+            Case(
+                When(total_avaliadores_total=0, then=Value(0.0)),
+                default=(
+                    (F('media_avaliacao_colaborador') * F('total_avaliadores_colaborador') + 
+                     F('media_avaliacao_restaurante') * F('total_avaliadores_restaurante')) / 
+                    F('total_avaliadores_total')
+                ),
+                output_field=FloatField()
             ),
             Value(0.0),
             output_field=FloatField()
         )
-    )
+    ).order_by('id')
     
     cargo_selecionado = request.GET.get('cargo')
     hub_selecionado = request.GET.get('hub')
@@ -81,110 +76,6 @@ def home(request):
         'request': request
     }
     return render(request, 'avaliacao/home.html', context)
-
-# def home(request):
-#     # Obter opções de cargo e hub distintos
-#     cargos = Colaborador.objects.values_list('cargo', flat=True).distinct()
-#     hubs = Hub.objects.all()
-
-#     # Realizar um join para combinar avaliações de colaboradores e restaurante
-#     colaboradores = Colaborador.objects.annotate(
-#         # Contagem de avaliações
-#         total_avaliacoes_colaborador=Count('avaliacoes'),
-#         total_avaliacoes_restaurante=Count('avaliacoes_restaurantes'),
-        
-#         # Média de avaliações
-#         media_avaliacao_colaborador=Coalesce(Avg('avaliacoes__nota'), Value(0.0), output_field=FloatField()),
-#         media_avaliacao_restaurante=Coalesce(Avg('avaliacoes_restaurantes__nota'), Value(0.0), output_field=FloatField()),
-#     ).annotate(
-#         # Calcular média total ponderada
-#         media_avaliacao_total=ExpressionWrapper(
-#             (
-#                 (F('media_avaliacao_colaborador') * F('total_avaliacoes_colaborador') + 
-#                  F('media_avaliacao_restaurante') * F('total_avaliacoes_restaurante')) / 
-#                 (F('total_avaliacoes_colaborador') + F('total_avaliacoes_restaurante'))
-#             ),
-#             output_field=DecimalField(max_digits=5, decimal_places=2)
-#         ),
-        
-#         # Contar total de avaliações
-#         total_avaliacoes_total=F('total_avaliacoes_colaborador') + F('total_avaliacoes_restaurante')
-#     )
-    
-#     cargo_selecionado = request.GET.get('cargo')
-#     hub_selecionado = request.GET.get('hub')
-#     search = request.GET.get('search', '')  # Captura o valor do campo de pesquisa
-
-#     # Aplicar filtro de cargo, se fornecido
-#     if cargo_selecionado:
-#         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
-
-#     # Aplicar filtro de hub, se fornecido
-#     if hub_selecionado:
-#         colaboradores = colaboradores.filter(hub_id=hub_selecionado)
-
-#     # Aplicar filtro de pesquisa pelo nome, se fornecido
-#     if search:
-#         colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
-
-#     # Paginação
-#     paginator = Paginator(colaboradores, 9)  # Exiba 9 colaboradores por página
-#     page_number = request.GET.get('page')  # Obtém o número da página da URL
-#     colaboradores_paginated = paginator.get_page(page_number)  # Obtém os colaboradores da página solicitada
-
-#     context = {
-#         'colaboradores': colaboradores_paginated,  # Passa a lista paginada para o contexto
-#         'cargos': cargos,
-#         'hubs': hubs,
-#         'request': request  # Incluindo request no contexto para usar no template
-#     }
-#     return render(request, 'avaliacao/home.html', context)
-
-# def home(request):
-#     # Obter opções de cargo e hub distintos
-#     cargos = Colaborador.objects.values_list('cargo', flat=True).distinct()
-#     hubs = Hub.objects.all()
-
-#     # Obter todos os colaboradores e aplicar filtros, se fornecidos
-#     colaboradores = Colaborador.objects.all().annotate(
-#         media_avaliacao=Avg('avaliacoes__nota'),
-#         total_avaliacoes=Count('avaliacoes')
-#     )
-
-#     # colaboradores_restaurante = avaliacao_restaurante.objects.all().annotate(
-#     #     media_avaliacao=Avg('avaliacoes_restaurantes__nota'),
-#     #     total_avaliacoes=Count('avaliacoes_restaurantes')
-#     # )
-    
-#     cargo_selecionado = request.GET.get('cargo')
-#     hub_selecionado = request.GET.get('hub')
-#     search = request.GET.get('search', '')  # Captura o valor do campo de pesquisa
-
-#     # Aplicar filtro de cargo, se fornecido
-#     if cargo_selecionado:
-#         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
-
-#     # Aplicar filtro de hub, se fornecido
-#     if hub_selecionado:
-#         colaboradores = colaboradores.filter(hub_id=hub_selecionado)
-
-#     # Aplicar filtro de pesquisa pelo nome, se fornecido
-#     if search:
-#         colaboradores = colaboradores.filter(nome__icontains=search)  # Filtra pelo nome
-
-#     # Paginação
-#     paginator = Paginator(colaboradores, 9)  # Exiba 10 colaboradores por página
-#     page_number = request.GET.get('page')  # Obtém o número da página da URL
-#     colaboradores_paginated = paginator.get_page(page_number)  # Obtém os colaboradores da página solicitada
-
-#     context = {
-#         'colaboradores': colaboradores_paginated,  # Passa a lista paginada para o contexto
-#         'cargos': cargos,
-#         'hubs': hubs,
-#         'request': request  # Incluindo request no contexto para usar no template
-#     }
-#     return render(request, 'avaliacao/home.html', context)
-
 
 
 def perfil_colaborador(request, colaborador_id):
@@ -345,6 +236,53 @@ def feedback_colaborador(request, colaborador_id):
     except Colaborador.DoesNotExist:
         # Caso o colaborador não exista, podemos tratar o erro de forma apropriada
         return render(request, 'erro.html', {'message': 'Colaborador não encontrado.'})
+
+
+def feedback_colaborador_restaurante(request, colaborador_id):
+    try:
+        colaborador = get_object_or_404(Colaborador, id=colaborador_id)
+        data_um_mes_atras = datetime.now() - timedelta(days=30)
+
+        avaliacoes = colaborador.avaliacoes_restaurantes.filter(data__gte=data_um_mes_atras).order_by('-data')
+        comentarios_mais_recentes = [avaliacao.comentario for avaliacao in avaliacoes if avaliacao.comentario]
+
+        if not avaliacoes:
+            dados_avaliacao = {
+                'nome': colaborador.nome,
+                'rapidez_atendimento': 0,
+                'eficiencia_resolucao': 0,
+                'clareza_comunicacao': 0,
+                'profissionalismo': 0,
+                'suporte_gestao_pedidos': 0,
+                'proatividade': 0,
+                'disponibilidade': 0,
+                'satisfacao_geral': 0,
+            }
+        else:
+            dados_avaliacao = {
+                'nome': colaborador.nome,
+                'rapidez_atendimento': sum([a.rapidez_atendimento for a in avaliacoes]) / len(avaliacoes),
+                'eficiencia_resolucao': sum([a.eficiencia_resolucao for a in avaliacoes]) / len(avaliacoes),
+                'clareza_comunicacao': sum([a.clareza_comunicacao for a in avaliacoes]) / len(avaliacoes),
+                'profissionalismo': sum([a.profissionalismo for a in avaliacoes]) / len(avaliacoes),
+                'suporte_gestao_pedidos': sum([a.suporte_gestao_pedidos for a in avaliacoes]) / len(avaliacoes),
+                'proatividade': sum([a.proatividade for a in avaliacoes]) / len(avaliacoes),
+                'disponibilidade': sum([a.disponibilidade for a in avaliacoes]) / len(avaliacoes),
+                'satisfacao_geral': sum([a.satisfacao_geral for a in avaliacoes]) / len(avaliacoes),
+                'comentario': comentarios_mais_recentes,
+            }
+
+        feedback = gerar_feedback_restaurante(dados_avaliacao)
+
+        return render(request, 'avaliacao/feedback_restaurante.html', {
+            'feedback': feedback,
+            'colaborador': colaborador,
+            'comentarios': comentarios_mais_recentes
+        })
+
+    except Colaborador.DoesNotExist:
+        return render(request, 'erro.html', {'message': 'Colaborador não encontrado.'})
+
 
 
 # Página de avaliação do colaborador

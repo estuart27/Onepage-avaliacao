@@ -151,16 +151,31 @@
         <h1>Perfil de {{ colaborador.nome }} - Visão Restaurante</h1>
         <a href="{% url 'home' %}" class="back-button" style="color: white; text-decoration: none;">Voltar</a>
     </div>
-    
-    <!-- Adicionando o Font Awesome no cabeçalho -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    
-    <!-- Botão fixado no lado direito -->
+
     <a href="{% url 'feedback_colaborador' colaborador_id=colaborador.id %}">
-        <button class="social-btn">
-            <i class="fas fa-robot"></i> Guia de feedback com IA
+        <button class="social-btn" style="
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #6c757d;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">
+            <span style="font-size: 20px;">🧩</span>
+            <i class="fas fa-robot" style="font-size: 20px;"></i> Feedback com IA
         </button>
     </a>
+    
     
 
     <div class="container">
