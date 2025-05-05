@@ -85,3 +85,37 @@ def gerar_feedback_restaurante(dados_avaliacao):
     resposta = chain.invoke({'documentos_informados': documento, 'input': "Forneça uma análise objetiva e prática sobre o colaborador, com base nos dados fornecidos, para que o gestor possa dar um feedback claro e construtivo. Destaque pontos fortes, áreas para desenvolvimento e recomendações diretas que o gestor possa comunicar ao colaborador de forma eficaz."})
 
     return resposta.content
+
+
+def relatorio(dados, custom_prompt=None):
+    documento_relatorio = dados
+
+    # Get API key from environment for security
+    api_key = os.environ.get('GROQ_API_KEY')
+    if not api_key:
+        # Fallback to the key in the request (not recommended for production)
+        api_key = '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'
+        os.environ['GROQ_API_KEY'] = api_key
+
+    # Initialize ChatGroq
+    chat = ChatGroq(model='llama-3.3-70b-versatile')
+
+    # Use custom prompt if provided
+    if not custom_prompt:
+        custom_prompt =""" Faça um relatório analítico da operação com base nos registros do dia, destacando:
+                1. Principais ocorrências e seus impactos
+                2. Padrões ou repetições de problemas
+                3. Recomendações para melhoria operacional
+                4. Pontos positivos a serem mantidos
+                Mantenha o foco na análise operacional, não em indivíduos.
+                """
+    template = ChatPromptTemplate.from_messages([
+        ('system', 'Você é um analista operacional. Gere relatórios técnicos sobre a operação com base nos dados: {documentos_informados}.'),  # Modificado
+        ('user', '{input}')
+    ])
+
+    chain = template | chat
+    resposta = chain.invoke({'documentos_informados': documento_relatorio, 'input': custom_prompt})
+
+    # print(resposta.content)
+    return resposta.content

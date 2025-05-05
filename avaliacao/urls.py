@@ -13,6 +13,10 @@ urlpatterns = [
     path('colaborador/<int:colaborador_id>/feedback/', views.feedback_colaborador, name='feedback_colaborador'),
     path('perfil-restaurante/<int:colaborador_id>/', views.perfil_colaborador_restaurante, name='perfil_colaborador_restaurante'),
     path('feedback-restaurante/<int:colaborador_id>/', views.feedback_colaborador_restaurante, name='feedback_colaborador_restaurante'),
+    path('suporte/relatorio/', views.relatorio_op, name='relatorio'),
+    path('api/generate-report/', views.generate_report, name='generate_report'),
+    # /api/generate-report/',
+
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

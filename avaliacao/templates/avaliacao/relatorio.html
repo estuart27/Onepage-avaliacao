@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Diário de Ocorrências</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --primary-dark: #2667cc;
+            --secondary: #8338ec;
+            --success: #06d6a0;
+            --warning: #ffbe0b;
+            --danger: #ff006e;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 60px;
+        }
+        
+        .header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-radius: 12px 12px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        
+        .occurrence-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 15px;
+            position: relative;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .category-food { border-left-color: var(--success); }
+        .category-service { border-left-color: var(--primary); }
+        .category-issue { border-left-color: var(--danger); }
+        .category-other { border-left-color: var(--warning); }
+        
+        .delete-occurrence {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .delete-occurrence:hover {
+            color: var(--danger);
+        }
+        
+        .time-badge {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            background-color: #f0f2f5;
+            border-radius: 12px;
+            color: #666;
+        }
+        
+        .category-tag {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-right: 8px;
+        }
+        
+        .tag-food { 
+            background-color: rgba(6, 214, 160, 0.1); 
+            color: var(--success);
+        }
+        
+        .tag-service { 
+            background-color: rgba(58, 134, 255, 0.1); 
+            color: var(--primary);
+        }
+        
+        .tag-issue { 
+            background-color: rgba(255, 0, 110, 0.1); 
+            color: var(--danger);
+        }
+        
+        .tag-other { 
+            background-color: rgba(255, 190, 11, 0.1); 
+            color: var(--warning);
+        }
+        
+        .generate-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .empty-state {
+            padding: 50px 0;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            font-size: 3.5rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .copy-report {
+            cursor: pointer;
+            color: var(--primary);
+        }
+        
+        /* Reminder Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--warning);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 350px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+        
+        .notification-close {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+        }
+        
+        .notification-close:hover {
+            color: white;
+        }
+        
+        .reminder-times {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .reminder-time {
+            background-color: #f0f2f5;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .reminder-time.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .settings-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--light);
+            color: var(--dark);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .settings-btn:hover {
+            background-color: #e9ecef;
+        }
+        
+        .textarea-code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+        }
+        
+        .tab-content {
+            padding: 20px;
+        }
+        /* Estilos adicionais para o relatório da IA */
+        .ai-report-content {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .ai-report-content h4, 
+        .ai-report-content h5 {
+            margin-top: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-dark);
+        }
+
+        .ai-report-content ul {
+            padding-left: 1.5rem;
+        }
+
+        .ai-report-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-report-content p {
+            margin-bottom: 1rem;
+        }
+
+        .ai-report-content .highlight {
+            background-color: rgba(131, 56, 236, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        #report-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .report-timestamp {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header mb-4 py-3" style="background-color: #0d6efd;">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center text-white">
+                    <i class="fas fa-clipboard-list me-2 fs-5"></i>
+                    <h1 class="h5 m-0 fw-semibold">Registro Diário</h1>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span id="current-date" class="h6 m-0 text-white"></span>
+                    <a href="{% url "home" %}" class="btn btn-light btn-sm px-3 py-1 rounded-pill shadow-sm d-flex align-items-center">
+                        <i class="fas fa-home me-2"></i>
+                        <span class="fw-semibold">Home</span>
+                    </a>
+                    
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    
+
+    <div class="container">
+        <!-- Reminder settings -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Lembretes</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="enable-reminders" checked>
+                    <label class="form-check-label" for="enable-reminders">Ativar lembretes</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <p><i class="fas fa-bell me-2 text-warning"></i>Você será lembrado de registrar ocorrências nos seguintes horários:</p>
+                <div class="reminder-times">
+                    <div class="reminder-time active">
+                        <i class="fas fa-clock"></i> 12:00
+                    </div>
+                    <div class="reminder-time active">
+                        <i class="fas fa-clock"></i> 16:00
+                    </div>
+                    <div class="reminder-time active">
+                        <i class="fas fa-clock"></i> 19:00
+                    </div>
+                    <div class="reminder-time active">
+                        <i class="fas fa-clock"></i> 21:00
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form to add new occurrence -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Nova Ocorrência</h5>
+            </div>
+            <div class="card-body">
+                <form id="occurrenceForm">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="category" class="form-label">Categoria</label>
+                            <select class="form-select" id="category" required>
+                                <option value="" selected disabled>Selecione...</option>
+                                <option value="food">Alimentação</option>
+                                <option value="service">Atendimento</option>
+                                <option value="issue">Problema</option>
+                                <option value="other">Outro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-9 mb-3">
+                            <label for="title" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="title" placeholder="Título breve da ocorrência" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="description" rows="3" placeholder="Descreva a ocorrência detalhadamente..." required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Adicionar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- List of occurrences -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Ocorrências de Hoje</h5>
+                <span class="badge bg-primary" id="occurrence-count">0</span>
+            </div>
+            <div class="card-body">
+                <div id="occurrences-list">
+                    <!-- Occurrences will be added here via JavaScript -->
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-clipboard"></i></div>
+                        <h5 class="text-muted">Nenhuma ocorrência registrada</h5>
+                        <p class="text-muted">Comece adicionando ocorrências do seu dia de trabalho.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Report Button -->
+    <button class="btn btn-success generate-btn" id="generate-report" disabled>
+        <i class="fas fa-robot"></i>
+        Gerar Relatório com IA
+    </button>
+
+    <!-- Settings Button -->
+    <button class="settings-btn" id="settings-btn" data-bs-toggle="modal" data-bs-target="#settingsModal">
+        <i class="fas fa-cog"></i>
+    </button>
+
+    <!-- Notification -->
+    <div class="notification" id="reminder-notification">
+        <div class="notification-icon">
+            <i class="fas fa-bell"></i>
+        </div>
+        <div>
+            <strong>Lembrete!</strong>
+            <p class="mb-0">Hora de registrar as ocorrências recentes.</p>
+        </div>
+        <div class="notification-close" id="close-notification">
+            <i class="fas fa-times"></i>
+        </div>
+    </div>
+
+    <!-- Melhorias no Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Relatório Gerado por IA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Loading state -->
+                    <div id="report-loading">
+                        <div class="text-center py-4">
+                            <div class="loader"></div>
+                            <p class="mt-3">A inteligência artificial está analisando as ocorrências...</p>
+                            <p class="small text-muted">Isso pode levar alguns segundos.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Report content -->
+                    <div id="report-content" style="display: none;" class="p-3">
+                        <!-- AI generated report will be inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="copy-report">
+                        <i class="fas fa-copy me-2"></i>Copiar Relatório
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clear-all" data-bs-dismiss="modal">
+                        <i class="fas fa-trash me-2"></i>Limpar Tudo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Configurações</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="ai-tab" data-bs-toggle="tab" data-bs-target="#ai-settings" type="button" role="tab" aria-controls="ai-settings" aria-selected="true">Integração com IA</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reminder-tab" data-bs-toggle="tab" data-bs-target="#reminder-settings" type="button" role="tab" aria-controls="reminder-settings" aria-selected="false">Lembretes</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="settingsTabContent">
+                        <div class="tab-pane fade show active" id="ai-settings" role="tabpanel" aria-labelledby="ai-tab">
+                            <h6 class="mb-3">Configurar Integração com IA</h6>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="use-groq-api" checked>
+                                <label class="form-check-label" for="use-groq-api">
+                                    Usar API Groq para geração de relatórios
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="api-key" class="form-label">Chave da API Groq</label>
+                                <input type="password" class="form-control" id="api-key" placeholder="Insira sua chave API" value="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">
+                                <div class="form-text">Sua chave API é armazenada apenas localmente no seu navegador.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="ai-prompt" class="form-label">Prompt da IA</label>
+                                <textarea class="form-control textarea-code" id="ai-prompt" rows="4">
+                                    Analise os dados operacionais do dia e redija um relatório direto, claro e objetivo, em formato de texto corrido (sem tópicos). O texto deve descrever apenas os fatos relevantes da operação do dia, como comportamentos da demanda, eventos que influenciaram a rotina, dificuldades enfrentadas e pontos positivos observados. Não inclua sugestões de melhoria nem análises de gestão. Use uma linguagem natural e profissional, como se estivesse fazendo um resumo informal da operação. Exemplo de estilo: "Operação tranquila, tivemos promoção no Popeyes no almoço e na janta, por isso houve picos de demanda às 15h e 21h. A RE teve dificuldade nas entregas no horário prometido durante o jantar devido à alta demanda na loja e no iFood."
+                                    </textarea>
+                                    
+                        </div>
+                        <div class="tab-pane fade" id="reminder-settings" role="tabpanel" aria-labelledby="reminder-tab">
+                            <h6 class="mb-3">Configurar Lembretes</h6>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="enable-reminders-settings" checked>
+                                <label class="form-check-label" for="enable-reminders-settings">
+                                    Ativar lembretes automáticos
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Horários dos lembretes</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="reminder-12" checked>
+                                        <label class="form-check-label" for="reminder-12">12:00</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="reminder-16" checked>
+                                        <label class="form-check-label" for="reminder-16">16:00</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="reminder-19" checked>
+                                        <label class="form-check-label" for="reminder-19">19:00</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="reminder-21" checked>
+                                        <label class="form-check-label" for="reminder-21">21:00</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reminder-duration" class="form-label">Duração do lembrete (segundos)</label>
+                                <input type="number" class="form-control" id="reminder-duration" min="5" max="60" value="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-settings">Salvar Configurações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Settings object to store configurations
+        let settings = {
+            reminders: {
+                enabled: true,
+                times: [
+                    { hour: 12, minute: 0, enabled: true },
+                    { hour: 16, minute: 0, enabled: true },
+                    { hour: 19, minute: 0, enabled: true },
+                    { hour: 21, minute: 0, enabled: true }
+                ],
+                duration: 10 // in seconds
+            },
+            ai: {
+                useGroq: true,
+                apiKey: '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',
+                prompt: 'Faça um relatorio assertivo da operaçã com base nos pontos destacados durante o dia.'
+            }
+        };
+        
+        // Load settings from localStorage if available
+        if (localStorage.getItem('occurrenceTrackerSettings')) {
+            try {
+                const savedSettings = JSON.parse(localStorage.getItem('occurrenceTrackerSettings'));
+                settings = { ...settings, ...savedSettings };
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+        
+        // Update UI with settings
+        function updateSettingsUI() {
+            // Reminders
+            document.getElementById('enable-reminders').checked = settings.reminders.enabled;
+            document.getElementById('enable-reminders-settings').checked = settings.reminders.enabled;
+            document.getElementById('reminder-duration').value = settings.reminders.duration;
+            
+            // Reminder times
+            document.getElementById('reminder-12').checked = settings.reminders.times[0].enabled;
+            document.getElementById('reminder-16').checked = settings.reminders.times[1].enabled;
+            document.getElementById('reminder-19').checked = settings.reminders.times[2].enabled;
+            document.getElementById('reminder-21').checked = settings.reminders.times[3].enabled;
+            
+            // Update reminder times display
+            const reminderTimeElements = document.querySelectorAll('.reminder-time');
+            reminderTimeElements.forEach((el, index) => {
+                if (settings.reminders.times[index].enabled) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // AI settings
+            document.getElementById('use-groq-api').checked = settings.ai.useGroq;
+            document.getElementById('api-key').value = settings.ai.apiKey;
+            document.getElementById('ai-prompt').value = settings.ai.prompt;
+        }
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            // Update settings object from UI
+            settings.reminders.enabled = document.getElementById('enable-reminders-settings').checked;
+            settings.reminders.duration = parseInt(document.getElementById('reminder-duration').value);
+            
+            // Reminder times
+            settings.reminders.times[0].enabled = document.getElementById('reminder-12').checked;
+            settings.reminders.times[1].enabled = document.getElementById('reminder-16').checked;
+            settings.reminders.times[2].enabled = document.getElementById('reminder-19').checked;
+            settings.reminders.times[3].enabled = document.getElementById('reminder-21').checked;
+            
+            // AI settings
+            settings.ai.useGroq = document.getElementById('use-groq-api').checked;
+            settings.ai.apiKey = document.getElementById('api-key').value;
+            settings.ai.prompt = document.getElementById('ai-prompt').value;
+            
+            // Save to localStorage
+            localStorage.setItem('occurrenceTrackerSettings', JSON.stringify(settings));
+            
+            // Update UI
+            updateSettingsUI();
+        }
+        
+        // Save settings button event
+        document.getElementById('save-settings').addEventListener('click', function() {
+            saveSettings();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+            modal.hide();
+        });
+        
+        // Enable/disable reminders toggle
+        document.getElementById('enable-reminders').addEventListener('change', function() {
+            settings.reminders.enabled = this.checked;
+            document.getElementById('enable-reminders-settings').checked = this.checked;
+            saveSettings();
+        });
+        
+        // Display current date
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = today.toLocaleDateString('pt-BR', options);
+        
+        // Array to store occurrences
+        let occurrences = [];
+        
+        // Check for saved occurrences in localStorage
+        if (localStorage.getItem('dailyOccurrences')) {
+            try {
+                // Only load occurrences from today
+                const savedData = JSON.parse(localStorage.getItem('dailyOccurrences'));
+                const savedDate = new Date(savedData.date);
+                
+                if (savedDate.toDateString() === today.toDateString()) {
+                    occurrences = savedData.occurrences;
+                    updateOccurrencesList();
+                    document.getElementById('generate-report').disabled = occurrences.length === 0;
+                }
+            } catch (e) {
+                console.error('Error loading occurrences:', e);
+            }
+        }
+        
+        // Save occurrences to localStorage
+        function saveOccurrences() {
+            const data = {
+                date: today,
+                occurrences: occurrences
+            };
+            localStorage.setItem('dailyOccurrences', JSON.stringify(data));
+        }
+        
+        // Form submission
+        document.getElementById('occurrenceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('category').value;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const time = new Date();
+            
+            addOccurrence(category, title, description, time);
+            
+            // Reset form
+            this.reset();
+        });
+        
+        // Add occurrence function
+        function addOccurrence(category, title, description, time) {
+            // Create occurrence object
+            const occurrence = {
+                id: Date.now(),
+                category,
+                title,
+                description,
+                time
+            };
+            
+            // Add to array
+            occurrences.push(occurrence);
+            
+            // Save to localStorage
+            saveOccurrences();
+            
+            // Update UI
+            updateOccurrencesList();
+            
+            // Enable generate report button if we have at least one occurrence
+            document.getElementById('generate-report').disabled = occurrences.length === 0;
+        }
+        
+        // Update occurrences list
+        function updateOccurrencesList() {
+            const list = document.getElementById('occurrences-list');
+            const count = document.getElementById('occurrence-count');
+            
+            // Update count
+            count.textContent = occurrences.length;
+            
+            // Clear current list
+            list.innerHTML = '';
+            
+            // Show empty state if no occurrences
+            if (occurrences.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-clipboard"></i></div>
+                        <h5 class="text-muted">Nenhuma ocorrência registrada</h5>
+                        <p class="text-muted">Comece adicionando ocorrências do seu dia de trabalho.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort occurrences by time (newest first)
+            occurrences.sort((a, b) => new Date(b.time) - new Date(a.time));
+            
+            // Add each occurrence to the list
+            occurrences.forEach(occurrence => {
+                // Format time
+                const occurrenceTime = new Date(occurrence.time);
+                const timeStr = occurrenceTime.toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Get category display name
+                let categoryName;
+                switch(occurrence.category) {
+                    case 'food': categoryName = 'Alimentação'; break;
+                    case 'service': categoryName = 'Atendimento'; break;
+                    case 'issue': categoryName = 'Problema'; break;
+                    default: categoryName = 'Outro';
+                }
+                
+               // Create occurrence item
+               const occurrenceItem = document.createElement('div');
+               occurrenceItem.className = `occurrence-item category-${occurrence.category}`;
+               occurrenceItem.innerHTML = `
+                   <div class="d-flex justify-content-between">
+                       <h5 class="mb-1">${occurrence.title}</h5>
+                       <span class="time-badge">${timeStr}</span>
+                   </div>
+                   <div class="mb-2">
+                       <span class="category-tag tag-${occurrence.category}">${categoryName}</span>
+                   </div>
+                   <p class="mb-0">${occurrence.description}</p>
+                   <a class="delete-occurrence" data-id="${occurrence.id}">
+                       <i class="fas fa-times"></i>
+                   </a>
+               `;
+               
+               list.appendChild(occurrenceItem);
+           });
+           
+           // Add event listeners to delete buttons
+           document.querySelectorAll('.delete-occurrence').forEach(button => {
+               button.addEventListener('click', function() {
+                   const id = parseInt(this.getAttribute('data-id'));
+                   deleteOccurrence(id);
+               });
+           });
+       }
+        // Generate AI report using the Django backend
+        function generateAIReport() {
+            // Show loading indicator
+            document.getElementById('report-loading').style.display = 'block';
+            document.getElementById('report-content').style.display = 'none';
+            
+            // Prepare the data to send to backend
+            const occurrencesData = occurrences.map(o => {
+                return {
+                    category: o.category,
+                    title: o.title,
+                    description: o.description,
+                    time: new Date(o.time).toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                };
+            });
+            
+            // Format the data in a readable format for the AI
+            const formattedData = occurrencesData.map(o => {
+                // Map category to readable name
+                const categoryNames = {
+                    food: 'Alimentação',
+                    service: 'Atendimento',
+                    issue: 'Problema',
+                    other: 'Outro'
+                };
+                
+                return `[${o.time}] ${categoryNames[o.category] || o.category}: ${o.title} - ${o.description}`;
+            }).join('\n\n');
+            
+            if (settings.ai.useGroq) {
+                // Call the backend API
+                fetch('/api/generate-report/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // Function to get CSRF token
+                    },
+                    body: JSON.stringify({
+                        feedback: formattedData,
+                        prompt: settings.ai.prompt
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao gerar relatório');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Display the report from backend
+                    document.getElementById('report-loading').style.display = 'none';
+                    document.getElementById('report-content').style.display = 'block';
+                    document.getElementById('report-content').innerHTML = `
+                        <h4>Relatório Gerado - ${today.toLocaleDateString('pt-BR')}</h4>
+                        <div class="ai-report-content">
+                            ${data.report.replace(/\n/g, '<br>')}
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('report-loading').style.display = 'none';
+                    document.getElementById('report-content').style.display = 'block';
+                    document.getElementById('report-content').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Erro ao gerar relatório. Por favor, verifique a conexão com o backend ou tente novamente mais tarde.
+                        </div>
+                    `;
+                });
+            } else {
+                // Fallback to client-side mock for testing when API is not configured
+                setTimeout(() => {
+                    // Mock data for testing purposes
+                    const mockReport = `
+                       <h4>Relatório de Análise Operacional</h4>
+                        <p>Com base nas ${occurrences.length} ocorrências registradas hoje, foram identificados os seguintes pontos relevantes para o desempenho da operação:</p>
+
+                        <h5>Pontos Positivos:</h5>
+                        <ul>
+                            <li>Registros bem organizados por categoria</li>
+                            <li>Clareza nas descrições, facilitando a identificação de causas</li>
+                            <li>Boa frequência no acompanhamento dos eventos ao longo do dia</li>
+                        </ul>
+
+                        <h5>Pontos de Melhoria:</h5>
+                        <ul>
+                            <li>Necessidade de foco maior na resolução dos problemas apontados</li>
+                            <li>Algumas ocorrências carecem de contexto ou detalhamento adicional</li>
+                        </ul>
+
+                        <h5>Recomendações:</h5>
+                        <p>É recomendável reforçar a importância de registrar as ações tomadas em cada ocorrência, visando maior rastreabilidade e melhoria contínua. Também é útil revisar padrões de registro para garantir uniformidade e ganho de eficiência na análise futura.</p>
+
+                    `;
+                    
+                    document.getElementById('report-loading').style.display = 'none';
+                    document.getElementById('report-content').style.display = 'block';
+                    document.getElementById('report-content').innerHTML = mockReport;
+                }, 1500);
+            }
+        }
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+       
+       // Delete occurrence
+       function deleteOccurrence(id) {
+           occurrences = occurrences.filter(item => item.id !== id);
+           updateOccurrencesList();
+           
+           // Disable generate report button if no occurrences
+           document.getElementById('generate-report').disabled = occurrences.length === 0;
+       }
+       
+        // Generate report button event
+        document.getElementById('generate-report').addEventListener('click', function() {
+            // Show modal
+            const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+            reportModal.show();
+            
+            // Reset modal state
+            document.getElementById('report-loading').style.display = 'block';
+            document.getElementById('report-content').style.display = 'none';
+            
+            // Generate report with a slight delay to show loading state
+            setTimeout(() => {
+                generateAIReport();
+            }, 500);
+        });
+       
+    
+        // Clear all occurrences
+        document.getElementById('clear-all').addEventListener('click', function() {
+            // Clear occurrences array
+            occurrences = [];
+            
+            // Save to localStorage (essa linha resolve o problema)
+            saveOccurrences();
+            
+            // Update UI
+            updateOccurrencesList();
+            
+            // Disable generate report button
+            document.getElementById('generate-report').disabled = true;
+        });
+        
+        
+   </script>
+</body>
+</html>

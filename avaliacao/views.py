@@ -2,11 +2,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Colaborador, Avaliacao,Hub,Avaliacao_Restaurante
 from .forms import AvaliacaoForm,AvaliacaoMensageiroForm
 from django.db.models import Avg, Count
-from .utils import analizar_partida,gerar_feedback_restaurante  # Certifique-se de que a função resposta_bot está no arquivo correto
+from .utils import analizar_partida,gerar_feedback_restaurante,relatorio  # Certifique-se de que a função resposta_bot está no arquivo correto
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator
 from django.db.models.functions import Coalesce
 from django.db.models import OuterRef, Count, Avg, Value, FloatField, Subquery, F, Case, When
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import json
 
 def home(request):
     # Subquery para contar avaliadores únicos para colaboradores
@@ -321,4 +325,28 @@ def avaliacao_restaurante(request, colaborador_id):
     return render(request, 'avaliacao/avaliacao_restaurante.html', {'form': form, 'colaborador': colaborador})
 
 
+def relatorio_op(request):
+    # Verifica se o usuário é um superusuário
+    if not request.user.is_superuser:
+        return redirect('/admin/login/?next=' + request.path)
+    
+    return render(request, 'avaliacao/relatorio.html')
+
+
+@csrf_exempt
+@require_POST
+def generate_report(request):
+    try:
+        # Parse JSON data from request
+        data = json.loads(request.body)
+        feedback = data.get('feedback', '')
+        prompt = data.get('prompt', '')
+        
+        # Call the relatorio function
+        result = relatorio(feedback, prompt)
+        
+        # Return the report
+        return JsonResponse({'report': result})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
