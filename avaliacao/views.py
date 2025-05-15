@@ -11,21 +11,98 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import json
+from django.conf import settings
+
+# def home(request):
+#         # Verifica se o código já foi validado na sessão
+#     if not request.session.get('codigo_acesso_validado'):
+#         return render(request, 'avaliacao/codigo_acesso.html')
+#     # Subquery para contar avaliadores únicos para colaboradores
+#     colaborador_reviewers_subquery = Colaborador.objects.filter(
+#         pk=OuterRef('pk')
+#     ).annotate(
+#         total_distinct_reviewers=Count('avaliacoes__avaliador', distinct=True)
+#     ).values('total_distinct_reviewers')
+
+#     # Subquery para contar avaliadores únicos para restaurante
+#     restaurante_reviewers_subquery = Colaborador.objects.filter(
+#         pk=OuterRef('pk')
+#     ).annotate(
+#         total_distinct_reviewers_restaurante=Count('avaliacoes_restaurantes__avaliador', distinct=True)
+#     ).values('total_distinct_reviewers_restaurante')
+
+#     # Obter opções de cargo e hub distintos
+#     cargos = Colaborador.objects.values_list('cargo', flat=True).distinct()
+#     hubs = Hub.objects.all()
+
+#     # Realizar join para combinar avaliações de colaboradores e restaurante
+#     colaboradores = Colaborador.objects.annotate(
+#         total_avaliadores_colaborador=Coalesce(Subquery(colaborador_reviewers_subquery), Value(0)),
+#         total_avaliadores_restaurante=Coalesce(Subquery(restaurante_reviewers_subquery), Value(0)),
+#         media_avaliacao_colaborador=Coalesce(Avg('avaliacoes__nota'), Value(0.0), output_field=FloatField()),
+#         media_avaliacao_restaurante=Coalesce(Avg('avaliacoes_restaurantes__nota'), Value(0.0), output_field=FloatField()),
+#     ).annotate(
+#         total_avaliadores_total=F('total_avaliadores_colaborador') + F('total_avaliadores_restaurante'),
+#         media_avaliacao_total=Coalesce(
+#             Case(
+#                 When(total_avaliadores_total=0, then=Value(0.0)),
+#                 default=(
+#                     (F('media_avaliacao_colaborador') * F('total_avaliadores_colaborador') + 
+#                      F('media_avaliacao_restaurante') * F('total_avaliadores_restaurante')) / 
+#                     F('total_avaliadores_total')
+#                 ),
+#                 output_field=FloatField()
+#             ),
+#             Value(0.0),
+#             output_field=FloatField()
+#         )
+#     ).order_by('id')
+    
+#     cargo_selecionado = request.GET.get('cargo')
+#     hub_selecionado = request.GET.get('hub')
+#     search = request.GET.get('search', '')
+
+#     # Aplicar filtros
+#     if cargo_selecionado:
+#         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
+
+#     if hub_selecionado:
+#         colaboradores = colaboradores.filter(hub_id=hub_selecionado)
+
+#     if search:
+#         colaboradores = colaboradores.filter(nome__icontains=search)
+
+#     # Paginação
+#     paginator = Paginator(colaboradores, 9)
+#     page_number = request.GET.get('page')
+#     colaboradores_paginated = paginator.get_page(page_number)
+
+#     context = {
+#         'colaboradores': colaboradores_paginated,
+#         'cargos': cargos,
+#         'hubs': hubs,
+#         'request': request
+#     }
+#     return render(request, 'avaliacao/home.html', context)
+
 
 def home(request):
-    # Subquery para contar avaliadores únicos para colaboradores
-    colaborador_reviewers_subquery = Colaborador.objects.filter(
+    # Verifica se o código já foi validado na sessão
+    if not request.session.get('codigo_acesso_validado'):
+        return render(request, 'avaliacao/codigo_acesso.html')
+    
+    # Subqueries para contar o total de avaliações (não avaliadores únicos)
+    colaborador_reviews_count_subquery = Colaborador.objects.filter(
         pk=OuterRef('pk')
     ).annotate(
-        total_distinct_reviewers=Count('avaliacoes__avaliador', distinct=True)
-    ).values('total_distinct_reviewers')
+        total_avaliacoes_colaborador=Count('avaliacoes')
+    ).values('total_avaliacoes_colaborador')
 
-    # Subquery para contar avaliadores únicos para restaurante
-    restaurante_reviewers_subquery = Colaborador.objects.filter(
+    restaurante_reviews_count_subquery = Colaborador.objects.filter(
         pk=OuterRef('pk')
     ).annotate(
-        total_distinct_reviewers_restaurante=Count('avaliacoes_restaurantes__avaliador', distinct=True)
-    ).values('total_distinct_reviewers_restaurante')
+        total_avaliacoes_restaurante=Count('avaliacoes_restaurantes')
+    ).values('total_avaliacoes_restaurante')
 
     # Obter opções de cargo e hub distintos
     cargos = Colaborador.objects.values_list('cargo', flat=True).distinct()
@@ -33,19 +110,19 @@ def home(request):
 
     # Realizar join para combinar avaliações de colaboradores e restaurante
     colaboradores = Colaborador.objects.annotate(
-        total_avaliadores_colaborador=Coalesce(Subquery(colaborador_reviewers_subquery), Value(0)),
-        total_avaliadores_restaurante=Coalesce(Subquery(restaurante_reviewers_subquery), Value(0)),
+        total_avaliacoes_colaborador=Coalesce(Subquery(colaborador_reviews_count_subquery), Value(0)),
+        total_avaliacoes_restaurante=Coalesce(Subquery(restaurante_reviews_count_subquery), Value(0)),
         media_avaliacao_colaborador=Coalesce(Avg('avaliacoes__nota'), Value(0.0), output_field=FloatField()),
         media_avaliacao_restaurante=Coalesce(Avg('avaliacoes_restaurantes__nota'), Value(0.0), output_field=FloatField()),
     ).annotate(
-        total_avaliadores_total=F('total_avaliadores_colaborador') + F('total_avaliadores_restaurante'),
+        total_avaliacoes_total=F('total_avaliacoes_colaborador') + F('total_avaliacoes_restaurante'),
         media_avaliacao_total=Coalesce(
             Case(
-                When(total_avaliadores_total=0, then=Value(0.0)),
+                When(total_avaliacoes_total=0, then=Value(0.0)),
                 default=(
-                    (F('media_avaliacao_colaborador') * F('total_avaliadores_colaborador') + 
-                     F('media_avaliacao_restaurante') * F('total_avaliadores_restaurante')) / 
-                    F('total_avaliadores_total')
+                    (F('media_avaliacao_colaborador') * F('total_avaliacoes_colaborador') + 
+                     F('media_avaliacao_restaurante') * F('total_avaliacoes_restaurante')) / 
+                    F('total_avaliacoes_total')
                 ),
                 output_field=FloatField()
             ),
@@ -80,6 +157,16 @@ def home(request):
         'request': request
     }
     return render(request, 'avaliacao/home.html', context)
+
+def validar_codigo(request):
+    if request.method == 'POST':
+        codigo_inserido = request.POST.get('codigo')
+
+        if codigo_inserido == settings.CODIGO_CORRETO:
+            request.session['codigo_acesso_validado'] = True
+            return redirect('home')  # ou o nome da sua URL
+        else:
+            return render(request, 'avaliacao/codigo_acesso.html', {'erro': 'Código incorreto.'})
 
 
 def perfil_colaborador(request, colaborador_id):

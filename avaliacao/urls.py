@@ -15,6 +15,7 @@ urlpatterns = [
     path('feedback-restaurante/<int:colaborador_id>/', views.feedback_colaborador_restaurante, name='feedback_colaborador_restaurante'),
     path('suporte/relatorio/', views.relatorio_op, name='relatorio'),
     path('api/generate-report/', views.generate_report, name='generate_report'),
+    path('validar-codigo/', views.validar_codigo, name='validar_codigo'),
     # /api/generate-report/',
 
 

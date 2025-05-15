@@ -30,9 +30,9 @@
                 <a class="btn btn-outline-primary" href="https://wa.me/message/AQEJXX47PJOLO1">
                     <i class="bi-whatsapp me-2"></i>Suporte
                 </a>
-                <a class="btn btn-primary" href="{% url 'relatorio' %}">
+                {% comment %} <a class="btn btn-primary" href="{% url 'relatorio' %}">
                     <i class="bi-person-badge me-2"></i>Sou Gestor
-                </a>
+                </a> {% endcomment %}
             </div>
         </div>
     </nav>
@@ -122,15 +122,25 @@
                                 <p class="member-role">{{ colaborador.cargo }}</p>
                                 <p class="member-hub">{{ colaborador.hub }}</p>
                                 
+                                
                                 <div class="stats-grid">
                                     <div class="stat-item">
+                                        {% if request.user.is_superuser %}
                                         <i class="bi-star-fill text-warning"></i>
                                         <span>{{ colaborador.media_avaliacao_total|floatformat:1 }}</span>
                                         <label>Média Total</label>
+                                        {% else %}
+                                        <i class="bi-star-fill text-warning"></i>
+                                        <span> -- </span>
+                                        <label>Média Total</label>
+                                        {% endif %}
                                     </div>
+                                    
                                     <div class="stat-item">
                                         <i class="bi-people-fill text-primary"></i>
-                                        <span>{{ colaborador.total_avaliadores_total }}</span>
+                                        {% comment %} <span>{{ colaborador.total_avaliadores_total }}</span> {% endcomment %}
+                                        <span>{{ colaborador.total_avaliacoes_total }}</span>
+
                                         <label>Total Avaliações</label>
                                     </div>
                                     <div class="stat-item">
