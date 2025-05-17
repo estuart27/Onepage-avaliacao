@@ -13,78 +13,6 @@ from django.views.decorators.http import require_POST
 import json
 from django.conf import settings
 
-# def home(request):
-#         # Verifica se o código já foi validado na sessão
-#     if not request.session.get('codigo_acesso_validado'):
-#         return render(request, 'avaliacao/codigo_acesso.html')
-#     # Subquery para contar avaliadores únicos para colaboradores
-#     colaborador_reviewers_subquery = Colaborador.objects.filter(
-#         pk=OuterRef('pk')
-#     ).annotate(
-#         total_distinct_reviewers=Count('avaliacoes__avaliador', distinct=True)
-#     ).values('total_distinct_reviewers')
-
-#     # Subquery para contar avaliadores únicos para restaurante
-#     restaurante_reviewers_subquery = Colaborador.objects.filter(
-#         pk=OuterRef('pk')
-#     ).annotate(
-#         total_distinct_reviewers_restaurante=Count('avaliacoes_restaurantes__avaliador', distinct=True)
-#     ).values('total_distinct_reviewers_restaurante')
-
-#     # Obter opções de cargo e hub distintos
-#     cargos = Colaborador.objects.values_list('cargo', flat=True).distinct()
-#     hubs = Hub.objects.all()
-
-#     # Realizar join para combinar avaliações de colaboradores e restaurante
-#     colaboradores = Colaborador.objects.annotate(
-#         total_avaliadores_colaborador=Coalesce(Subquery(colaborador_reviewers_subquery), Value(0)),
-#         total_avaliadores_restaurante=Coalesce(Subquery(restaurante_reviewers_subquery), Value(0)),
-#         media_avaliacao_colaborador=Coalesce(Avg('avaliacoes__nota'), Value(0.0), output_field=FloatField()),
-#         media_avaliacao_restaurante=Coalesce(Avg('avaliacoes_restaurantes__nota'), Value(0.0), output_field=FloatField()),
-#     ).annotate(
-#         total_avaliadores_total=F('total_avaliadores_colaborador') + F('total_avaliadores_restaurante'),
-#         media_avaliacao_total=Coalesce(
-#             Case(
-#                 When(total_avaliadores_total=0, then=Value(0.0)),
-#                 default=(
-#                     (F('media_avaliacao_colaborador') * F('total_avaliadores_colaborador') + 
-#                      F('media_avaliacao_restaurante') * F('total_avaliadores_restaurante')) / 
-#                     F('total_avaliadores_total')
-#                 ),
-#                 output_field=FloatField()
-#             ),
-#             Value(0.0),
-#             output_field=FloatField()
-#         )
-#     ).order_by('id')
-    
-#     cargo_selecionado = request.GET.get('cargo')
-#     hub_selecionado = request.GET.get('hub')
-#     search = request.GET.get('search', '')
-
-#     # Aplicar filtros
-#     if cargo_selecionado:
-#         colaboradores = colaboradores.filter(cargo=cargo_selecionado)
-
-#     if hub_selecionado:
-#         colaboradores = colaboradores.filter(hub_id=hub_selecionado)
-
-#     if search:
-#         colaboradores = colaboradores.filter(nome__icontains=search)
-
-#     # Paginação
-#     paginator = Paginator(colaboradores, 9)
-#     page_number = request.GET.get('page')
-#     colaboradores_paginated = paginator.get_page(page_number)
-
-#     context = {
-#         'colaboradores': colaboradores_paginated,
-#         'cargos': cargos,
-#         'hubs': hubs,
-#         'request': request
-#     }
-#     return render(request, 'avaliacao/home.html', context)
-
 
 def home(request):
     # Verifica se o código já foi validado na sessão
@@ -169,6 +97,79 @@ def validar_codigo(request):
             return render(request, 'avaliacao/codigo_acesso.html', {'erro': 'Código incorreto.'})
 
 
+def classificar_colaborador(media_geral):
+    if media_geral is None:
+        return "Sem avaliações suficientes"
+    elif media_geral >= 4.6:
+        return "Sujeito a promoção"
+    elif media_geral >= 4.0:
+        return "Sujeito a bonificação"
+    elif media_geral >= 3.5:
+        return "Sujeito a melhorias"
+    elif media_geral >= 3.0:
+        return "Sujeito a estagnação"
+    else:
+        return "Sujeito a demissão"
+
+
+# from datetime import datetime, timedelta
+# # ...existing code...
+
+# def perfil_colaborador(request, colaborador_id):
+#     if not request.user.is_superuser:
+#         return redirect('/admin/login/?next=' + request.path)
+#     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
+    
+#     # Obtém as avaliações relacionadas ao colaborador
+#     avaliacoes = colaborador.avaliacoes.all().order_by('-data')
+
+#     # Calcula a média para cada critério de avaliação e a média geral
+#     media = avaliacoes.aggregate(
+#         pontualidade_media=Avg('pontualidade'),
+#         organizacao_media=Avg('organizacao'),
+#         comunicacao_media=Avg('comunicacao'),
+#         resolucao_problemas_media=Avg('resolucao_problemas'),
+#         precisao_media=Avg('precisao'),
+#         velocidade_media=Avg('velocidade'),
+#         conhecimento_ferramentas_media=Avg('conhecimento_ferramentas'),
+#         flexibilidade_media=Avg('flexibilidade'),
+#         postura_profissional_media=Avg('postura_profissional'),
+#         priorizacao_tarefas_media=Avg('priorizacao_tarefas')
+#     )
+
+#     # --- NOVO: filtra avaliações dos últimos 2 meses para a classificação ---
+#     dois_meses_atras = datetime.now() - timedelta(days=60)
+#     avaliacoes_2m = avaliacoes.filter(data__gte=dois_meses_atras)
+#     media_geral = avaliacoes_2m.aggregate(media_geral=Avg('nota'))['media_geral']
+#     # ------------------------------------------------------------------------
+
+#     total_avaliacoes = avaliacoes.count()
+
+#     # Extrai notas e datas para a evolução das avaliações
+#     notas_evolucao = [avaliacao.nota for avaliacao in avaliacoes]
+#     datas_evolucao = [avaliacao.data.strftime('%B') for avaliacao in avaliacoes]
+
+#     # Calcula a média por loja
+#     medias_por_loja = avaliacoes.values('loja').annotate(
+#         media_loja=Avg('nota')
+#     )
+
+#     classificacao = classificar_colaborador(media_geral)
+
+#     # Passa os dados para o template
+#     return render(request, 'avaliacao/perfil_colaborador.html', {
+#         'colaborador': colaborador,
+#         'media': media,
+#         'media_geral': media_geral,
+#         'total_avaliacoes': total_avaliacoes,
+#         'avaliacoes': avaliacoes,
+#         'notas_evolucao': notas_evolucao,
+#         'datas_evolucao': datas_evolucao,
+#         'medias_por_loja': medias_por_loja,
+#         'classificacao': classificacao,
+#     })
+
+
 def perfil_colaborador(request, colaborador_id):
     if not request.user.is_superuser:
         return redirect('/admin/login/?next=' + request.path)
@@ -195,6 +196,11 @@ def perfil_colaborador(request, colaborador_id):
     media_geral = avaliacoes.aggregate(media_geral=Avg('nota'))['media_geral']
     total_avaliacoes = avaliacoes.count()
 
+     # --- NOVO: filtra avaliações dos últimos 2 meses para a classificação ---
+    dois_meses_atras = datetime.now() - timedelta(days=60)
+    avaliacoes_2m = avaliacoes.filter(data__gte=dois_meses_atras)
+    media_mes = avaliacoes_2m.aggregate(media_geral=Avg('nota'))['media_geral']
+
     # Extrai notas e datas para a evolução das avaliações
     notas_evolucao = [avaliacao.nota for avaliacao in avaliacoes]
     datas_evolucao = [avaliacao.data.strftime('%B') for avaliacao in avaliacoes]
@@ -203,6 +209,8 @@ def perfil_colaborador(request, colaborador_id):
     medias_por_loja = avaliacoes.values('loja').annotate(
         media_loja=Avg('nota')
     )
+
+    classificacao = classificar_colaborador(media_mes)
 
     # Passa os dados para o template
     return render(request, 'avaliacao/perfil_colaborador.html', {
@@ -213,7 +221,9 @@ def perfil_colaborador(request, colaborador_id):
         'avaliacoes': avaliacoes,
         'notas_evolucao': notas_evolucao,
         'datas_evolucao': datas_evolucao,
-        'medias_por_loja': medias_por_loja  # Passa as médias por loja
+        'medias_por_loja': medias_por_loja,  # Passa as médias por loja
+        'classificacao': classificacao,  # <- aqui
+
     })
 
 
