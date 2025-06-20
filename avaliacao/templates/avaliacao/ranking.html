@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo_ranking }} - Sistema de Avaliação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .filters {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s ease-out 0.2s both;
+        }
+
+        .filters h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .filter-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            background: #ecf0f1;
+            color: #2c3e50;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .filter-btn:hover::before {
+            left: 100%;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .ranking-list {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s ease-out 0.4s both;
+        }
+
+        .ranking-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px 30px;
+            font-weight: bold;
+            display: grid;
+            grid-template-columns: 60px 80px 1fr 150px 120px 120px 100px;
+            gap: 20px;
+            align-items: center;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .colaborador-item {
+            display: grid;
+            grid-template-columns: 60px 80px 1fr 150px 120px 120px 100px;
+            gap: 20px;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: all 0.3s ease;
+            position: relative;
+            animation: fadeInUp 0.6s ease-out both;
+            overflow: hidden;
+        }
+
+        .colaborador-item:nth-child(1) { animation-delay: 0.1s; }
+        .colaborador-item:nth-child(2) { animation-delay: 0.15s; }
+        .colaborador-item:nth-child(3) { animation-delay: 0.2s; }
+        .colaborador-item:nth-child(4) { animation-delay: 0.25s; }
+        .colaborador-item:nth-child(5) { animation-delay: 0.3s; }
+        .colaborador-item:nth-child(n+6) { animation-delay: 0.35s; }
+
+        .colaborador-item:last-child {
+            border-bottom: none;
+        }
+
+        .colaborador-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .colaborador-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .colaborador-item:hover {
+            background: rgba(52, 152, 219, 0.05);
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .colaborador-item.top-3 {
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(230, 126, 34, 0.1));
+        }
+
+        .colaborador-item.top-3::before {
+            background: linear-gradient(135deg, #f1c40f, #e67e22);
+        }
+
+        .ranking-position {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+            margin: 0 auto;
+        }
+
+        .ranking-position.top-3 {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            box-shadow: 0 3px 10px rgba(243, 156, 18, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .colaborador-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ecf0f1;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .colaborador-item:hover .colaborador-avatar {
+            transform: scale(1.1);
+            border-color: #3498db;
+        }
+
+        .colaborador-info {
+            text-align: left;
+        }
+
+        .colaborador-info h3 {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .colaborador-info p {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin: 2px 0;
+        }
+
+        .score-display {
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            display: block;
+            line-height: 1;
+        }
+
+        .score-label {
+            color: #7f8c8d;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+
+        .medalhas-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .medalhas-count {
+            background: #3498db;
+            color: white;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-data h3 {
+            color: #7f8c8d;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .no-data p {
+            color: #95a5a6;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .ranking-header,
+            .colaborador-item {
+                grid-template-columns: 50px 70px 1fr 120px 100px 100px 80px;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            
+            .colaborador-avatar {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .ranking-position {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .filter-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .ranking-header {
+                display: none;
+            }
+            
+            .colaborador-item {
+                display: flex;
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+                gap: 15px;
+            }
+            
+            .colaborador-item::before {
+                display: none;
+            }
+            
+            .colaborador-item:hover {
+                transform: translateY(-5px);
+            }
+            
+            .colaborador-info {
+                text-align: center;
+            }
+            
+            .ranking-list {
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <div class="header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; padding: 20px;">
+          
+          <!-- Botão no lado esquerdo -->
+          <a href="/" 
+            style="
+                background-color: #3498DB;
+                color: white;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                font-weight: 500;
+            ">
+              ⬅ Voltar
+          </a>
+
+          <!-- Título e subtítulo centralizados -->
+          <div style="text-align: center; flex: 1;">
+              <h1 style="margin: 0;">🏆 {{ titulo_ranking }}</h1>
+              <p style="margin: 5px 0 0;">Sistema de Avaliação de Colaboradores</p>
+          </div>
+
+      </div>
+
+
+
+        <div class="filters">
+            <h3>📊 Filtrar Ranking por Categoria</h3>
+            <div class="filter-buttons">
+                {% for filtro_key, filtro_nome in filtros_disponiveis %}
+                    <a href="?filtro={{ filtro_key }}" 
+                       class="filter-btn {% if filtro_atual == filtro_key %}active{% endif %}">
+                        {{ filtro_nome }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if colaboradores %}
+            <div class="ranking-list">
+                <div class="ranking-header">
+                    <div>Posição</div>
+                    <div>Foto</div>
+                    <div>Colaborador</div>
+                    <div>Nota Principal</div>
+                    <div>Avaliações</div>
+                    <div>Média Geral</div>
+                    <div>Medalhas</div>
+                </div>
+                
+                {% for colaborador in colaboradores %}
+                    <div class="colaborador-item {% if forloop.counter <= 3 %}top-3{% endif %}">
+                        <div class="ranking-position {% if forloop.counter <= 3 %}top-3{% endif %}">
+                            {{ forloop.counter }}
+                        </div>
+                        
+                        <div>
+                            {% if colaborador.imagem %}
+                                <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="colaborador-avatar">
+                            {% else %}
+                                <div class="colaborador-avatar" style="background: linear-gradient(135deg, #3498db, #2980b9); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold;">
+                                    {{ colaborador.nome|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="colaborador-info">
+                            <h3>{{ colaborador.nome }}</h3>
+                            <p>{{ colaborador.cargo|default:"Cargo não definido" }}</p>
+                            <p>{{ colaborador.hub.nome|default:"Hub não definido" }}</p>
+                            <p><strong>{{ colaborador.tempo_na_empresa }}</strong></p>
+                        </div>
+
+                        <div class="score-display">
+                            {% if filtro_atual == 'media_geral' %}
+                                <span class="score-value">{{ colaborador.media_geral|floatformat:1 }}</span>
+                                <div class="score-label">Nota Geral</div>
+                            {% elif filtro_atual == 'pontualidade' %}
+                                <span class="score-value">{{ colaborador.media_pontualidade|floatformat:1 }}</span>
+                                <div class="score-label">Pontualidade</div>
+                            {% elif filtro_atual == 'organizacao' %}
+                                <span class="score-value">{{ colaborador.media_organizacao|floatformat:1 }}</span>
+                                <div class="score-label">Organização</div>
+                            {% elif filtro_atual == 'comunicacao' %}
+                                <span class="score-value">{{ colaborador.media_comunicacao|floatformat:1 }}</span>
+                                <div class="score-label">Comunicação</div>
+                            {% elif filtro_atual == 'resolucao_problemas' %}
+                                <span class="score-value">{{ colaborador.media_resolucao_problemas|floatformat:1 }}</span>
+                                <div class="score-label">Resolução de Problemas</div>
+                            {% elif filtro_atual == 'precisao' %}
+                                <span class="score-value">{{ colaborador.media_precisao|floatformat:1 }}</span>
+                                <div class="score-label">Precisão</div>
+                            {% elif filtro_atual == 'velocidade' %}
+                                <span class="score-value">{{ colaborador.media_velocidade|floatformat:1 }}</span>
+                                <div class="score-label">Velocidade</div>
+                            {% elif filtro_atual == 'conhecimento_ferramentas' %}
+                                <span class="score-value">{{ colaborador.media_conhecimento_ferramentas|floatformat:1 }}</span>
+                                <div class="score-label">Conhecimento de Ferramentas</div>
+                            {% elif filtro_atual == 'flexibilidade' %}
+                                <span class="score-value">{{ colaborador.media_flexibilidade|floatformat:1 }}</span>
+                                <div class="score-label">Flexibilidade</div>
+                            {% elif filtro_atual == 'postura_profissional' %}
+                                <span class="score-value">{{ colaborador.media_postura_profissional|floatformat:1 }}</span>
+                                <div class="score-label">Postura Profissional</div>
+                            {% elif filtro_atual == 'priorizacao_tarefas' %}
+                                <span class="score-value">{{ colaborador.media_priorizacao_tarefas|floatformat:1 }}</span>
+                                <div class="score-label">Priorização de Tarefas</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-value">{{ colaborador.total_avaliacoes }}</span>
+                            <div class="stat-label">Total</div>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-value">{{ colaborador.media_geral|floatformat:1 }}</span>
+                            <div class="stat-label">Média</div>
+                        </div>
+
+                        <div class="medalhas-section">
+                            {% if colaborador.total_medalhas > 0 %}
+                                <div class="medalhas-count">
+                                    🏅 {{ colaborador.total_medalhas }}
+                                </div>
+                            {% else %}
+                                <div class="medalhas-count" style="background: #95a5a6;">
+                                    🏅 0
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-data">
+                <h3>📋 Nenhum colaborador encontrado</h3>
+                <p>Não há colaboradores com avaliações para exibir no ranking.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Adiciona animação suave aos elementos quando aparecem na tela
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observa todos os itens de colaboradores
+        document.querySelectorAll('.colaborador-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Adiciona efeito de hover suave nos botões de filtro
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px) scale(1.05)';
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                if (!btn.classList.contains('active')) {
+                    btn.style.transform = 'translateY(0) scale(1)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

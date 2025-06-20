@@ -16,6 +16,8 @@ urlpatterns = [
     path('suporte/relatorio/', views.relatorio_op, name='relatorio'),
     path('api/generate-report/', views.generate_report, name='generate_report'),
     path('validar-codigo/', views.validar_codigo, name='validar_codigo'),
+    path('colaboladores/ranking ', views.ranking , name='ranking'),
+
     # /api/generate-report/',
 
 
