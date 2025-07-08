@@ -453,19 +453,34 @@
 
       </div>
 
-
-
+        <div class="filters">
+            <h3>🏢 Filtrar por Hub</h3>
+            <div class="filter-buttons">
+                <a href="?{% if filtro_atual %}filtro={{ filtro_atual }}{% endif %}" 
+                class="filter-btn {% if not hub_selecionado %}active{% endif %}">
+                    Todos os Hubs
+                </a>
+                {% for hub in hubs %}
+                    <a href="?hub={{ hub.id }}{% if filtro_atual %}&filtro={{ filtro_atual }}{% endif %}" 
+                    class="filter-btn {% if hub.id|stringformat:"s" == hub_selecionado %}active{% endif %}">
+                        {{ hub.nome }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        
         <div class="filters">
             <h3>📊 Filtrar Ranking por Categoria</h3>
             <div class="filter-buttons">
                 {% for filtro_key, filtro_nome in filtros_disponiveis %}
-                    <a href="?filtro={{ filtro_key }}" 
-                       class="filter-btn {% if filtro_atual == filtro_key %}active{% endif %}">
+                    <a href="?filtro={{ filtro_key }}{% if hub_selecionado %}&hub={{ hub_selecionado }}{% endif %}" 
+                    class="filter-btn {% if filtro_atual == filtro_key %}active{% endif %}">
                         {{ filtro_nome }}
                     </a>
                 {% endfor %}
             </div>
         </div>
+
 
         {% if colaboradores %}
             <div class="ranking-list">
@@ -550,9 +565,10 @@
                         </div>
 
                         <div class="medalhas-section">
-                            {% if colaborador.total_medalhas > 0 %}
+                            {% if colaborador.qtd_medalhas > 0 %}
                                 <div class="medalhas-count">
-                                    🏅 {{ colaborador.total_medalhas }}
+                                    🏅 {{ colaborador.qtd_medalhas }}
+
                                 </div>
                             {% else %}
                                 <div class="medalhas-count" style="background: #95a5a6;">

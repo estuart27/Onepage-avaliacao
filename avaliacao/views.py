@@ -112,64 +112,6 @@ def classificar_colaborador(media_geral):
         return "Sujeito a demissão"
 
 
-# from datetime import datetime, timedelta
-# # ...existing code...
-
-# def perfil_colaborador(request, colaborador_id):
-#     if not request.user.is_superuser:
-#         return redirect('/admin/login/?next=' + request.path)
-#     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
-    
-#     # Obtém as avaliações relacionadas ao colaborador
-#     avaliacoes = colaborador.avaliacoes.all().order_by('-data')
-
-#     # Calcula a média para cada critério de avaliação e a média geral
-#     media = avaliacoes.aggregate(
-#         pontualidade_media=Avg('pontualidade'),
-#         organizacao_media=Avg('organizacao'),
-#         comunicacao_media=Avg('comunicacao'),
-#         resolucao_problemas_media=Avg('resolucao_problemas'),
-#         precisao_media=Avg('precisao'),
-#         velocidade_media=Avg('velocidade'),
-#         conhecimento_ferramentas_media=Avg('conhecimento_ferramentas'),
-#         flexibilidade_media=Avg('flexibilidade'),
-#         postura_profissional_media=Avg('postura_profissional'),
-#         priorizacao_tarefas_media=Avg('priorizacao_tarefas')
-#     )
-
-#     # --- NOVO: filtra avaliações dos últimos 2 meses para a classificação ---
-#     dois_meses_atras = datetime.now() - timedelta(days=60)
-#     avaliacoes_2m = avaliacoes.filter(data__gte=dois_meses_atras)
-#     media_geral = avaliacoes_2m.aggregate(media_geral=Avg('nota'))['media_geral']
-#     # ------------------------------------------------------------------------
-
-#     total_avaliacoes = avaliacoes.count()
-
-#     # Extrai notas e datas para a evolução das avaliações
-#     notas_evolucao = [avaliacao.nota for avaliacao in avaliacoes]
-#     datas_evolucao = [avaliacao.data.strftime('%B') for avaliacao in avaliacoes]
-
-#     # Calcula a média por loja
-#     medias_por_loja = avaliacoes.values('loja').annotate(
-#         media_loja=Avg('nota')
-#     )
-
-#     classificacao = classificar_colaborador(media_geral)
-
-#     # Passa os dados para o template
-#     return render(request, 'avaliacao/perfil_colaborador.html', {
-#         'colaborador': colaborador,
-#         'media': media,
-#         'media_geral': media_geral,
-#         'total_avaliacoes': total_avaliacoes,
-#         'avaliacoes': avaliacoes,
-#         'notas_evolucao': notas_evolucao,
-#         'datas_evolucao': datas_evolucao,
-#         'medias_por_loja': medias_por_loja,
-#         'classificacao': classificacao,
-#     })
-
-
 def perfil_colaborador(request, colaborador_id):
     if not request.user.is_superuser:
         return redirect('/admin/login/?next=' + request.path)
@@ -448,17 +390,126 @@ def generate_report(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+# def ranking(request):
+#     # Verifica se o usuário é um superusuário
+#     if not request.user.is_superuser:
+#         return redirect('/admin/login/?next=' + request.path)
+    
+#     # Obtém o filtro selecionado
+#     filtro = request.GET.get('filtro', 'media_geral')
+    
+#     # Base queryset com todas as médias calculadas
+#     colaboradores = Colaborador.objects.annotate(
+#         media_geral=Avg('avaliacoes__nota'),
+#         media_pontualidade=Avg('avaliacoes__pontualidade'),
+#         media_organizacao=Avg('avaliacoes__organizacao'),
+#         media_comunicacao=Avg('avaliacoes__comunicacao'),
+#         media_resolucao_problemas=Avg('avaliacoes__resolucao_problemas'),
+#         media_precisao=Avg('avaliacoes__precisao'),
+#         media_velocidade=Avg('avaliacoes__velocidade'),
+#         media_conhecimento_ferramentas=Avg('avaliacoes__conhecimento_ferramentas'),
+#         media_flexibilidade=Avg('avaliacoes__flexibilidade'),
+#         media_postura_profissional=Avg('avaliacoes__postura_profissional'),
+#         media_priorizacao_tarefas=Avg('avaliacoes__priorizacao_tarefas'),
+#         total_avaliacoes=Count('avaliacoes')
+#     ).filter(total_avaliacoes__gt=0)  # Só colaboradores com avaliações
+    
+#     # Aplica o filtro de ordenação baseado na seleção
+#     filtros_ordenacao = {
+#         'media_geral': '-media_geral',
+#         'pontualidade': '-media_pontualidade',
+#         'organizacao': '-media_organizacao',
+#         'comunicacao': '-media_comunicacao',
+#         'resolucao_problemas': '-media_resolucao_problemas',
+#         'precisao': '-media_precisao',
+#         'velocidade': '-media_velocidade',
+#         'conhecimento_ferramentas': '-media_conhecimento_ferramentas',
+#         'flexibilidade': '-media_flexibilidade',
+#         'postura_profissional': '-media_postura_profissional',
+#         'priorizacao_tarefas': '-media_priorizacao_tarefas',
+#     }
+    
+#     ordem = filtros_ordenacao.get(filtro, '-media_geral')
+#     colaboradores = colaboradores.order_by(ordem)
+    
+#     # Define o título baseado no filtro
+#     titulos_filtro = {
+#         'media_geral': 'Ranking Geral',
+#         'pontualidade': 'Mais Pontuais',
+#         'organizacao': 'Mais Organizados',
+#         'comunicacao': 'Melhor Comunicação',
+#         'resolucao_problemas': 'Resolução de Problemas',
+#         'precisao': 'Mais Precisos',
+#         'velocidade': 'Mais Rápidos',
+#         'conhecimento_ferramentas': 'Conhecimento de Ferramentas',
+#         'flexibilidade': 'Mais Flexíveis',
+#         'postura_profissional': 'Postura Profissional',
+#         'priorizacao_tarefas': 'Priorização de Tarefas',
+#     }
+    
+#     context = {
+#         'colaboradores': colaboradores,
+#         'filtro_atual': filtro,
+#         'titulo_ranking': titulos_filtro.get(filtro, 'Ranking Geral'),
+#         'filtros_disponiveis': [
+#             ('media_geral', 'Ranking Geral'),
+#             ('pontualidade', 'Pontualidade'),
+#             ('organizacao', 'Organização'),
+#             ('comunicacao', 'Comunicação'),
+#             ('resolucao_problemas', 'Resolução de Problemas'),
+#             ('precisao', 'Precisão'),
+#             ('velocidade', 'Velocidade'),
+#             ('conhecimento_ferramentas', 'Conhecimento de Ferramentas'),
+#             ('flexibilidade', 'Flexibilidade'),
+#             ('postura_profissional', 'Postura Profissional'),
+#             ('priorizacao_tarefas', 'Priorização de Tarefas'),
+#         ]
+#     }
+    
+#     return render(request, 'avaliacao/ranking.html', context)
+
+from django.db.models import Avg, Count, Case, When, F, Value, FloatField
+from django.db.models.functions import Coalesce
+
 def ranking(request):
-    # Verifica se o usuário é um superusuário
     if not request.user.is_superuser:
         return redirect('/admin/login/?next=' + request.path)
-    
-    # Obtém o filtro selecionado
+
     filtro = request.GET.get('filtro', 'media_geral')
-    
-    # Base queryset com todas as médias calculadas
+    hub_id = request.GET.get('hub')
+
+
     colaboradores = Colaborador.objects.annotate(
-        media_geral=Avg('avaliacoes__nota'),
+        # Avaliações
+        total_avaliacoes_colaborador=Count('avaliacoes', distinct=True),
+        total_avaliacoes_restaurante=Count('avaliacoes_restaurantes', distinct=True),
+
+        media_avaliacao_colaborador=Coalesce(Avg('avaliacoes__nota'), Value(0.0)),
+        media_avaliacao_restaurante=Coalesce(Avg('avaliacoes_restaurantes__nota'), Value(0.0)),
+
+        total_avaliacoes=F('total_avaliacoes_colaborador') + F('total_avaliacoes_restaurante'),
+
+        media_geral=Coalesce(
+            Case(
+                When(
+                    total_avaliacoes_colaborador=0,
+                    total_avaliacoes_restaurante=0,
+                    then=Value(0.0)
+                ),
+                default=(
+                    (
+                        F('media_avaliacao_colaborador') * F('total_avaliacoes_colaborador') +
+                        F('media_avaliacao_restaurante') * F('total_avaliacoes_restaurante')
+                    ) / 
+                    F('total_avaliacoes')
+                ),
+                output_field=FloatField()
+            ),
+            Value(0.0),
+            output_field=FloatField()
+        ),
+
+        # Médias específicas
         media_pontualidade=Avg('avaliacoes__pontualidade'),
         media_organizacao=Avg('avaliacoes__organizacao'),
         media_comunicacao=Avg('avaliacoes__comunicacao'),
@@ -469,10 +520,13 @@ def ranking(request):
         media_flexibilidade=Avg('avaliacoes__flexibilidade'),
         media_postura_profissional=Avg('avaliacoes__postura_profissional'),
         media_priorizacao_tarefas=Avg('avaliacoes__priorizacao_tarefas'),
-        total_avaliacoes=Count('avaliacoes')
-    ).filter(total_avaliacoes__gt=0)  # Só colaboradores com avaliações
-    
-    # Aplica o filtro de ordenação baseado na seleção
+
+        # Medalhas
+        qtd_medalhas=Count('medalhas', distinct=True),
+    )
+    if hub_id:
+        colaboradores = colaboradores.filter(hub_id=hub_id)
+
     filtros_ordenacao = {
         'media_geral': '-media_geral',
         'pontualidade': '-media_pontualidade',
@@ -485,12 +539,12 @@ def ranking(request):
         'flexibilidade': '-media_flexibilidade',
         'postura_profissional': '-media_postura_profissional',
         'priorizacao_tarefas': '-media_priorizacao_tarefas',
+
     }
-    
+
     ordem = filtros_ordenacao.get(filtro, '-media_geral')
     colaboradores = colaboradores.order_by(ordem)
-    
-    # Define o título baseado no filtro
+
     titulos_filtro = {
         'media_geral': 'Ranking Geral',
         'pontualidade': 'Mais Pontuais',
@@ -504,7 +558,7 @@ def ranking(request):
         'postura_profissional': 'Postura Profissional',
         'priorizacao_tarefas': 'Priorização de Tarefas',
     }
-    
+
     context = {
         'colaboradores': colaboradores,
         'filtro_atual': filtro,
@@ -521,7 +575,9 @@ def ranking(request):
             ('flexibilidade', 'Flexibilidade'),
             ('postura_profissional', 'Postura Profissional'),
             ('priorizacao_tarefas', 'Priorização de Tarefas'),
-        ]
+        ],
+        'hubs': Hub.objects.all(),
+        'hub_selecionado': hub_id,
     }
-    
+
     return render(request, 'avaliacao/ranking.html', context)
