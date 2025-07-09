@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
         :root {
-            --primary-color: #2563eb;
+            --primary-color: #3498DB;
             --secondary-color: #475569;
             --background-color: #f8fafc;
             --card-background: #ffffff;
