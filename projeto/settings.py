@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-# settings.py
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-x1o-=4nw^vi34n8je=b)bkr8%tp6i^8e(-jjy6&wckx31qqi+f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = ["digital.silvestrecode.shop"]
@@ -102,9 +102,6 @@ WSGI_APPLICATION = 'projeto.wsgi.application'
 #     }
 # }
 
-from decouple import config
-
-CODIGO_CORRETO = config('CODIGO_CORRETO')
 
 DATABASES = {
     'default': {
@@ -113,11 +110,9 @@ DATABASES = {
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT', cast=int),
+        'PORT': config('DB_PORT'),
     }
 }
-
-
 
 
 # Password validation
@@ -175,4 +170,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
 LOGIN_URL = '/admin/login/'
 
-# CODIGO_CORRETO = 'gestao2025'  # Você pode guardar isso no `.env` também
+CODIGO_CORRETO = config('CODIGO_CORRETO')
