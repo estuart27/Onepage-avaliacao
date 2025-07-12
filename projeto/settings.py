@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 # settings.py
 import os
 
@@ -94,15 +95,13 @@ WSGI_APPLICATION = 'projeto.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bancohub',                            # Nome do banco de dados
-        'USER': 'hub',        # Usuário do banco (confirme se é o correto)
-        'PASSWORD': 'estuart123040506',                 # Senha correta
-        'HOST': 'localhost',  # Host do Supabase
-        'PORT': '5432',                              # Porta confirmada como 6543
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', cast=int),
     }
 }
-
-
 
 
 # Password validation
@@ -160,4 +159,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
 LOGIN_URL = '/admin/login/'
 
-CODIGO_CORRETO = 'gestao2025'  # Você pode guardar isso no `.env` também
+CODIGO_CORRETO = config('CODIGO_CORRETO')

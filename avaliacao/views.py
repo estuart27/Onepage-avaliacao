@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Colaborador, Avaliacao,Hub,Avaliacao_Restaurante
 from .forms import AvaliacaoForm,AvaliacaoMensageiroForm
-from django.db.models import Avg, Count
 from .utils import analizar_partida,gerar_feedback_restaurante,relatorio  # Certifique-se de que a função resposta_bot está no arquivo correto
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator
@@ -326,8 +325,6 @@ def feedback_colaborador_restaurante(request, colaborador_id):
     except Colaborador.DoesNotExist:
         return render(request, 'erro.html', {'message': 'Colaborador não encontrado.'})
 
-
-
 # Página de avaliação do colaborador
 def avaliar_colaborador(request, colaborador_id):
     colaborador = get_object_or_404(Colaborador, id=colaborador_id)
@@ -389,87 +386,6 @@ def generate_report(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
-# def ranking(request):
-#     # Verifica se o usuário é um superusuário
-#     if not request.user.is_superuser:
-#         return redirect('/admin/login/?next=' + request.path)
-    
-#     # Obtém o filtro selecionado
-#     filtro = request.GET.get('filtro', 'media_geral')
-    
-#     # Base queryset com todas as médias calculadas
-#     colaboradores = Colaborador.objects.annotate(
-#         media_geral=Avg('avaliacoes__nota'),
-#         media_pontualidade=Avg('avaliacoes__pontualidade'),
-#         media_organizacao=Avg('avaliacoes__organizacao'),
-#         media_comunicacao=Avg('avaliacoes__comunicacao'),
-#         media_resolucao_problemas=Avg('avaliacoes__resolucao_problemas'),
-#         media_precisao=Avg('avaliacoes__precisao'),
-#         media_velocidade=Avg('avaliacoes__velocidade'),
-#         media_conhecimento_ferramentas=Avg('avaliacoes__conhecimento_ferramentas'),
-#         media_flexibilidade=Avg('avaliacoes__flexibilidade'),
-#         media_postura_profissional=Avg('avaliacoes__postura_profissional'),
-#         media_priorizacao_tarefas=Avg('avaliacoes__priorizacao_tarefas'),
-#         total_avaliacoes=Count('avaliacoes')
-#     ).filter(total_avaliacoes__gt=0)  # Só colaboradores com avaliações
-    
-#     # Aplica o filtro de ordenação baseado na seleção
-#     filtros_ordenacao = {
-#         'media_geral': '-media_geral',
-#         'pontualidade': '-media_pontualidade',
-#         'organizacao': '-media_organizacao',
-#         'comunicacao': '-media_comunicacao',
-#         'resolucao_problemas': '-media_resolucao_problemas',
-#         'precisao': '-media_precisao',
-#         'velocidade': '-media_velocidade',
-#         'conhecimento_ferramentas': '-media_conhecimento_ferramentas',
-#         'flexibilidade': '-media_flexibilidade',
-#         'postura_profissional': '-media_postura_profissional',
-#         'priorizacao_tarefas': '-media_priorizacao_tarefas',
-#     }
-    
-#     ordem = filtros_ordenacao.get(filtro, '-media_geral')
-#     colaboradores = colaboradores.order_by(ordem)
-    
-#     # Define o título baseado no filtro
-#     titulos_filtro = {
-#         'media_geral': 'Ranking Geral',
-#         'pontualidade': 'Mais Pontuais',
-#         'organizacao': 'Mais Organizados',
-#         'comunicacao': 'Melhor Comunicação',
-#         'resolucao_problemas': 'Resolução de Problemas',
-#         'precisao': 'Mais Precisos',
-#         'velocidade': 'Mais Rápidos',
-#         'conhecimento_ferramentas': 'Conhecimento de Ferramentas',
-#         'flexibilidade': 'Mais Flexíveis',
-#         'postura_profissional': 'Postura Profissional',
-#         'priorizacao_tarefas': 'Priorização de Tarefas',
-#     }
-    
-#     context = {
-#         'colaboradores': colaboradores,
-#         'filtro_atual': filtro,
-#         'titulo_ranking': titulos_filtro.get(filtro, 'Ranking Geral'),
-#         'filtros_disponiveis': [
-#             ('media_geral', 'Ranking Geral'),
-#             ('pontualidade', 'Pontualidade'),
-#             ('organizacao', 'Organização'),
-#             ('comunicacao', 'Comunicação'),
-#             ('resolucao_problemas', 'Resolução de Problemas'),
-#             ('precisao', 'Precisão'),
-#             ('velocidade', 'Velocidade'),
-#             ('conhecimento_ferramentas', 'Conhecimento de Ferramentas'),
-#             ('flexibilidade', 'Flexibilidade'),
-#             ('postura_profissional', 'Postura Profissional'),
-#             ('priorizacao_tarefas', 'Priorização de Tarefas'),
-#         ]
-#     }
-    
-#     return render(request, 'avaliacao/ranking.html', context)
-
-from django.db.models import Avg, Count, Case, When, F, Value, FloatField
-from django.db.models.functions import Coalesce
 
 def ranking(request):
     if not request.user.is_superuser:
