@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-x1o-=4nw^vi34n8je=b)bkr8%tp6i^8e(-jjy6&wckx31qqi+f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 ALLOWED_HOSTS = ["digital.silvestrecode.shop"]
