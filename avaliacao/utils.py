@@ -1,6 +1,7 @@
 from langchain_community.document_loaders import WebBaseLoader
-from langchain.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
+from langchain_core.prompts import ChatPromptTemplate
+
 import os
 
 def analizar_partida(dados_avaliacao):

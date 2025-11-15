@@ -1,548 +1,514 @@
 {% load static %}
-<html lang="pt">
+{% load avaliacao_tags %}
+{% load repeat %}
+
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliação de Equipe</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <title>Avaliação de {{ colaborador.nome }}</title>
+    
     <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico'%}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        /* [Previous styles remain the same until .rating-group] */
         :root {
             --primary-color: #3498DB;
-            --primary-dark: #3498DB;
-            --background-color: #f8fafc;
-            --card-bg: #ffffff;
+            --primary-rgb: 52, 152, 219;
+            --primary-dark: #2980b9;
+            --background-color: #f8fafc; /* Cinza bem claro */
+            --card-background: #ffffff;
+            --border-color: #e5e7eb;
+            --text-color: #334155;
+            --text-muted: #64748b;
             --star-color: #fbbf24;
-            --text-color: #1f2937;
-            --gradient-start: #3498DB;
-            --gradient-end: #3498DB;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
+            /* Espaço para o cabeçalho e rodapé fixos */
+            padding-top: 100px; 
+            padding-bottom: 120px; 
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 0 1rem; /* Reduzido o padding lateral para telas menores */
         }
 
-        .header {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: white;
-            padding: 2rem;
-            border-radius: 0 0 2.5rem 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+        /* --- Cabeçalho Fixo (Novo) --- */
+        .page-header-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            z-index: 10;
         }
-
         .header-content {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
             max-width: 900px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        .back-button {
-            color: white;
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .profile-header .avatar-image {
+            width: 50px; /* Menor para o cabeçalho fixo */
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+        .profile-header h1 {
+            font-size: 1.25rem; /* Menor */
+            font-weight: 600;
+            margin: 0;
+            color: #111827;
+        }
+        .profile-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .btn-back {
+            color: var(--primary-color);
             text-decoration: none;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: transform 0.2s;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        .btn-back:hover {
+            background-color: #f1f5f9;
         }
 
-        .rating-group {
-            background: var(--card-bg);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            margin-bottom: 1.5rem;
+        /* --- Seções do Formulário --- */
+        .form-section {
+            background-color: var(--card-background);
+            border-radius: 1rem; /* 16px */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+            overflow: hidden; /* Para conter os cantos arredondados */
         }
-
-        .rating-group:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px -8px rgba(99, 102, 241, 0.2);
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+            padding: 1.5rem 2rem;
+            margin: 0;
+            background-color: #f9fafb; /* Fundo levemente cinza para o título */
+            border-bottom: 1px solid var(--border-color);
         }
-
-        .rating-header {
+        .section-title .emoji {
+            margin-right: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        /* --- Lista de Avaliação (Compacta) --- */
+        .rating-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .rating-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            /* Animação sutil ao passar o mouse */
+            transition: background-color 0.2s ease;
         }
-
-        .rating-title {
-            font-size: 1.25rem;
+        .rating-item:hover {
+            background-color: #fcfdff;
+        }
+        .rating-item:last-child {
+            border-bottom: none;
+        }
+        .rating-info .rating-title {
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-color);
+            margin: 0;
+        }
+        .rating-info .help-text {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .rating-stars {
+            flex-shrink: 0;
         }
 
-        .emoji {
-            font-size: 2rem;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
+        /* Estrelas */
         .stars {
             display: flex;
-            gap: 0.5rem;
+            flex-direction: row-reverse;
+            gap: 0.25rem;
             justify-content: center;
-            margin-bottom: 1rem;
         }
-
-        .star-rating {
-            display: none;
-        }
-
+        .star-rating { display: none; }
         .star-label {
             cursor: pointer;
-            font-size: 2.5rem;
+            font-size: 2.25rem; /* Levemente maior */
             color: #e5e7eb;
             transition: all 0.2s;
+            padding: 0 0.1rem;
         }
-
         .star-label:hover,
         .star-label:hover ~ .star-label,
         .star-rating:checked ~ .star-label {
             color: var(--star-color);
             transform: scale(1.1);
         }
-
-        .emoji-feedback {
-            height: 3rem;
-            text-align: center;
-            font-size: 2rem;
-            transition: all 0.3s;
+        
+        /* Textarea de Comentário */
+        .comment-box {
+            padding: 1.5rem 2rem;
         }
-
-        .help-text {
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.875rem;
+        .form-label-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            display: block;
         }
-
-        .comment-area {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 1rem;
+        textarea {
+            width: 100%; 
+            padding: 0.75rem 1rem; 
+            border: 1px solid var(--border-color); 
+            border-radius: 0.5rem; 
             resize: vertical;
-            min-height: 120px;
-            transition: all 0.3s;
+            min-height: 100px;
             font-family: inherit;
         }
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+        }
 
+        /* Botão de Envio Fixo */
+        .submit-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
         .submit-button {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            background-color: var(--primary-color);
             color: white;
             border: none;
             padding: 1.25rem 2rem;
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             font-size: 1.125rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 2rem;
             width: 100%;
+            max-width: 900px;
+            display: block;
+            margin: 0 auto;
         }
-
         .submit-button:hover {
+            background-color: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.2);
         }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+        
+        @media (max-width: 600px) {
+            .rating-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
             }
-
-            .rating-group {
-                padding: 1.5rem;
+            .rating-stars {
+                width: 100%;
+                justify-content: flex-end;
             }
-
-            .star-label {
-                font-size: 2rem;
+            .profile-header h1 {
+                font-size: 1rem;
+            }
+            .profile-header p {
+                font-size: 0.8rem;
             }
         }
-        .avatar-container {
-          width: 80px;
-          height: 80px;
-          overflow: hidden;
-          border-radius: 50%;
-          flex-shrink: 0;
-      }
-  
-      .avatar-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 50%;
-      }
-      /* Estilo para a lista de sugestões */
-      .suggestions {
-          position: absolute;
-          width: 100%;
-          max-height: 150px;
-          overflow-y: auto;
-          border: 1px solid #d1d5db;
-          border-radius: 0.5rem;
-          background-color: white;
-          z-index: 999;
-          margin-top: 5px;
-      }
-      .suggestion-item {
-          padding: 0.5rem;
-          cursor: pointer;
-      }
-      .suggestion-item:hover {
-          background-color: #f0f0f0;
-      }
     </style>
 </head>
 <body>
-    <div class="header">
+
+    <div class="page-header-fixed">
         <div class="header-content">
-            <a href="{% url 'home' %}" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-                Voltar
+            <div class="profile-header">
+                <img src="{{ colaborador.imagem.url }}" alt="Avatar" class="avatar-image">
+                <div>
+                    <h1>{{ colaborador.nome }}</h1>
+                    <p>{{ colaborador.get_cargo_display }}</p>
+                </div>
+            </div>
+            <a href="{% url 'home' %}" class="btn-back">
+                <i class="bi bi-x-lg"></i> Fechar
             </a>
-            <div class="avatar-container">
-                <img src="{{ colaborador.imagem.url }}" alt="Avatar do Colaborador" class="avatar-image">
-            </div>
-            <div class="employee-info">
-                <h1>{{ colaborador.nome }}</h1>
-            </div>
         </div>
     </div>
 
     <div class="container">
-      <form method="post" class="evaluation-form" id="evaluationForm">
-          {% csrf_token %}
-  
-          <!-- Campo Avaliador -->
-          <div class="rating-group">
-              <div class="rating-header">
-                  <span class="emoji">📝</span>
-                  <h3 class="rating-title">Avaliador</h3>
-              </div>
-              <input type="text" name="avaliador" placeholder="Nome do avaliador" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
-              <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
-          </div>
-  
-          <div class="rating-group" style="position: relative;">
-            <div class="rating-header">
-                <span class="emoji">🏬</span>
-                <h3 class="rating-title">Nome da Loja ou Estilo </h3>
-            </div>
-            <input type="text" name="loja" id="loja" placeholder="Nome da loja ou estilo do avaliador " required 
-                   style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
-            <p class="help-text">Nome da Loja ou estilo do avaliador ex:Gestor,Entregador,Mc Donald's etc</p>
+        <form method="post" class="evaluation-form" id="evaluationForm">
+            {% csrf_token %}
             
+            <div class="form-section">
+                <h2 class="section-title"><span class="emoji">🧠</span> Avaliação Comportamental</h2>
+                <ul class="rating-list">
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Proatividade</h3>
+                            <p class="help-text">Antecipa problemas e age sem esperar ordem.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="proatividade" value="{{ i }}" id="proatividade_{{ i }}" class="star-rating" required><label class="star-label" for="proatividade_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Responsabilidade</h3>
+                            <p class="help-text">Cumpre horários, cuida do material e das entregas.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="responsabilidade" value="{{ i }}" id="responsabilidade_{{ i }}" class="star-rating" required><label class="star-label" for="responsabilidade_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Trabalho em equipe</h3>
+                            <p class="help-text">Coopera e mantém clima positivo com o time.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="trabalho_em_equipe" value="{{ i }}" id="trabalho_em_equipe_{{ i }}" class="star-rating" required><label class="star-label" for="trabalho_em_equipe_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Comunicação</h3>
+                            <p class="help-text">Clareza e respeito na fala, evita ruídos.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="comunicacao" value="{{ i }}" id="comunicacao_{{ i }}" class="star-rating" required><label class="star-label" for="comunicacao_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Resiliência</h3>
+                            <p class="help-text">Mantém bom desempenho mesmo sob pressão.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="resiliencia" value="{{ i }}" id="resiliencia_{{ i }}" class="star-rating" required><label class="star-label" for="resiliencia_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Postura Profissional</h3>
+                            <p class="help-text">Comportamento, uniforme, linguagem e foco.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="postura_profissional" value="{{ i }}" id="postura_profissional_{{ i }}" class="star-rating" required><label class="star-label" for="postura_profissional_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Evolução Individual</h3>
+                            <p class="help-text">Comparativo com a última avaliação (crescimento).</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="evolucao_individual" value="{{ i }}" id="evolucao_individual_{{ i }}" class="star-rating" required><label class="star-label" for="evolucao_individual_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                </ul>
+                <div class="comment-box">
+                    <label class="form-label-title" for="comentario_comportamental">Observações Comportamentais</label>
+                    <textarea name="comentario_comportamental" id="comentario_comportamental" rows="4" placeholder="Ex: 'Melhorou pontualidade', 'precisa se comunicar mais' (opcional)"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title"><span class="emoji">🧩</span> Avaliação Operacional ({{ colaborador.get_cargo_display }})</h2>
+                <ul class="rating-list">
+                    
+                    {% if form.trm5 %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">TRM5 (Agilidade Carrossel)</h3>
+                            <p class="help-text">Mede a agilidade do carrossel (retorno em 5 min).</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="trm5" value="{{ i }}" id="trm5_{{ i }}" class="star-rating" required><label class="star-label" for="trm5_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.erros_pedido %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Erros de Pedido</h3>
+                            <p class="help-text">Número de pedidos errados entregues ao motoboy.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="erros_pedido" value="{{ i }}" id="erros_pedido_{{ i }}" class="star-rating" required><label class="star-label" for="erros_pedido_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.cumprimento_metas %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Cumprimento de Metas</h3>
+                            <p class="help-text">Percentual de metas diárias batidas.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="cumprimento_metas" value="{{ i }}" id="cumprimento_metas_{{ i }}" class="star-rating" required><label class="star-label" for="cumprimento_metas_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+                    
+                    {% if form.pontualidade %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Pontualidade (Operacional)</h3>
+                            <p class="help-text">Atrasos em chegadas, intervalos e saídas.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="pontualidade" value="{{ i }}" id="pontualidade_{{ i }}" class="star-rating" required><label class="star-label" for="pontualidade_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.organizacao_praca %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Organização da Praça</h3>
+                            <p class="help-text">Cuidados com o ponto de coleta e materiais.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="organizacao_praca" value="{{ i }}" id="organizacao_praca_{{ i }}" class="star-rating" required><label class="star-label" for="organizacao_praca_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.comunicacao_central %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Comunicação com a Central</h3>
+                            <p class="help-text">Clareza e agilidade na troca de informações.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="comunicacao_central" value="{{ i }}" id="comunicacao_central_{{ i }}" class="star-rating" required><label class="star-label" for="comunicacao_central_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.controle_fila_nba5 %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Controle de Fila / NBA5</h3>
+                            <p class="help-text">Pedidos acima de 5min prontos no balcão.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="controle_fila_nba5" value="{{ i }}" id="controle_fila_nba5_{{ i }}" class="star-rating" required><label class="star-label" for="controle_fila_nba5_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.eficiencia_distribuicao %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Eficiência na Distribuição</h3>
+                            <p class="help-text">Rapidez no despacho e assertividade.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="eficiencia_distribuicao" value="{{ i }}" id="eficiencia_distribuicao_{{ i }}" class="star-rating" required><label class="star-label" for="eficiencia_distribuicao_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.monitoramento_ativo %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Monitoramento Ativo da Praça</h3>
+                            <p class="help-text">Acompanhamento constante dos mensageiros.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="monitoramento_ativo" value="{{ i }}" id="monitoramento_ativo_{{ i }}" class="star-rating" required><label class="star-label" for="monitoramento_ativo_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if form.cumprimento_processos %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Cumprimento de Processos</h3>
+                            <p class="help-text">Se segue os procedimentos padrão (checklist, etc).</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="cumprimento_processos" value="{{ i }}" id="cumprimento_processos_{{ i }}" class="star-rating" required><label class="star-label" for="cumprimento_processos_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+                    
+                    {% if form.resolucao_imprevistos %}
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Resolução de Imprevistos</h3>
+                            <p class="help-text">Tempo e eficiência na solução de falhas.</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="resolucao_imprevistos" value="{{ i }}" id="resolucao_imprevistos_{{ i }}" class="star-rating" required><label class="star-label" for="resolucao_imprevistos_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if not form.trm5 and not form.controle_fila_nba5 %}
+                        <p class="text-muted text-center p-3">Nenhum critério operacional cadastrado para este cargo.</p>
+                    {% endif %}
+                </ul>
+
+                <div class="comment-box">
+                    <label class="form-label-title" for="comentario_operacional">Observações Operacionais</label>
+                    <textarea name="comentario_operacional" id="comentario_operacional" rows="4" placeholder="Comentários sobre a entrega, eficiência, processos... (opcional)"></textarea>
+                </div>
+            </div>
+
+            <div class="submit-footer">
+                <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     
-            <!-- Div onde as sugestões vão aparecer -->
-            <div id="suggestions-container" class="suggestions" style="display: none;">
-                <!-- As sugestões serão inseridas aqui dinamicamente -->
-            </div>
-        </div>
-
-            <!-- Pontualidade -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">⏰</span>
-                    <h3 class="rating-title">Pontualidade</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="pontualidade" value="{{ i }}" id="pontualidade_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="pontualidade_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="pontualidade_feedback"></div>
-                <p class="help-text">Avalie a pontualidade nas entregas e compromissos</p>
-            </div>
-
-            <!-- Organização -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">📊</span>
-                    <h3 class="rating-title">Organização</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="organizacao" value="{{ i }}" id="organizacao_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="organizacao_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="organizacao_feedback"></div>
-                <p class="help-text">Avalie a organização no trabalho</p>
-            </div>
-
-            <!-- Comunicação -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">💬</span>
-                    <h3 class="rating-title">Comunicação</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="comunicacao" value="{{ i }}" id="comunicacao_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="comunicacao_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="comunicacao_feedback"></div>
-                <p class="help-text">Avalie a comunicação com a equipe</p>
-            </div>
-
-            <!-- Resolução de Problemas -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">🔧</span>
-                    <h3 class="rating-title">Resolução de Problemas</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="resolucao_problemas" value="{{ i }}" id="resolucao_problemas_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="resolucao_problemas_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="resolucao_problemas_feedback"></div>
-                <p class="help-text">Avalie a capacidade de resolver problemas</p>
-            </div>
-
-            <!-- Precisão -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">🎯</span>
-                    <h3 class="rating-title">Precisão</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="precisao" value="{{ i }}" id="precisao_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="precisao_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="precisao_feedback"></div>
-                <p class="help-text">Avalie a precisão do trabalho</p>
-            </div>
-
-            <!-- Velocidade -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">⚡</span>
-                    <h3 class="rating-title">Velocidade</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="velocidade" value="{{ i }}" id="velocidade_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="velocidade_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="velocidade_feedback"></div>
-                <p class="help-text">Avalie a velocidade de execução</p>
-            </div>
-
-            <!-- Conhecimento de Ferramentas -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">💻</span>
-                    <h3 class="rating-title">Conhecimento de Ferramentas</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="conhecimento_ferramentas" value="{{ i }}" id="conhecimento_ferramentas_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="conhecimento_ferramentas_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="conhecimento_ferramentas_feedback"></div>
-                <p class="help-text">Avalie o domínio das ferramentas</p>
-            </div>
-
-            <!-- Flexibilidade -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">🔄</span>
-                    <h3 class="rating-title">Flexibilidade</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="flexibilidade" value="{{ i }}" id="flexibilidade_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="flexibilidade_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="flexibilidade_feedback"></div>
-                <p class="help-text">Avalie a adaptabilidade</p>
-            </div>
-
-            <!-- Postura Profissional -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">👔</span>
-                    <h3 class="rating-title">Postura Profissional</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="postura_profissional" value="{{ i }}" id="postura_profissional_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="postura_profissional_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="postura_profissional_feedback"></div>
-                <p class="help-text">Avalie o profissionalismo</p>
-            </div>
-
-            <!-- Priorização de Tarefas -->
-            <div class="rating-group">
-              <div class="rating-header">
-                  <span class="emoji">📋</span>
-                  <h3 class="rating-title">Priorização de Tarefas</h3>
-              </div>
-              <div class="stars">
-                  {% for i in '54321'|make_list %}
-                  <input type="radio" name="priorizacao_tarefas" value="{{ i }}" id="priorizacao_tarefas_{{ i }}" class="star-rating" required>
-                  <label class="star-label" for="priorizacao_tarefas_{{ i }}">★</label>
-                  {% endfor %}
-              </div>
-              <div class="emoji-feedback" id="priorizacao_tarefas_feedback"></div>
-              <p class="help-text">Avalie a capacidade de priorização</p>
-          </div>
-          
-          <div class="rating-group">
-            <div class="rating-header">
-                <span class="emoji">📝</span>
-                <h3 class="rating-title">Comentário</h3>
-            </div>
-            <textarea name="comentario" rows="4" placeholder="Deixe seu comentário ou observação (opcional)" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: none;"></textarea>
-            <p class="help-text">Dê um feedback adicional sobre o colaborador</p>
-        </div>
-        
-      
-          <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
-      </form>
-      
-  </div>
-
-  <script>
-      document.addEventListener('DOMContentLoaded', function() {
-          const emojiMap = {
-              1: '😢',
-              2: '😕',
-              3: '😊',
-              4: '😃',
-              5: '🤩'
-          };
-
-          const fields = [
-              'pontualidade', 'organizacao', 'comunicacao',
-              'resolucao_problemas', 'precisao', 'velocidade',
-              'conhecimento_ferramentas', 'flexibilidade',
-              'postura_profissional', 'priorizacao_tarefas'
-          ];
-
-          fields.forEach(field => {
-              const inputs = document.querySelectorAll(`input[name="${field}"]`);
-              const feedback = document.getElementById(`${field}_feedback`);
-
-              inputs.forEach(input => {
-                  input.addEventListener('change', function() {
-                      feedback.textContent = emojiMap[this.value];
-                  });
-              });
-          });
-      });
-
-    const lojas = [
-    "Colabolador Hub","Gestor Hub","Entregador","Arabi´s", "Bello Pastel", "Cacau Show", "Chikens do Mc", 
-    "Croasonho", "Di Gramado", "Gelobel", 
-    "Ice Creamy", "Kekala", "Mc Donald´s", "Milanetto", 
-    "Mister Cuca", "Mr. Cheff", "Naturela", "Patroni Pizza",
-    "Pop Corn Gourmet", "Popeyes Chiken", "Santo Strogonoff",
-    "Spedini Trattoria", "The B Burger", "Trilha Verde", "Ponto Grill",
-    "Subway", "10 Pastéis", "Johnny Smash Burger", "The B Burger Executivo",
-    "Toutsie", "The Waffle King", "Havanna", "Mr. Fritz",
-    "Doce Mania", "Baldes do Popeyes", "Biscoitê ",
-    "Mania de Churrasco", "Burger King", "Feijuca",
-    "Hot and Roll", "Naturela", "Menu Poke", "Montana Burger", 
-    "Montana Churrascaria", "Montana Grill", "Original Prime Grill",
-    "Spoleto", "Oakberry Açai", "Pastel Mel", "Praça Food", 
-    "Kopenhagen Chocolates", "Ponto Grill", "Sucão", "Mr Cheff",
-    "Lugano", "La Pasta Gialla", "Saladas do Spoleto", 
-    "Risotos Do Spoleto", "Villa Fontana", "Splash Bebidas Urbanas",
-    'Açaí Official', 'Bacio Di Latte - Cjnacional', 'Bello Strogonoff', 
-    'Bobs', 'Buona Massa', 'Fast Grill Brasilia', 'Frango no Pote', 'Kfc - Frango Frito - Shopping',
-    'Koni Japa', 'Lindt', "Lug's - Executivos & Frango no Balde", 'My Poke', 'Naturalle', 
-    'Panelinhas do Brasil', 'Peixe na Rede', 'Perdomo Doces - Asa Norte', 
-    'Poke Land by Sushiloko', 'Risotos do Spoleto - Cnb', 'Spoleto - Cnb', 
-    'The Shake Shoppe', 'Vivenda do Camarão', '🍣 Sushiloko 😍',
-    'American Cookies', 'Bacio Di Latte', 'Dengo Chocolates', 
-    'Dom Casero', 'Kopenhagen Chocolates', 'La Guapa Empanadas', 
-    'Madero', "Marvin Burger", 'Marietta', 'Munch Smash Burger - L.norte', 
-    'Nespresso', 'Páprica Burger - Lago Norte', 'Pobre Juan', 
-    'Sobremesas do Méqui', 'Yogoberry'
-    ];
-
-  // Função para filtrar lojas com base no que o usuário digita
-  document.getElementById('loja').addEventListener('input', function() {
-      const inputValue = this.value.toLowerCase(); // Obtém o texto digitado
-      const suggestionsContainer = document.getElementById('suggestions-container'); // Acessa o container das sugestões
-
-      // Se não houver nada digitado, esconde as sugestões
-      if (inputValue === '') {
-          suggestionsContainer.style.display = 'none';
-          return;
-      }
-
-      // Filtra as lojas que contêm o texto digitado
-      const lojasFiltradas = lojas.filter(loja => loja.toLowerCase().includes(inputValue));
-
-      // Limpa as sugestões anteriores
-      suggestionsContainer.innerHTML = '';
-
-      // Se houver sugestões, exibe o container, caso contrário, esconde
-      if (lojasFiltradas.length > 0) {
-          suggestionsContainer.style.display = 'block';
-
-          // Cria e adiciona as opções filtradas
-          lojasFiltradas.forEach(loja => {
-              const suggestionItem = document.createElement('div');
-              suggestionItem.classList.add('suggestion-item');
-              suggestionItem.textContent = loja;
-
-              // Ao clicar na sugestão, preenche o campo de entrada
-              suggestionItem.addEventListener('click', function() {
-                  document.getElementById('loja').value = loja;
-                  suggestionsContainer.style.display = 'none'; // Esconde as sugestões
-              });
-
-              suggestionsContainer.appendChild(suggestionItem);
-          });
-      } else {
-          suggestionsContainer.style.display = 'none'; // Esconde se não houver sugestões
-      }
-  });
-
-  // Esconde as sugestões ao clicar fora do campo de entrada
-  document.addEventListener('click', function(event) {
-      if (!document.getElementById('loja').contains(event.target)) {
-          document.getElementById('suggestions-container').style.display = 'none';
-      }
-  });
-
-  </script>
 </body>
 </html>

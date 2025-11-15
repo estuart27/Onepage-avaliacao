@@ -1,129 +1,208 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ titulo_ranking }} - Sistema de Avaliação</title>
+    
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/12.png'%}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* === ESTILOS GERAIS (Padrão do Tema) === */
+        :root {
+            --primary-color: #3498DB;
+            --primary-dark: #2874A6;
+            --primary-light: #5DADE2;
+            --primary-ultra-light: #EBF5FB;
+            --secondary-color: #2C3E50;
+            --success-color: #27AE60;
+            --warning-color: #F39C12; /* Cor usada para o Top 3 */
+            --danger-color: #E74C3C;
+            --light-gray: #F8F9FA;
+            --medium-gray: #E9ECEF;
+            --border-color: #DEE2E6;
+            --text-primary: #2C3E50;
+            --text-secondary: #5D6D7E;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif; /* FONTE ATUALIZADA */
+            background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%); /* FUNDO ATUALIZADO */
+            color: var(--text-primary);
+            padding-top: 80px;
             min-height: 100vh;
-            color: #333;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
+        /* === NAVBAR (Padrão do Tema) === */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+        .navbar.scrolled { box-shadow: var(--shadow-md); }
+        .brand-icon {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white; width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; font-weight: 700; font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .brand-text {
+            font-weight: 700; font-size: 1.25rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border: none; font-weight: 600; padding: 0.65rem 1.5rem;
+            border-radius: 10px; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            transition: var(--transition);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        .btn-outline-primary {
+            color: var(--primary-color); border: 2px solid var(--primary-color);
+            font-weight: 600; padding: 0.6rem 1.5rem;
+            border-radius: 10px; transition: var(--transition);
+        }
+        .btn-outline-primary:hover {
+            background: var(--primary-color); color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+        .btn-outline-secondary {
+            color: var(--text-secondary); border-color: var(--border-color);
+            background: var(--light-gray); font-weight: 600;
+            padding: 0.6rem 1.5rem; border-radius: 10px; transition: var(--transition);
+        }
+        .btn-outline-secondary:hover {
+            background: var(--primary-color); color: white; border-color: var(--primary-color);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+
+        /* === HERO (Padrão do Tema) === */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-ultra-light) 0%, white 100%);
+            padding: 4rem 0 3rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
             animation: slideDown 0.6s ease-out;
         }
-
-        .header h1 {
-            color: #2c3e50;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
+        .hero-title {
+            font-size: 2.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.1rem;
-        }
-
-        .filters {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+        /* === CARD (Padrão do Tema) === */
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
             animation: slideUp 0.6s ease-out 0.2s both;
         }
-
-        .filters h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
+        .content-header {
+            background: linear-gradient(135deg, var(--primary-ultra-light) 0%, white 100%);
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .content-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .content-title i {
+            color: var(--primary-color);
+            font-size: 2rem;
+        }
+        .content-body {
+            padding: 2rem;
         }
 
+        /* === ESTILOS DA PÁGINA DE RANKING (Adaptados) === */
+
+        /* 1. Botões de Filtro */
         .filter-buttons {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
         }
-
+        
         .filter-btn {
+            /* Estilo Inativo (baseado no btn-outline-secondary) */
             padding: 12px 20px;
-            border: none;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             cursor: pointer;
             font-size: 0.95rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             text-decoration: none;
             text-align: center;
-            background: #ecf0f1;
-            color: #2c3e50;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .filter-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.6s;
-        }
-
-        .filter-btn:hover::before {
-            left: 100%;
+            background: var(--light-gray);
+            color: var(--text-secondary);
         }
 
         .filter-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-sm);
+            background: white;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
 
         .filter-btn.active {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            /* Estilo Ativo (baseado no btn-primary) */
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
-            transform: translateY(-1px);
+            border-color: var(--primary-color);
             box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+            transform: translateY(-1px);
         }
 
-        .ranking-list {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            animation: slideUp 0.6s ease-out 0.4s both;
-        }
-
+        /* 2. Lista do Ranking */
         .ranking-header {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
+            background: var(--light-gray); /* COR ATUALIZADA */
+            color: var(--text-primary); /* COR ATUALIZADA */
             padding: 20px 30px;
             font-weight: bold;
             display: grid;
@@ -133,6 +212,7 @@
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color); /* Borda adicionada */
         }
 
         .colaborador-item {
@@ -141,13 +221,14 @@
             gap: 20px;
             align-items: center;
             padding: 20px 30px;
-            border-bottom: 1px solid #ecf0f1;
+            border-bottom: 1px solid var(--border-color); /* COR ATUALIZADA */
             transition: all 0.3s ease;
             position: relative;
             animation: fadeInUp 0.6s ease-out both;
             overflow: hidden;
         }
-
+        
+        /* Animações (Mantidas) */
         .colaborador-item:nth-child(1) { animation-delay: 0.1s; }
         .colaborador-item:nth-child(2) { animation-delay: 0.15s; }
         .colaborador-item:nth-child(3) { animation-delay: 0.2s; }
@@ -166,7 +247,7 @@
             top: 0;
             bottom: 0;
             width: 5px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: var(--primary-color); /* COR ATUALIZADA */
             transform: scaleY(0);
             transition: transform 0.3s ease;
         }
@@ -176,13 +257,14 @@
         }
 
         .colaborador-item:hover {
-            background: rgba(52, 152, 219, 0.05);
+            background: var(--primary-ultra-light); /* COR ATUALIZADA */
             transform: translateX(10px);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
+        /* 3. Estilos Top 3 (Mantidos, cores ótimas) */
         .colaborador-item.top-3 {
-            background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(230, 126, 34, 0.1));
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.05), rgba(230, 126, 34, 0.05));
         }
 
         .colaborador-item.top-3::before {
@@ -190,7 +272,7 @@
         }
 
         .ranking-position {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); /* COR ATUALIZADA */
             color: white;
             width: 40px;
             height: 40px;
@@ -200,7 +282,7 @@
             justify-content: center;
             font-weight: bold;
             font-size: 1.1rem;
-            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3); /* COR ATUALIZADA */
             margin: 0 auto;
         }
 
@@ -210,19 +292,37 @@
             animation: pulse 2s infinite;
         }
 
+        /* 4. Itens do Colaborador */
         .colaborador-avatar {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #ecf0f1;
+            border: 3px solid var(--border-color); /* COR ATUALIZADA */
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
 
         .colaborador-item:hover .colaborador-avatar {
             transform: scale(1.1);
-            border-color: #3498db;
+            border-color: var(--primary-color); /* COR ATUALIZADA */
+        }
+        
+        /* Avatar de Fallback (Inicial) */
+        .colaborador-avatar-fallback {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
         .colaborador-info {
@@ -230,18 +330,19 @@
         }
 
         .colaborador-info h3 {
-            color: #2c3e50;
+            color: var(--text-primary); /* COR ATUALIZADA */
             font-size: 1.2rem;
             margin-bottom: 5px;
             font-weight: 600;
         }
 
         .colaborador-info p {
-            color: #7f8c8d;
+            color: var(--text-secondary); /* COR ATUALIZADA */
             font-size: 0.85rem;
             margin: 2px 0;
         }
 
+        /* 5. Stats */
         .score-display {
             text-align: center;
         }
@@ -249,13 +350,13 @@
         .score-value {
             font-size: 2.2rem;
             font-weight: bold;
-            color: #2c3e50;
+            color: var(--text-primary); /* COR ATUALIZADA */
             display: block;
             line-height: 1;
         }
 
         .score-label {
-            color: #7f8c8d;
+            color: var(--text-secondary); /* COR ATUALIZADA */
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -265,26 +366,26 @@
         .stat-item {
             text-align: center;
             padding: 10px;
-            background: #f8f9fa;
+            background: var(--light-gray); /* COR ATUALIZADA */
             border-radius: 8px;
             transition: all 0.3s ease;
         }
 
         .stat-item:hover {
-            background: #e9ecef;
+            background: var(--medium-gray); /* COR ATUALIZADA */
             transform: translateY(-2px);
         }
 
         .stat-value {
             font-size: 1.1rem;
             font-weight: bold;
-            color: #3498db;
+            color: var(--primary-color); /* COR ATUALIZADA */
             display: block;
         }
 
         .stat-label {
             font-size: 0.7rem;
-            color: #7f8c8d;
+            color: var(--text-secondary); /* COR ATUALIZADA */
             margin-top: 3px;
         }
 
@@ -295,7 +396,7 @@
         }
 
         .medalhas-count {
-            background: #3498db;
+            background: var(--primary-color); /* COR ATUALIZADA */
             color: white;
             border-radius: 20px;
             padding: 8px 15px;
@@ -306,64 +407,66 @@
             gap: 5px;
         }
 
-        .no-data {
+        .medalhas-count.zero {
+            background: var(--text-secondary); /* COR ATUALIZADA */
+        }
+
+        /* 6. Empty State */
+        .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            margin-top: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem 1rem;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--medium-gray);
+        }
+        .empty-state p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 1rem;
         }
 
-        .no-data h3 {
-            color: #7f8c8d;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+        /* === FOOTER (Padrão do Tema) === */
+        .footer {
+            background: var(--secondary-color);
+            color: rgba(255,255,255,0.85);
+            padding: 2.5rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
-
-        .no-data p {
-            color: #95a5a6;
+        .footer h5 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
         }
+        .footer a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .footer a:hover { color: var(--primary-light); }
 
+        /* === ANIMAÇÕES (Mantidas) === */
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
+        /* === RESPONSIVO (Mantido e Adaptado) === */
         @media (max-width: 1200px) {
             .ranking-header,
             .colaborador-item {
@@ -371,12 +474,11 @@
                 gap: 15px;
                 padding: 15px 20px;
             }
-            
-            .colaborador-avatar {
+            .colaborador-avatar, .colaborador-avatar-fallback {
                 width: 50px;
                 height: 50px;
+                font-size: 1.2rem;
             }
-            
             .ranking-position {
                 width: 35px;
                 height: 35px;
@@ -385,22 +487,16 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
+            body { padding-top: 70px; }
+            .hero-title { font-size: 2.25rem; }
+            .hero-subtitle { font-size: 1.1rem; }
+            .content-header, .content-body { padding: 1.5rem; }
             .filter-buttons {
                 grid-template-columns: 1fr;
             }
-            
             .ranking-header {
-                display: none;
+                display: none; /* Ótima regra responsiva, mantida! */
             }
-            
             .colaborador-item {
                 display: flex;
                 flex-direction: column;
@@ -408,218 +504,262 @@
                 padding: 20px;
                 gap: 15px;
             }
-            
             .colaborador-item::before {
                 display: none;
             }
-            
             .colaborador-item:hover {
                 transform: translateY(-5px);
             }
-            
             .colaborador-info {
                 text-align: center;
             }
-            
-            .ranking-list {
-                border-radius: 15px;
+        }
+        @media (max-width: 576px) {
+            .brand-text { display: none; }
+            .hero-title { font-size: 1.85rem; }
+            .navbar-actions { gap: 0.5rem !important; }
+            .navbar-actions .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-      <div class="header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; padding: 20px;">
-          
-          <!-- Botão no lado esquerdo -->
-          <a href="/" 
-            style="
-                background-color: #3498DB;
-                color: white;
-                padding: 10px 20px;
-                text-decoration: none;
-                border-radius: 8px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                font-weight: 500;
-            ">
-              ⬅ Voltar
-          </a>
-
-          <!-- Título e subtítulo centralizados -->
-          <div style="text-align: center; flex: 1;">
-              <h1 style="margin: 0;">🏆 {{ titulo_ranking }}</h1>
-              <p style="margin: 5px 0 0;">Sistema de Avaliação de Colaboradores</p>
-          </div>
-
-      </div>
-
-        <div class="filters">
-            <h3>🏢 Filtrar por Hub</h3>
-            <div class="filter-buttons">
-                <a href="?{% if filtro_atual %}filtro={{ filtro_atual }}{% endif %}" 
-                class="filter-btn {% if not hub_selecionado %}active{% endif %}">
-                    Todos os Hubs
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+                <div class="brand-icon">FO</div>
+                <span class="brand-text">Feedback Otimizado</span>
+            </a>
+            <div class="navbar-actions d-flex gap-3">
+                <a class="btn btn-outline-primary" href="https://wa.me/5543996341638">
+                    <i class="bi-whatsapp me-2"></i>Suporte
                 </a>
-                {% for hub in hubs %}
-                    <a href="?hub={{ hub.id }}{% if filtro_atual %}&filtro={{ filtro_atual }}{% endif %}" 
-                    class="filter-btn {% if hub.id|stringformat:"s" == hub_selecionado %}active{% endif %}">
-                        {{ hub.nome }}
-                    </a>
-                {% endfor %}
+                <a class="btn btn-primary" href="{% url 'ranking' %}">
+                    <i class="bi-trophy-fill me-2"></i>Ranking
+                </a>
             </div>
         </div>
-        
-        <div class="filters">
-            <h3>📊 Filtrar Ranking por Categoria</h3>
-            <div class="filter-buttons">
-                {% for filtro_key, filtro_nome in filtros_disponiveis %}
-                    <a href="?filtro={{ filtro_key }}{% if hub_selecionado %}&hub={{ hub_selecionado }}{% endif %}" 
-                    class="filter-btn {% if filtro_atual == filtro_key %}active{% endif %}">
-                        {{ filtro_nome }}
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
+    </nav>
 
+    <div class="main-content">
 
-        {% if colaboradores %}
-            <div class="ranking-list">
-                <div class="ranking-header">
-                    <div>Posição</div>
-                    <div>Foto</div>
-                    <div>Colaborador</div>
-                    <div>Nota Principal</div>
-                    <div>Avaliações</div>
-                    <div>Média Geral</div>
-                    <div>Medalhas</div>
+        <header class="hero-section">
+            <div class="container">
+                <div class="hero-content text-center">
+                    <h1 class="hero-title">🏆 {{ titulo_ranking }}</h1>
+                    <p class="hero-subtitle">
+                        Sistema de Avaliação de Colaboradores
+                    </p>
                 </div>
-                
-                {% for colaborador in colaboradores %}
-                    <div class="colaborador-item {% if forloop.counter <= 3 %}top-3{% endif %}">
-                        <div class="ranking-position {% if forloop.counter <= 3 %}top-3{% endif %}">
-                            {{ forloop.counter }}
-                        </div>
-                        
-                        <div>
-                            {% if colaborador.imagem %}
-                                <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="colaborador-avatar">
-                            {% else %}
-                                <div class="colaborador-avatar" style="background: linear-gradient(135deg, #3498db, #2980b9); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold;">
-                                    {{ colaborador.nome|first }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="colaborador-info">
-                            <h3>{{ colaborador.nome }}</h3>
-                            <p>{{ colaborador.cargo|default:"Cargo não definido" }}</p>
-                            <p>{{ colaborador.hub.nome|default:"Hub não definido" }}</p>
-                            <p><strong>{{ colaborador.tempo_na_empresa }}</strong></p>
-                        </div>
+            </div>
+        </header>
 
-                        <div class="score-display">
-                            {% if filtro_atual == 'media_geral' %}
-                                <span class="score-value">{{ colaborador.media_geral|floatformat:1 }}</span>
-                                <div class="score-label">Nota Geral</div>
-                            {% elif filtro_atual == 'pontualidade' %}
-                                <span class="score-value">{{ colaborador.media_pontualidade|floatformat:1 }}</span>
-                                <div class="score-label">Pontualidade</div>
-                            {% elif filtro_atual == 'organizacao' %}
-                                <span class="score-value">{{ colaborador.media_organizacao|floatformat:1 }}</span>
-                                <div class="score-label">Organização</div>
-                            {% elif filtro_atual == 'comunicacao' %}
-                                <span class="score-value">{{ colaborador.media_comunicacao|floatformat:1 }}</span>
-                                <div class="score-label">Comunicação</div>
-                            {% elif filtro_atual == 'resolucao_problemas' %}
-                                <span class="score-value">{{ colaborador.media_resolucao_problemas|floatformat:1 }}</span>
-                                <div class="score-label">Resolução de Problemas</div>
-                            {% elif filtro_atual == 'precisao' %}
-                                <span class="score-value">{{ colaborador.media_precisao|floatformat:1 }}</span>
-                                <div class="score-label">Precisão</div>
-                            {% elif filtro_atual == 'velocidade' %}
-                                <span class="score-value">{{ colaborador.media_velocidade|floatformat:1 }}</span>
-                                <div class="score-label">Velocidade</div>
-                            {% elif filtro_atual == 'conhecimento_ferramentas' %}
-                                <span class="score-value">{{ colaborador.media_conhecimento_ferramentas|floatformat:1 }}</span>
-                                <div class="score-label">Conhecimento de Ferramentas</div>
-                            {% elif filtro_atual == 'flexibilidade' %}
-                                <span class="score-value">{{ colaborador.media_flexibilidade|floatformat:1 }}</span>
-                                <div class="score-label">Flexibilidade</div>
-                            {% elif filtro_atual == 'postura_profissional' %}
-                                <span class="score-value">{{ colaborador.media_postura_profissional|floatformat:1 }}</span>
-                                <div class="score-label">Postura Profissional</div>
-                            {% elif filtro_atual == 'priorizacao_tarefas' %}
-                                <span class="score-value">{{ colaborador.media_priorizacao_tarefas|floatformat:1 }}</span>
-                                <div class="score-label">Priorização de Tarefas</div>
-                            {% endif %}
-                        </div>
+        <section class="py-5">
+            <div class="container">
 
-                        <div class="stat-item">
-                            <span class="stat-value">{{ colaborador.total_avaliacoes }}</span>
-                            <div class="stat-label">Total</div>
-                        </div>
+                <a href="/" class="btn btn-outline-primary mb-3" style="font-weight: 600;">
+                    <i class="bi-arrow-left me-2"></i>Voltar
+                </a>
 
-                        <div class="stat-item">
-                            <span class="stat-value">{{ colaborador.media_geral|floatformat:1 }}</span>
-                            <div class="stat-label">Média</div>
-                        </div>
-
-                        <div class="medalhas-section">
-                            {% if colaborador.qtd_medalhas > 0 %}
-                                <div class="medalhas-count">
-                                    🏅 {{ colaborador.qtd_medalhas }}
-
-                                </div>
-                            {% else %}
-                                <div class="medalhas-count" style="background: #95a5a6;">
-                                    🏅 0
-                                </div>
-                            {% endif %}
+                <div class="content-card">
+                    <div class="content-header">
+                        <h2 class="content-title">
+                            <i class="bi-building"></i>
+                            Filtrar por Hub
+                        </h2>
+                    </div>
+                    <div class="content-body">
+                        <div class="filter-buttons">
+                            <a href="?{% if filtro_atual %}filtro={{ filtro_atual }}{% endif %}" 
+                            class="filter-btn {% if not hub_selecionado %}active{% endif %}">
+                                Todos os Hubs
+                            </a>
+                            {% for hub in hubs %}
+                                <a href="?hub={{ hub.id }}{% if filtro_atual %}&filtro={{ filtro_atual }}{% endif %}" 
+                                class="filter-btn {% if hub.id|stringformat:"s" == hub_selecionado %}active{% endif %}">
+                                    {{ hub.nome }}
+                                </a>
+                            {% endfor %}
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="no-data">
-                <h3>📋 Nenhum colaborador encontrado</h3>
-                <p>Não há colaboradores com avaliações para exibir no ranking.</p>
-            </div>
-        {% endif %}
-    </div>
+                </div>
+                
+                <div class="content-card mt-4">
+                    <div class="content-header">
+                        <h2 class="content-title">
+                            <i class="bi-bar-chart-line-fill"></i>
+                            Filtrar Ranking por Categoria
+                        </h2>
+                    </div>
+                    <div class="content-body">
+                        <div class="filter-buttons">
+                            {% for filtro_key, filtro_nome in filtros_disponiveis %}
+                                <a href="?filtro={{ filtro_key }}{% if hub_selecionado %}&hub={{ hub_selecionado }}{% endif %}" 
+                                class="filter-btn {% if filtro_atual == filtro_key %}active{% endif %}">
+                                    {{ filtro_nome }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
 
+                
+                {% if colaboradores %}
+                    <div class="content-card mt-4">
+                        <div class="ranking-header">
+                            <div>Posição</div>
+                            <div>Foto</div>
+                            <div>Colaborador</div>
+                            <div>Nota Principal</div>
+                            <div>Avaliações</div>
+                            <div>Média Geral</div>
+                            <div>Medalhas</div>
+                        </div>
+                        
+                        {% for colaborador in colaboradores %}
+                            <div class="colaborador-item {% if forloop.counter <= 3 %}top-3{% endif %}">
+                                <div class="ranking-position {% if forloop.counter <= 3 %}top-3{% endif %}">
+                                    {{ forloop.counter }}
+                                </div>
+                                
+                                <div>
+                                    {% if colaborador.imagem %}
+                                        <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="colaborador-avatar">
+                                    {% else %}
+                                        <div class="colaborador-avatar-fallback">
+                                            {{ colaborador.nome|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="colaborador-info">
+                                    <h3>{{ colaborador.nome }}</h3>
+                                    <p>{{ colaborador.cargo|default:"Cargo não definido" }}</p>
+                                    <p>{{ colaborador.hub.nome|default:"Hub não definido" }}</p>
+                                    <p><strong>{{ colaborador.tempo_na_empresa }}</strong></p>
+                                </div>
+
+                                <div class="score-display">
+                                    {% if filtro_atual == 'media_geral' %}
+                                        <span class="score-value">{{ colaborador.media_geral|floatformat:1 }}</span>
+                                        <div class="score-label">Nota Geral</div>
+                                    {% elif filtro_atual == 'pontualidade' %}
+                                        <span class="score-value">{{ colaborador.media_pontualidade|floatformat:1 }}</span>
+                                        <div class="score-label">Pontualidade</div>
+                                    {% elif filtro_atual == 'organizacao' %}
+                                        <span class="score-value">{{ colaborador.media_organizacao|floatformat:1 }}</span>
+                                        <div class="score-label">Organização</div>
+                                    {% elif filtro_atual == 'comunicacao' %}
+                                        <span class="score-value">{{ colaborador.media_comunicacao|floatformat:1 }}</span>
+                                        <div class="score-label">Comunicação</div>
+                                    {% elif filtro_atual == 'resolucao_problemas' %}
+                                        <span class="score-value">{{ colaborador.media_resolucao_problemas|floatformat:1 }}</span>
+                                        <div class="score-label">Resolução de Problemas</div>
+                                    {% elif filtro_atual == 'precisao' %}
+                                        <span class="score-value">{{ colaborador.media_precisao|floatformat:1 }}</span>
+                                        <div class="score-label">Precisão</div>
+                                    {% elif filtro_atual == 'velocidade' %}
+                                        <span class="score-value">{{ colaborador.media_velocidade|floatformat:1 }}</span>
+                                        <div class="score-label">Velocidade</div>
+                                    {% elif filtro_atual == 'conhecimento_ferramentas' %}
+                                        <span class="score-value">{{ colaborador.media_conhecimento_ferramentas|floatformat:1 }}</span>
+                                        <div class="score-label">Conhecimento de Ferramentas</div>
+                                    {% elif filtro_atual == 'flexibilidade' %}
+                                        <span class="score-value">{{ colaborador.media_flexibilidade|floatformat:1 }}</span>
+                                        <div class="score-label">Flexibilidade</div>
+                                    {% elif filtro_atual == 'postura_profissional' %}
+                                        <span class="score-value">{{ colaborador.media_postura_profissional|floatformat:1 }}</span>
+                                        <div class="score-label">Postura Profissional</div>
+                                    {% elif filtro_atual == 'priorizacao_tarefas' %}
+                                        <span class="score-value">{{ colaborador.media_priorizacao_tarefas|floatformat:1 }}</span>
+                                        <div class="score-label">Priorização de Tarefas</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="stat-item">
+                                    <span class="stat-value">{{ colaborador.total_avaliacoes }}</span>
+                                    <div class="stat-label">Total</div>
+                                </div>
+
+                                <div class="stat-item">
+                                    <span class="stat-value">{{ colaborador.media_geral|floatformat:1 }}</span>
+                                    <div class="stat-label">Média</div>
+                                </div>
+
+                                <div class="medalhas-section">
+                                    {% if colaborador.qtd_medalhas > 0 %}
+                                        <div class="medalhas-count">
+                                            🏅 {{ colaborador.qtd_medalhas }}
+                                        </div>
+                                    {% else %}
+                                        <div class="medalhas-count zero">
+                                            🏅 0
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="content-card mt-4">
+                        <div class="content-body">
+                            <div class="empty-state">
+                                <i class="bi-search"></i>
+                                <p>Nenhum colaborador encontrado para este ranking.</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+    </div> <footer class="footer">
+        <div class="container">
+            <div class="row py-4 align-items-center">
+                <div class="col-lg-6 mb-3 mb-lg-0">
+                    <h5>
+                        <i class="bi-clipboard-check-fill me-2"></i>Feedback Otimizado
+                    </h5>
+                    <p class="mb-0">
+                        © 2024 <a href="https://www.silvestrecode.shop">SilvestreCode</a>. Todos os direitos reservados.
+                    </p>
+                </div>
+                <div class="col-lg-6 text-lg-end">
+                    <div class="footer-links d-flex flex-wrap justify-content-lg-end gap-4">
+                        <a href="https://wa.me/5543996341638">
+                            <i class="bi-whatsapp me-2"></i>Contato
+                        </a>
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hub.esilvestre@hubentregas.com.br">
+                            <i class="bi-envelope me-2"></i>Email
+                        </a>
+                        <a href="{% url 'ranking' %}">
+                            <i class="bi-trophy me-2"></i>Ranking
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    
     <script>
-        // Adiciona animação suave aos elementos quando aparecem na tela
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Observa todos os itens de colaboradores
-        document.querySelectorAll('.colaborador-item').forEach(item => {
-            observer.observe(item);
+        // Efeito de scroll na navbar
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
         });
-
-        // Adiciona efeito de hover suave nos botões de filtro
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.transform = 'translateY(-2px) scale(1.05)';
-            });
-            
-            btn.addEventListener('mouseleave', () => {
-                if (!btn.classList.contains('active')) {
-                    btn.style.transform = 'translateY(0) scale(1)';
-                }
-            });
-        });
+        
+        // (As animações de fade-in e hover já estão sendo
+        // cuidadas puramente pelo CSS que você criou. Ótimo!)
     </script>
 </body>
 </html>

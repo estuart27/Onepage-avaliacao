@@ -1,26 +1,46 @@
 {% load static %}
+{% load avaliacao_tags %}
 
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <title>Perfil de {{ colaborador.nome }}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico'%}" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         :root {
             --primary-color: #3498DB;
-            --secondary-color: #475569;
-            --background-color: #f8fafc;
+            --primary-rgb: 52, 152, 219;
+            --primary-dark: #2980b9;
+            --secondary-color: #475569; /* Cinza escuro para texto */
+            --background-color: #f8fafc; /* Cinza bem claro */
             --card-background: #ffffff;
+            --border-color: #e5e7eb;
+            
+            --text-color: #334155;
+            --text-muted: #64748b;
+
+            --success: #28a745;
+            --info: #007bff;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --secondary: #6c757d;
+
+            --bs-body-font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: var(--bs-body-font-family);
             margin: 0;
             padding: 0;
             background-color: var(--background-color);
-            color: var(--secondary-color);
+            color: var(--text-color);
         }
 
         .container {
@@ -29,747 +49,783 @@
             padding: 2rem;
         }
 
-        .header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .profile-info {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 2rem;
+        /* --- Cabeçalho e Botões --- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
         }
-
-        .profile-card {
-            background-color: var(--card-background);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        .page-header h1 {
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+        .btn-back {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-back:hover {
+            color: var(--primary-dark);
         }
 
-        .avatar {
-            width: 150px;
-            height: 150px;
+        /* Botão Flutuante (FAB) de IA */
+        .fab-ia {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            z-index: 1000;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background-color: #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 3rem;
-            color: var(--primary-color);
+            font-size: 1.5rem; /* 24px */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .fab-ia:hover {
+            background-color: #333;
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            color: white;
         }
 
+        /* --- Card de Perfil --- */
+        .profile-card {
+            background-color: var(--card-background);
+            border-radius: 1rem; /* 16px */
+            padding: 1.5rem; /* 24px */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--primary-color);
+        }
+        .profile-info {
+            flex-grow: 1;
+        }
+        .profile-info h2 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .profile-info p {
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+        .profile-medals {
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .profile-medals h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        .medals-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .medals-list img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.2s ease;
+        }
+        .medals-list img:hover {
+            transform: scale(1.2);
+        }
+
+        /* --- Barra de Classificação --- */
+        .classification-card {
+            background-color: var(--card-background);
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            margin: 2rem 0;
+        }
+        .classification-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .classification-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        .classification-title {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+        .progress-bar-wrapper {
+            width: 100%;
+            height: 6px;
+            background-color: #f1f1f1;
+            margin-top: 1rem;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        /* Cores de Classificação */
+        .status-promocao { color: var(--success); }
+        .dot-promocao { background-color: var(--success); box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2); }
+        .bar-promocao { width: 100%; background-color: var(--success); }
+
+        .status-bonificacao { color: var(--info); }
+        .dot-bonificacao { background-color: var(--info); box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2); }
+        .bar-bonificacao { width: 80%; background-color: var(--info); }
+        
+        .status-melhorias { color: var(--warning); }
+        .dot-melhorias { background-color: var(--warning); box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.2); }
+        .bar-melhorias { width: 50%; background-color: var(--warning); }
+        
+        .status-estagnacao { color: var(--secondary); }
+        .dot-estagnacao { background-color: var(--secondary); box-shadow: 0 0 0 4px rgba(108, 117, 125, 0.2); }
+        .bar-estagnacao { width: 30%; background-color: var(--secondary); }
+        
+        .status-demissao { color: var(--danger); }
+        .dot-demissao { background-color: var(--danger); box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2); }
+        .bar-demissao { width: 10%; background-color: var(--danger); }
+        
+        .status-default { color: var(--secondary); }
+        .dot-default { background-color: #f8f9fa; box-shadow: 0 0 0 4px rgba(248, 249, 250, 0.2); }
+        .bar-default { width: 0%; background-color: #f8f9fa; }
+
+
+        /* --- Abas (Tabs) --- */
+        .nav-pills .nav-link {
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            font-size: 1.1rem;
+        }
+        .nav-pills .nav-link.active {
+            color: #fff;
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
+        }
+        .tab-content {
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            margin-top: -1px; /* Para conectar com as pills */
+        }
+        
+        /* --- Cards de Estatística (Novo) --- */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-
         .stat-card {
             background-color: var(--card-background);
             border-radius: 0.75rem;
             padding: 1.5rem;
-            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        .stat-card h3 {
-            margin: 0 0 0.5rem 0;
+        .stat-card .stat-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1rem;
+            margin: 0;
+        }
+        .stat-card .stat-value-wrapper {
+            text-align: right;
+        }
+        .stat-card .score {
+            font-size: 1.75rem;
+            font-weight: 700;
             color: var(--primary-color);
+            line-height: 1.2;
         }
-
+        .stat-card .trend {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Cores do Trend */
+        .trend.excellent { color: var(--success); }
+        .trend.good { color: var(--info); }
+        .trend.average { color: var(--warning); }
+        .trend.poor { color: var(--danger); }
+        
+        /* --- Outros --- */
         .chart-container {
             background-color: var(--card-background);
             border-radius: 1rem;
             padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
         }
-
-        .score {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .trend {
-            font-size: 0.875rem;
-            color: #10b981;
-        }
-
-        .excellent {
-            color: green;
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            display: inline-block;
         }
         
-        .good {
-            color: blue;
-        }
-        
-        .average {
-            color: orange;
-        }
-        
-        .poor {
-            color: red;
-        }
-        /* Estilos para o botão */
-        #toggleCommentsButton {
-            background: linear-gradient(135deg, #3498DB, #a777e3); /* Gradiente de cor */
+        /* --- Comentários (Novo Estilo) --- */
+        #toggleCommentsButtonGestor, #toggleCommentsButtonRestaurante {
+            background-color: var(--primary-color);
             border: none;
             color: white;
             padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 25px; /* Botão arredondado */
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-    
-        /* Efeito de hover no botão */
-        #toggleCommentsButton:hover {
-            background: linear-gradient(135deg, #a777e3, #3498DB); /* Inverte o gradiente no hover */
-            transform: scale(1.05); /* Aumenta levemente o botão */
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Sombra mais intensa no hover */
+        #toggleCommentsButtonGestor:hover, #toggleCommentsButtonRestaurante:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
         }
-    
-        /* Efeito de foco no botão */
-        #toggleCommentsButton:focus {
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Efeito de foco */
-        }
-
         
-        
+        .comentarios-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 1.5rem;
+        }
+        .comentario {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .comentario:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .comentario:first-child {
+            padding-top: 0;
+        }
+        .comentario-img-wrapper {
+            flex-shrink: 0;
+            font-size: 2rem;
+            color: var(--primary-color);
+            background-color: #eef6fc;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .comentario-texto {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin-bottom: 0.25rem;
+        }
+        .comentario-data {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Perfil de {{ colaborador.nome }} - Visão Gestores </h1>
-        <a href="{% url 'home' %}" class="back-button" style="color: white; text-decoration: none;">Voltar</a>
-    </div>
 
-    <a href="{% url 'feedback_colaborador' colaborador_id=colaborador.id %}">
-        <button class="social-btn" style="
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #6c757d;
-            border: none;
-            border-radius: 25px;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        " onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">
-            <span style="font-size: 20px;">🧩</span>
-            <i class="fas fa-robot" style="font-size: 20px;"></i> Feedback com IA
-        </button>
+    {% comment %} <a href="{% url 'feedback_colaborador' colaborador_id=colaborador.id %}" class="fab-ia" title="Feedback com IA"> {% endcomment %}
+        <i class="bi bi-magic"></i>
     </a>
-    
-    
 
     <div class="container">
-        <div class="profile-info">
-            <div class="profile-card">
-                <div class="avatar">
-                    {{ colaborador.nome.0 }}
+        
+        <div class="page-header">
+            <h1>Perfil do Colaborador</h1>
+            <a href="{% url 'home' %}" class="btn-back">
+                <i class="bi bi-arrow-left-circle"></i> Voltar
+            </a>
+        </div>
+
+        <div class="profile-card">
+            <div class="avatar">
+                <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}">
+            </div>
+            <div class="profile-info">
+                <h2>{{ colaborador.nome }}</h2>
+                <p><strong>Cargo Atual:</strong> {{ colaborador.get_cargo_display }}</p>
+                <p><strong>Data de Admissão:</strong> {{ colaborador.data_contratacao|date:"d/m/Y" }}</p>
+                <p><strong>Hub:</strong> {{ colaborador.hub }}</p>
+            </div>
+            {% if colaborador.medalhas.all %}
+            <div class="profile-medals">
+                <h3>Medalhas</h3>
+                <div class="medals-list">
+                    {% for medalha in colaborador.medalhas.all %}
+                    <img src="{{ medalha.get_medalha_url }}" alt="{{ medalha.get_tipo_display }}" title="{{ medalha.get_tipo_display }}">
+                    {% endfor %}
                 </div>
-        
-                <h2 style="text-align: center; margin-bottom: 1rem;">{{ colaborador.nome }}</h2>
-        
-                <div style="text-align: center; color: var(--secondary-color); margin-bottom: 10px;">
-                    <strong>Cargo Atual |</strong> {{ colaborador.cargo }}
-                </div>
-        
-                <div style="text-align: center; color: var(--secondary-color); margin-bottom: 10px;">
-                    <strong>Data de Admissão |</strong> {{ colaborador.data_contratacao|date:"d/m/Y" }}
-                </div>
-        
-                <div style="text-align: center; color: var(--secondary-color); margin-bottom: 20px;">
-                    <strong>Hub |</strong> {{ colaborador.hub }}
-                </div>
-        
-                {% if colaborador.medalhas.all %}
-                    <hr style="margin: 20px 0;"> <!-- Linha divisória para organização -->
-                    <div class="medals-container" style="text-align: center;">
-                        <h2 style="margin-bottom: 10px;">Medalhas</h2>
-                        <div class="medals-list" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px;">
-                            {% for medalha in colaborador.medalhas.all %}
-                                <div class="medalha-item" style="display: flex; flex-direction: column; align-items: center;">
-                                    <img src="{{ medalha.get_medalha_url }}" alt="{{ medalha.get_tipo_display }}" class="medalha-icon-small" style="width: 50px; height: 50px;">
-                                    <span class="medalha-nome" style="font-size: 14px; margin-top: 5px;">{{ medalha.get_tipo_display }}</span>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if classificacao %}
+        <div class="classification-card">
+            <div class="classification-header">
+                {% if 'promoção' in classificacao %}
+                    <div class="classification-dot dot-promocao"></div>
+                    <h3 class="classification-title status-promocao">{{ classificacao }}</h3>
+                {% elif 'bonificação' in classificacao %}
+                    <div class="classification-dot dot-bonificacao"></div>
+                    <h3 class="classification-title status-bonificacao">{{ classificacao }}</h3>
+                {% elif 'melhorias' in classificacao %}
+                    <div class="classification-dot dot-melhorias"></div>
+                    <h3 class="classification-title status-melhorias">{{ classificacao }}</h3>
+                {% elif 'estagnação' in classificacao %}
+                    <div class="classification-dot dot-estagnacao"></div>
+                    <h3 class="classification-title status-estagnacao">{{ classificacao }}</h3>
+                {% elif 'demissão' in classificacao %}
+                    <div class="classification-dot dot-demissao"></div>
+                    <h3 class="classification-title status-demissao">{{ classificacao }}</h3>
+                {% else %}
+                    <div class="classification-dot dot-default"></div>
+                    <h3 class="classification-title status-default">{{ classificacao }}</h3>
                 {% endif %}
             </div>
-        
-
-            <div class="chart-container">
-                <h2>Resumo das Avaliações</h2>
-                <canvas id="radarChart"></canvas>
+            <div class="progress-bar-wrapper">
+                {% if 'promoção' in classificacao %}
+                    <div class="progress-bar-inner bar-promocao"></div>
+                {% elif 'bonificação' in classificacao %}
+                    <div class="progress-bar-inner bar-bonificacao"></div>
+                {% elif 'melhorias' in classificacao %}
+                    <div class="progress-bar-inner bar-melhorias"></div>
+                {% elif 'estagnação' in classificacao %}
+                    <div class="progress-bar-inner bar-estagnacao"></div>
+                {% elif 'demissão' in classificacao %}
+                    <div class="progress-bar-inner bar-demissao"></div>
+                {% else %}
+                    <div class="progress-bar-inner bar-default"></div>
+                {% endif %}
             </div>
+            <small class="text-muted d-block text-center mt-2">Classificação baseada na performance</small>
         </div>
+        {% endif %}
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Pontualidade</h3>
-                <div class="score">{{ media.pontualidade_media|floatformat:1 }}</div>
-                <div class="trend {% if media.pontualidade_media >= 4.5 %}excellent{% elif media.pontualidade_media >= 3.5 %}good{% elif media.pontualidade_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.pontualidade_media >= 4.5 %}
-                        Excelente
-                    {% elif media.pontualidade_media >= 3.5 %}
-                        Bom
-                    {% elif media.pontualidade_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Comunicação</h3>
-                <div class="score">{{ media.comunicacao_media|floatformat:1 }}</div>
-                <div class="trend {% if media.comunicacao_media >= 4.5 %}excellent{% elif media.comunicacao_media >= 3.5 %}good{% elif media.comunicacao_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.comunicacao_media >= 4.5 %}
-                        Excelente
-                    {% elif media.comunicacao_media >= 3.5 %}
-                        Bom
-                    {% elif media.comunicacao_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Resolução de Problemas</h3>
-                <div class="score">{{ media.resolucao_problemas_media|floatformat:1 }}</div>
-                <div class="trend {% if media.resolucao_problemas_media >= 4.5 %}excellent{% elif media.resolucao_problemas_media >= 3.5 %}good{% elif media.resolucao_problemas_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.resolucao_problemas_media >= 4.5 %}
-                        Excelente
-                    {% elif media.resolucao_problemas_media >= 3.5 %}
-                        Bom
-                    {% elif media.resolucao_problemas_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Postura Profissional</h3>
-                <div class="score">{{ media.postura_profissional_media|floatformat:1 }}</div>
-                <div class="trend {% if media.postura_profissional_media >= 4.5 %}excellent{% elif media.postura_profissional_media >= 3.5 %}good{% elif media.postura_profissional_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.postura_profissional_media >= 4.5 %}
-                        Excelente
-                    {% elif media.postura_profissional_media >= 3.5 %}
-                        Bom
-                    {% elif media.postura_profissional_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Velocidade</h3>
-                <div class="score">{{ media.velocidade_media|floatformat:1 }}</div>
-                <div class="trend {% if media.velocidade_media >= 4.5 %}excellent{% elif media.velocidade_media >= 3.5 %}good{% elif media.velocidade_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.velocidade_media >= 4.5 %}
-                        Excelente
-                    {% elif media.velocidade_media >= 3.5 %}
-                        Bom
-                    {% elif media.velocidade_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Precisão</h3>
-                <div class="score">{{ media.precisao_media|floatformat:1 }}</div>
-                <div class="trend {% if media.precisao_media >= 4.5 %}excellent{% elif media.precisao_media >= 3.5 %}good{% elif media.precisao_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.precisao_media >= 4.5 %}
-                        Excelente
-                    {% elif media.precisao_media >= 3.5 %}
-                        Bom
-                    {% elif media.precisao_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Priorização das Tarefas</h3>
-                <div class="score">{{ media.priorizacao_tarefas_media|floatformat:1 }}</div>
-                <div class="trend {% if media.priorizacao_tarefas_media >= 4.5 %}excellent{% elif media.priorizacao_tarefas_media >= 3.5 %}good{% elif media.priorizacao_tarefas_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.priorizacao_tarefas_media >= 4.5 %}
-                        Excelente
-                    {% elif media.priorizacao_tarefas_media >= 3.5 %}
-                        Bom
-                    {% elif media.priorizacao_tarefas_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Flexibilidade</h3>
-                <div class="score">{{ media.flexibilidade_media|floatformat:1 }}</div>
-                <div class="trend {% if media.flexibilidade_media >= 4.5 %}excellent{% elif media.flexibilidade_media >= 3.5 %}good{% elif media.flexibilidade_media >= 2.5 %}average{% else %}poor{% endif %}">
-                    {% if media.flexibilidade_media >= 4.5 %}
-                        Excelente
-                    {% elif media.flexibilidade_media >= 3.5 %}
-                        Bom
-                    {% elif media.flexibilidade_media >= 2.5 %}
-                        Regular
-                    {% else %}
-                        Ruim
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
+        <ul class="nav nav-pills nav-fill mb-4" id="profileTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="gestor-tab" data-bs-toggle="tab" data-bs-target="#gestor-pane" type="button" role="tab" aria-controls="gestor-pane" aria-selected="true">
+                    <i class="bi bi-person-workspace me-2"></i> Visão Gestor ({{ total_avaliacoes_gestor }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="restaurante-tab" data-bs-toggle="tab" data-bs-target="#restaurante-pane" type="button" role="tab" aria-controls="restaurante-pane" aria-selected="false">
+                    <i class="bi bi-shop me-2"></i> Visão Restaurante ({{ total_avaliacoes_restaurante }})
+                </button>
+            </li>
+        </ul>
 
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Comentários e Avaliações</title>
-            <style>
-                /* Estilo geral para a lista de comentários */
-                .comentarios-list {
-                    list-style-type: none; /* Remove as bolinhas da lista */
-                    padding: 0; /* Remove o padding */
-                    margin: 20px auto; /* Centraliza a lista com margem automática */
-                    max-width: 1500px; /* Largura máxima da lista */
-                    width: 90%; /* Largura de 90% da tela para não ficar muito esticado */
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Sombra leve para a lista */
-                    border-radius: 12px; /* Bordas arredondadas */
-                    background: linear-gradient(135deg, #f9f9f9, #fff); /* Gradiente de fundo */
-                    transition: background 0.3s ease; /* Transição suave ao mudar o fundo */
-                }
-        
-                /* Efeito de hover para a lista de comentários */
-                .comentarios-list:hover {
-                    background: linear-gradient(135deg, #ffffff, #f1f1f1);
-                }
-        
-                /* Estilo para cada comentário */
-                .comentario {
-                    background-color: #ffffff; /* Cor de fundo suave */
-                    border: 1px solid #e0e0e0; /* Borda clara */
-                    border-radius: 10px; /* Bordas arredondadas */
-                    padding: 15px; /* Espaçamento interno */
-                    margin: 15px; /* Espaço entre os comentários */
-                    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s; /* Efeito de transição suave */
-                    position: relative; /* Para posicionamento do efeito */
-                    overflow: hidden; /* Para esconder o overflow */
-                    display: flex; /* Utiliza flexbox para layout */
-                    align-items: center; /* Alinha verticalmente os itens */
-                }
-        
-                /* Efeito de hover para destacar o comentário ao passar o mouse */
-                .comentario:hover {
-                    transform: translateY(-5px); /* Leve elevação do comentário */
-                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* Sombra mais intensa ao passar o mouse */
-                    background-color: #f9f9f9; /* Mudança de fundo ao passar o mouse */
-                }
-        
-                /* Efeito de animação no texto do comentário */
-                .comentario-texto {
-                    font-size: 16px; /* Tamanho da fonte */
-                    color: #333; /* Cor do texto */
-                    line-height: 1.5; /* Espaçamento entre linhas */
-                    margin-left: 10px; /* Espaço à esquerda do texto */
-                    margin-bottom: 8px; /* Espaço entre o texto e a data */
-                    transition: color 0.3s ease; /* Transição suave na cor */
-                }
-        
-                /* Mudança de cor do texto no hover */
-                .comentario:hover .comentario-texto {
-                    color: #007bff; /* Cor azul ao passar o mouse */
-                }
-        
-                /* Estilo para a data do comentário */
-                .comentario-data {
-                    font-size: 14px; /* Tamanho menor para a data */
-                    color: #666; /* Cor cinza para a data */
-                    font-style: italic; /* Estilo itálico */
-                    text-align: right; /* Alinha a data à direita */
-                }
-        
-                /* Estilo para a imagem do usuário */
-                .comentario-img {
-                    width: 40px; /* Largura da imagem */
-                    height: 40px; /* Altura da imagem */
-                    border-radius: 50%; /* Imagem circular */
-                    object-fit: cover; /* Cobre o espaço mantendo a proporção */
-                }
-        
-                /* Estilo para o container do gráfico */
-                .chart-container {
-                    text-align: center; /* Centraliza o título do gráfico */
-                    margin: 30px 0; /* Margem em cima e embaixo */
-                }
-                .social-btn {
-                    background-color: #3b5998; /* Cor do Facebook */
-                    color: white;
-                    padding: 10px 20px;
-                    font-size: 16px;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px; /* Espaço entre o ícone e o texto */
-                    transition: background-color 0.3s ease;
-                }
+        <div class="tab-content" id="profileTabContent">
             
-                .social-btn:hover {
-                    background-color: #2d4373; /* Cor mais escura no hover */
-                }
-            
-                .social-btn i {
-                    font-size: 18px;
-                }
-            
-                /* Posicionamento fixo no lado direito da tela */
-                .social-btn {
-                    position: fixed;
-                    right: 20px; /* Distância da borda direita */
-                    bottom: 20px; /* Distância da borda inferior */
-                    z-index: 1000; /* Garante que o botão fique sobre outros elementos */
-                }
-            </style>
-        </head>
+            <div class="tab-pane fade show active" id="gestor-pane" role="tabpanel" aria-labelledby="gestor-tab" tabindex="0">
+                
+                <div class="chart-container" style="max-width: 500px; margin: 1rem auto 2.5rem auto;">
+                    <h3 class="text-center mb-3">Resumo Gestor (Radar)</h3>
+                    <canvas id="radarChartGestor"></canvas>
+                </div>
 
-    
-    <div style="text-align: center; margin: 20px 0;">
-        <div style="
-            background-color: white;
-            padding: 22px 30px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06); 
-            {% comment %} display: inline-block; {% endcomment %}
-            min-width: 300px;
-            animation: slideUp 0.5s ease;
-            border: 1px solid #eaeaea;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: #475569;
-            font-size: 16px;
-            margin: 20px 0px;
-        ">
-            <div style="display: flex; align-items: center; justify-content: center;">
-                <div style="
-                    width: 14px;
-                    height: 14px;
-                    border-radius: 50%;
-                    margin-right: 12px;
-                    {% if 'promoção' in classificacao %}
-                        background-color: #28a745;
-                        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
-                    {% elif 'bonificação' in classificacao %}
-                        background-color: #007bff;
-                        box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
-                    {% elif 'melhorias' in classificacao %}
-                        background-color: #ffc107;
-                        box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.2);
-                    {% elif 'estagnação' in classificacao %}
-                        background-color: #6c757d;
-                        box-shadow: 0 0 0 4px rgba(108, 117, 125, 0.2);
-                    {% elif 'demissão' in classificacao %}
-                        background-color: #dc3545;
-                        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2);
-                    {% else %}
-                        background-color: #f8f9fa;
-                        box-shadow: 0 0 0 4px rgba(248, 249, 250, 0.2);
-                    {% endif %}
-                "></div>
-                <h3 style="
-                    margin: 0; 
-                    font-weight: 600; 
-                    font-size: 20px;
-                    {% if 'promoção' in classificacao %}
-                        color: #28a745;
-                    {% elif 'bonificação' in classificacao %}
-                        color: #007bff;
-                    {% elif 'melhorias' in classificacao %}
-                        color: #d39e00;
-                    {% elif 'estagnação' in classificacao %}
-                        color: #6c757d;
-                    {% elif 'demissão' in classificacao %}
-                        color: #dc3545;
-                    {% else %}
-                        color: #6c757d;
-                    {% endif %}
-                ">{{ classificacao }}</h3>
-            </div>
-            <div style="
-                width: 100%;
-                height: 4px;
-                background-color: #f1f1f1;
-                margin-top: 15px;
-                border-radius: 2px;
-                overflow: hidden;
-            ">
-                <div style="
-                    height: 100%;
-                    {% if 'promoção' in classificacao %}
-                        width: 100%;
-                        background-color: #28a745;
-                    {% elif 'bonificação' in classificacao %}
-                        width: 80%;
-                        background-color: #007bff;
-                    {% elif 'melhorias' in classificacao %}
-                        width: 50%;
-                        background-color: #ffc107;
-                    {% elif 'estagnação' in classificacao %}
-                        width: 30%;
-                        background-color: #6c757d;
-                    {% elif 'demissão' in classificacao %}
-                        width: 10%;
-                        background-color: #dc3545;
-                    {% else %}
-                        width: 0%;
-                        background-color: #f8f9fa;
-                    {% endif %}
-                "></div>
-            </div>
-        </div>
-    </div>
-    <style>
-        @keyframes slideUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+                <div style="margin-bottom: 2.5rem;">
+                    <h2 class="section-title">Métricas Comportamentais</h2>
+                    <div class="stats-grid">
+                        {% for field_name, label in media_comportamental.items %}
+                        <div class="stat-card">
+                            <h3 class="stat-label">{{ label }}</h3>
+                            {% with media_value=media_gestor|get_item:field_name %}
+                                <div class="stat-value-wrapper">
+                                    <div class="score">{{ media_value|default:"0.0"|floatformat:1 }}</div>
+                                    <div class="trend {% if media_value >= 4.5 %}excellent{% elif media_value >= 3.5 %}good{% elif media_value >= 2.5 %}average{% else %}poor{% endif %}">
+                                        {% if media_value >= 4.5 %}Excelente{% elif media_value >= 3.5 %}Bom{% elif media_value >= 2.5 %}Regular{% else %}Ruim{% endif %}
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
 
-    
-        <body>
-            <div class="chart-container">
-                <h2>Evolução das Avaliações</h2>
-                <canvas id="lineChart"></canvas>
-            </div>
+                <div style="margin-bottom: 2.5rem;">
+                    <h2 class="section-title">Métricas Operacionais ({{ colaborador.get_cargo_display }})</h2>
+                    <div class="stats-grid">
+                        {% if colaborador.cargo == 'Mensageiro' %}
+                            {% for field_name, label in media_operacional_mensageiro.items %}
+                            <div class="stat-card">
+                                <h3 class="stat-label">{{ label }}</h3>
+                                {% with media_value=media_gestor|get_item:field_name %}
+                                <div class="stat-value-wrapper">
+                                    <div class="score">{{ media_value|default:"0.0"|floatformat:1 }}</div>
+                                    <div class="trend {% if media_value >= 4.5 %}excellent{% elif media_value >= 3.5 %}good{% elif media_value >= 2.5 %}average{% else %}poor{% endif %}">
+                                        {% if media_value >= 4.5 %}Excelente{% elif media_value >= 3.5 %}Bom{% elif media_value >= 2.5 %}Regular{% else %}Ruim{% endif %}
+                                    </div>
+                                </div>
+                                {% endwith %}
+                            </div>
+                            {% endfor %}
+                        {% elif colaborador.cargo == 'Assistente de Logística' %}
+                            {% for field_name, label in media_operacional_assistente.items %}
+                            <div class="stat-card">
+                                <h3 class="stat-label">{{ label }}</h3>
+                                {% with media_value=media_gestor|get_item:field_name %}
+                                <div class="stat-value-wrapper">
+                                    <div class="score">{{ media_value|default:"0.0"|floatformat:1 }}</div>
+                                    <div class="trend {% if media_value >= 4.5 %}excellent{% elif media_value >= 3.5 %}good{% elif media_value >= 2.5 %}average{% else %}poor{% endif %}">
+                                        {% if media_value >= 4.5 %}Excelente{% elif media_value >= 3.5 %}Bom{% elif media_value >= 2.5 %}Regular{% else %}Ruim{% endif %}
+                                    </div>
+                                </div>
+                                {% endwith %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">Sem métricas operacionais definidas para este cargo.</p>
+                        {% endif %}
+                    </div>
+                </div>
 
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <h3 class="text-center mb-3">Evolução (Gestor)</h3>
+                            <canvas id="lineChartGestor"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <h3 class="text-center mb-3">Média por Hub (Gestor)</h3>
+                            <canvas id="barChartGestor"></canvas>
+                        </div>
+                    </div>
+                </div>
 
-            <h3>Contentamento dos Restaurantes - Média das Avaliações por Loja</h3>
-
-            <!-- Canvas para o gráfico -->
-            <canvas id="barChartLoja"></canvas>
-
-            <h3>Comentários sobre o Colaborador</h3>
-
-            <!-- Botão personalizado para exibir ou ocultar comentários -->
-            <button id="toggleCommentsButton" onclick="toggleComments()">Ver Comentários</button>
-            
-            <!-- Lista de comentários -->
-            <div id="commentsSection" style="display: none;">
-                <ul class="comentarios-list">
-                    {% if avaliacoes %}
-                        {% for avaliacao in avaliacoes %}
-                            {% if avaliacao.comentario %}
+                <div class="chart-container">
+                    <h3 class="text-center mb-3">Comentários dos Gestores</h3>
+                    <div class="text-center mb-4">
+                        <button id="toggleCommentsButtonGestor" onclick="toggleComments('Gestor')">Ver Comentários</button>
+                    </div>
+                    <div id="commentsSectionGestor" style="display: none; text-align: left;">
+                        <ul class="comentarios-list">
+                            {% for avaliacao in avaliacoes_gestor %}
+                                {% if avaliacao.comentario_comportamental or avaliacao.comentario_operacional %}
                                 <li class="comentario">
-                                    <img src="{% static 'assets/img/Perfil1.jpg' %}" alt="Usuário" class="comentario-img"> <!-- Imagem do usuário -->
+                                    <div class="comentario-img-wrapper"><i class="bi bi-person-circle"></i></div>
                                     <div class="comentario-conteudo">
-                                        <p class="comentario-texto">{{ avaliacao.comentario }}</p>
-                                        <span class="comentario-data">{{ avaliacao.data }} - {{ avaliacao.avaliador }}</span> <!-- Se você tiver uma data -->
+                                        {% if avaliacao.comentario_comportamental %}<p class="comentario-texto"><strong>Comport.:</strong> {{ avaliacao.comentario_comportamental }}</p>{% endif %}
+                                        {% if avaliacao.comentario_operacional %}<p class="comentario-texto"><strong>Operac.:</strong> {{ avaliacao.comentario_operacional }}</p>{% endif %}
+                                        <span class="comentario-data">{{ avaliacao.data_avaliacao|date:"d/m/Y" }} - {{ avaliacao.avaliador.username|default:'Admin' }}</span>
                                     </div>
                                 </li>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <li class="comentario">
-                            <p class="comentario-texto">Nenhum comentário disponível.</p>
-                        </li>
-                    {% endif %}
-                </ul>
+                                {% endif %}
+                            {% empty %}
+                                <li class="comentario"><p class="comentario-texto">Nenhum comentário disponível.</p></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
             </div>
-            
-        </body>
+
+            <div class="tab-pane fade" id="restaurante-pane" role="tabpanel" aria-labelledby="restaurante-tab" tabindex="0">
+                
+                <div class="chart-container" style="max-width: 500px; margin: 1rem auto 2.5rem auto;">
+                    <h3 class="text-center mb-3">Resumo Restaurante (Radar)</h3>
+                    <canvas id="radarChartRestaurante"></canvas>
+                </div>
+
+                <div style="margin-bottom: 2.5rem;">
+                    <h2 class="section-title">Métricas de Atendimento (Restaurante)</h2>
+                    <div class="stats-grid">
+                        {% for field_name, label in media_restaurante_labels.items %}
+                        <div class="stat-card">
+                            <h3 class="stat-label">{{ label }}</h3>
+                            {% with media_value=media_restaurante|get_item:field_name %}
+                            <div class="stat-value-wrapper">
+                                <div class="score">{{ media_value|default:"0.0"|floatformat:1 }}</div>
+                                <div class="trend {% if media_value >= 4.5 %}excellent{% elif media_value >= 3.5 %}good{% elif media_value >= 2.5 %}average{% else %}poor{% endif %}">
+                                    {% if media_value >= 4.5 %}Excelente{% elif media_value >= 3.5 %}Bom{% elif media_value >= 2.5 %}Regular{% else %}Ruim{% endif %}
+                                </div>
+                            </div>
+                            {% endwith %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <h3 class="text-center mb-3">Evolução (Restaurante)</h3>
+                            <canvas id="lineChartRestaurante"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <h3 class="text-center mb-3">Média por Restaurante</h3>
+                            <canvas id="barChartRestaurante"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="text-center mb-3">Comentários dos Restaurantes</h3>
+                    <div class="text-center mb-4">
+                        <button id="toggleCommentsButtonRestaurante" onclick="toggleComments('Restaurante')">Ver Comentários</button>
+                    </div>
+                    <div id="commentsSectionRestaurante" style="display: none; text-align: left;">
+                        <ul class="comentarios-list">
+                            {% for avaliacao in avaliacoes_restaurante %}
+                                {% if avaliacao.comentario %}
+                                <li class="comentario">
+                                    <div class="comentario-img-wrapper"><i class="bi bi-shop"></i></div>
+                                    <div class="comentario-conteudo">
+                                        <p class="comentario-texto">{{ avaliacao.comentario }}</p>
+                                        <span class="comentario-data">{{ avaliacao.data_avaliacao|date:"d/m/Y" }} - {{ avaliacao.nome_restaurante }}</span>
+                                    </div>
+                                </li>
+                                {% endif %}
+                            {% empty %}
+                                <li class="comentario"><p class="comentario-texto">Nenhum comentário disponível.</p></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div> </div> <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        // --- DADOS GLOBAIS (Passados pelo Django) ---
         
-        <script>
-            // Dados para o gráfico radar
-            const radarData = {
-                labels: [
-                    'Pontualidade',
-                    'Organização',
-                    'Comunicação',
-                    'Resolução de Problemas',
-                    'Precisão',
-                    'Velocidade',
-                    'Conhecimento de Ferramentas',
-                    'Flexibilidade',
-                    'Postura Profissional',
-                    'Priorização de Tarefas'
-                ],
-                datasets: [{
-                    label: 'Avaliação Atual',
-                    data: [
-                        {{ media.pontualidade_media }},
-                        {{ media.organizacao_media }},
-                        {{ media.comunicacao_media }},
-                        {{ media.resolucao_problemas_media }},
-                        {{ media.precisao_media }},
-                        {{ media.velocidade_media }},
-                        {{ media.conhecimento_ferramentas_media }},
-                        {{ media.flexibilidade_media }},
-                        {{ media.postura_profissional_media }},
-                        {{ media.priorizacao_tarefas_media }}
-                    ],
-                    fill: true,
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                    borderColor: 'rgb(37, 99, 235)',
-                    pointBackgroundColor: 'rgb(37, 99, 235)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(37, 99, 235)'
-                }]
-            };
+        // Dados GESTOR
+        const gestorRadarLabels = [];
+        const gestorRadarValues = [];
+        {% if colaborador.cargo == 'Mensageiro' %}
+            gestorRadarLabels.push(...['Proativid.', 'Responsab.', 'Equipe', 'Comunic.', 'Resiliên.', 'Postura', 'Evolução', 'TRM5', 'Erros', 'Metas', 'Pontual.', 'Org. Praça', 'Com. Central']);
+            gestorRadarValues.push(...[
+                {{ media_gestor.proatividade_media|default:0 }}, {{ media_gestor.responsabilidade_media|default:0 }},
+                {{ media_gestor.trabalho_em_equipe_media|default:0 }}, {{ media_gestor.comunicacao_media|default:0 }},
+                {{ media_gestor.resiliencia_media|default:0 }}, {{ media_gestor.postura_profissional_media|default:0 }},
+                {{ media_gestor.evolucao_individual_media|default:0 }}, {{ media_gestor.trm5_media|default:0 }},
+                {{ media_gestor.erros_pedido_media|default:0 }}, {{ media_gestor.cumprimento_metas_media|default:0 }},
+                {{ media_gestor.pontualidade_media|default:0 }}, {{ media_gestor.organizacao_praca_media|default:0 }},
+                {{ media_gestor.comunicacao_central_media|default:0 }}
+            ]);
+        {% elif colaborador.cargo == 'Assistente de Logística' %}
+            gestorRadarLabels.push(...['Proativid.', 'Responsab.', 'Equipe', 'Comunic.', 'Resiliên.', 'Postura', 'Evolução', 'Fila/NBA5', 'Distrib.', 'Monitor.', 'Processos', 'Resol. Imprev.']);
+            gestorRadarValues.push(...[
+                {{ media_gestor.proatividade_media|default:0 }}, {{ media_gestor.responsabilidade_media|default:0 }},
+                {{ media_gestor.trabalho_em_equipe_media|default:0 }}, {{ media_gestor.comunicacao_media|default:0 }},
+                {{ media_gestor.resiliencia_media|default:0 }}, {{ media_gestor.postura_profissional_media|default:0 }},
+                {{ media_gestor.evolucao_individual_media|default:0 }}, {{ media_gestor.controle_fila_nba5_media|default:0 }},
+                {{ media_gestor.eficiencia_distribuicao_media|default:0 }}, {{ media_gestor.monitoramento_ativo_media|default:0 }},
+                {{ media_gestor.cumprimento_processos_media|default:0 }}, {{ media_gestor.resolucao_imprevistos_media|default:0 }}
+            ]);
+        {% endif %}
         
-            // Configuração do gráfico radar
-            const radarConfig = {
+        const gestorLineLabels = [{% for a in avaliacoes_gestor %}"{{ a.data_avaliacao|date:"d/m/Y" }}",{% endfor %}].reverse();
+        const gestorLineValues = [{% for n in notas_evolucao_gestor %}{{ n }},{% endfor %}].reverse();
+        const gestorBarLabels = [{% for item in medias_por_hub_gestor %}"{{ item.hub__nome }}",{% endfor %}];
+        const gestorBarValues = [{% for item in medias_por_hub_gestor %}{{ item.media_loja|floatformat:2 }},{% endfor %}];
+
+        // Dados RESTAURANTE
+        const restRadarLabels = ['Rapidez', 'Eficiência', 'Comunic.', 'Profissional.', 'Suporte', 'Proativid.', 'Disponib.', 'Satisfação'];
+        const restRadarValues = [
+            {{ media_restaurante.rapidez_atendimento_media|default:0 }}, {{ media_restaurante.eficiencia_resolucao_media|default:0 }},
+            {{ media_restaurante.clareza_comunicacao_media|default:0 }}, {{ media_restaurante.profissionalismo_media|default:0 }},
+            {{ media_restaurante.suporte_gestao_pedidos_media|default:0 }}, {{ media_restaurante.proatividade_media|default:0 }},
+            {{ media_restaurante.disponibilidade_media|default:0 }}, {{ media_restaurante.satisfacao_geral_media|default:0 }}
+        ];
+        
+        const restLineLabels = [{% for a in avaliacoes_restaurante %}"{{ a.data_avaliacao|date:"d/m/Y" }}",{% endfor %}].reverse();
+        const restLineValues = [{% for n in notas_evolucao_restaurante %}{{ n }},{% endfor %}].reverse();
+        const restBarLabels = [{% for item in medias_por_restaurante %}"{{ item.nome_restaurante }}",{% endfor %}];
+        const restBarValues = [{% for item in medias_por_restaurante %}{{ item.media_loja|floatformat:2 }},{% endfor %}];
+
+        // --- FUNÇÃO DE AJUDA PARA GRÁFICOS ---
+        
+function createRadarChart(canvasId, labels, data) {
+            new Chart(document.getElementById(canvasId), {
                 type: 'radar',
-                data: radarData,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avaliação Média',
+                        data: data,
+                        fill: true,
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)', // Azul suave com transparência
+                        borderColor: 'rgb(52, 152, 219)', // Azul primário
+                        pointBackgroundColor: 'rgb(52, 152, 219)', // Azul para os pontos
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(52, 152, 219)'
+                    }]
+                },
                 options: {
                     elements: {
                         line: {
-                            borderWidth: 3
+                            borderWidth: 2
                         }
                     },
                     scales: {
                         r: {
                             angleLines: {
-                                display: true
+                                display: true, // Mostra as linhas que irradiam do centro
+                                color: 'rgba(0, 0, 0, 0.1)' // Cor suave para as linhas de ângulo
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)' // Cor suave para as linhas da grade
+                            },
+                            pointLabels: {
+                                color: 'var(--text-color)', // Cor dos rótulos (ex: Proativid.)
+                                font: {
+                                    size: 10
+                                }
                             },
                             suggestedMin: 0,
-                            suggestedMax: 5
+                            suggestedMax: 5, // Define o máximo para 5, conforme suas avaliações
+                            ticks: {
+                                beginAtZero: true,
+                                stepSize: 1, // Espaçamento de 1 em 1 para os ticks
+                                color: 'var(--text-muted)' // Cor dos números na escala (0, 1, 2...)
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
                 }
-            };
+            });
+        }
         
-            // Renderizar gráfico radar
-            const radarChart = new Chart(
-                document.getElementById('radarChart'),
-                radarConfig
-            );
+        function createLineChart(canvasId, labels, data, labelName) {
+            new Chart(document.getElementById(canvasId), {
+                type: 'line', data: { labels: labels, datasets: [{ label: labelName, data: data, fill: false, borderColor: 'var(--primary-color)', tension: 0.1 }] },
+                options: { scales: { y: { beginAtZero: true, suggestedMax: 5 } } }
+            });
+        }
         
-            const labels = [
-            {% for avaliacao in avaliacoes %}
-                "{{ avaliacao.data|date:"F" }}",
-            {% endfor %}
-            ];
-        
-            const dataValues = [
-            {% for nota in notas_evolucao %}
-                {{ nota }},
-            {% endfor %}
-            ];
-        
-            // Configuração dos dados para o gráfico de linha
-            const lineData = {
-                labels: labels,
-                datasets: [{
-                    label: 'Evolução da Avaliação',
-                    data: dataValues,
-                    fill: false,
-                    borderColor: 'rgb(37, 99, 235)',
-                    tension: 0.1
-                }]
-            };
-        
-            // Configuração do gráfico de linha
-            const lineConfig = {
-                type: 'line',
-                data: lineData,
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            };
-        
-            // Renderizar gráfico de linha
-            const lineChart = new Chart(
-                document.getElementById('lineChart'),
-                lineConfig
-            );
-        
-            // Extraindo os dados de lojas e suas médias do template
-            const lojas = [
-            {% for loja in medias_por_loja %}
-                "{{ loja.loja }}",  // Nome da loja
-            {% endfor %}
-            ];
-        
-            const mediasLoja = [
-            {% for loja in medias_por_loja %}
-                {{ loja.media_loja|floatformat:2 }},  // Média das avaliações por loja
-            {% endfor %}
-            ];
-        
-            // Configuração dos dados para o gráfico de barras por loja
-            const barDataLoja = {
-                labels: lojas,  // Labels (nomes das lojas)
-                datasets: [{
-                    label: 'Média das Avaliações por Loja',
-                    data: mediasLoja,  // Dados (média das avaliações por loja)
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',  // Cor de fundo das barras
-                    borderColor: 'rgb(37, 99, 235)',  // Cor da borda das barras
-                    borderWidth: 1
-                }]
-            };
-        
-            // Configuração do gráfico de barras
-            const barConfigLoja = {
+function createBarChart(canvasId, labels, data, labelName) {
+            new Chart(document.getElementById(canvasId), {
                 type: 'bar',
-                data: barDataLoja,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: labelName,
+                        data: data,
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)', // Azul primário com 60% de opacidade
+                        borderColor: 'rgb(52, 152, 219)', // Azul primário
+                        borderWidth: 1
+                    }]
+                },
                 options: {
                     responsive: true,
                     scales: {
                         y: {
-                            beginAtZero: true  // Inicia o eixo Y do gráfico em 0
+                            beginAtZero: true,
+                            suggestedMax: 5,
+                            ticks: {
+                                color: 'var(--text-muted)' // Cor para os números no eixo Y
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'var(--text-color)' // Cor para os rótulos no eixo X (Hub Boulevard)
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'var(--text-color)' // Cor para o texto da legenda "Média por Hub"
+                            }
                         }
                     }
                 }
-            };
+            });
+        }
+
+        // --- INICIALIZAÇÃO ---
         
-            // Renderiza o gráfico
-            const barChartLoja = new Chart(
-                document.getElementById('barChartLoja'),
-                barConfigLoja
-            );
+        const gestorTab = document.getElementById('gestor-tab');
+        const restauranteTab = document.getElementById('restaurante-tab');
+
+        let gestorChartsInitialized = false;
+        let restauranteChartsInitialized = false;
         
-            function toggleComments() {
-                var commentsSection = document.getElementById('commentsSection');
-                var toggleButton = document.getElementById('toggleCommentsButton');
-                
-                if (commentsSection.style.display === 'none') {
-                    commentsSection.style.display = 'block';
-                    toggleButton.textContent = 'Ocultar Comentários';
-                } else {
-                    commentsSection.style.display = 'none';
-                    toggleButton.textContent = 'Ver Comentários';
-                }
+        // Inicializa os gráficos da primeira aba (Gestor)
+        createRadarChart('radarChartGestor', gestorRadarLabels, gestorRadarValues);
+        createLineChart('lineChartGestor', gestorLineLabels, gestorLineValues, 'Evolução (Gestor)');
+        createBarChart('barChartGestor', gestorBarLabels, gestorBarValues, 'Média por Hub');
+        gestorChartsInitialized = true;
+
+        // Adiciona listener para criar gráficos da aba Restaurante QUANDO ELA FOR CLICADA
+        restauranteTab.addEventListener('shown.bs.tab', event => {
+            if (!restauranteChartsInitialized) {
+                createRadarChart('radarChartRestaurante', restRadarLabels, restRadarValues);
+                createLineChart('lineChartRestaurante', restLineLabels, restLineValues, 'Evolução (Restaurante)');
+                createBarChart('barChartRestaurante', restBarLabels, restBarValues, 'Média por Restaurante');
+                restauranteChartsInitialized = true;
             }
-        </script>
+        });
+
+        // Função de Toggle dos Comentários
+        function toggleComments(type) {
+            var commentsSection = document.getElementById('commentsSection' + type);
+            var toggleButton = document.getElementById('toggleCommentsButton' + type);
+            if (commentsSection.style.display === 'none') {
+                commentsSection.style.display = 'block';
+                toggleButton.textContent = 'Ocultar Comentários';
+            } else {
+                commentsSection.style.display = 'none';
+                toggleButton.textContent = 'Ver Comentários';
+            }
+        }
+    </script>
 </body>
 </html>

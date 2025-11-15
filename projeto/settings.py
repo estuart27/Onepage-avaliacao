@@ -28,11 +28,7 @@ SECRET_KEY = 'django-insecure-x1o-=4nw^vi34n8je=b)bkr8%tp6i^8e(-jjy6&wckx31qqi+f
 DEBUG = False
 
 
-ALLOWED_HOSTS = ["digital.silvestrecode.shop"]
-
-# DEBUG = True
-
-# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["gestao.amnos.shop"]
 
 # Application definition
 
@@ -87,18 +83,6 @@ WSGI_APPLICATION = 'projeto.wsgi.application'
 #         'OPTIONS': {
 #             'timeout': 20,  # Tempo em segundos (aumente conforme necessário)
 #         },
-#     }
-# }
-
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'bancohub',                            # Nome do banco de dados
-#         'USER': 'hub',        # Usuário do banco (confirme se é o correto)
-#         'PASSWORD': 'estuart123040506',                 # Senha correta
-#         'HOST': 'localhost',  # Host do Supabase
-#         'PORT': '5432',                              # Porta confirmada como 6543
 #     }
 # }
 
@@ -170,4 +154,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
 LOGIN_URL = '/admin/login/'
 
-CODIGO_CORRETO = config('CODIGO_CORRETO')
+# CODIGO_CORRETO = config('CODIGO_CORRETO')
+CODIGO_CORRETO = 'gestao2025'
+

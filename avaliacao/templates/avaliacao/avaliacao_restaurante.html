@@ -1,490 +1,489 @@
 {% load static %}
-{% load repeat %}  <!-- Certifique-se de carregar o filtro aqui --><html lang="pt">
+{% load avaliacao_tags %}
+{% load repeat %}
+
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliação de Restaurante</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <title>Avaliação de {{ colaborador.nome }}</title>
+    
     <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico'%}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         :root {
             --primary-color: #3498DB;
-            --primary-dark: #3498DB;
+            --primary-rgb: 52, 152, 219;
+            --primary-dark: #2980b9;
             --background-color: #f8fafc;
-            --card-bg: #ffffff;
+            --card-background: #ffffff;
+            --border-color: #e5e7eb;
+            --text-color: #334155;
+            --text-muted: #64748b;
             --star-color: #fbbf24;
-            --text-color: #1f2937;
-            --gradient-start: #3498DB;
-            --gradient-end: #3498DB;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
+            padding-top: 100px; 
+            padding-bottom: 120px; 
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 0 1rem;
         }
 
-        .header {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: white;
-            padding: 2rem;
-            border-radius: 0 0 2.5rem 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+        /* --- Cabeçalho Fixo --- */
+        .page-header-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            z-index: 10;
         }
-
         .header-content {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
             max-width: 900px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        .back-button {
-            color: white;
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .profile-header .avatar-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+        .profile-header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: #111827;
+        }
+        .profile-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .btn-back {
+            color: var(--primary-color);
             text-decoration: none;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: transform 0.2s;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        .btn-back:hover {
+            background-color: #f1f5f9;
         }
 
-        .rating-group {
-            background: var(--card-bg);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            margin-bottom: 1.5rem;
+        /* --- Seções do Formulário --- */
+        .form-section {
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+            overflow: hidden;
         }
-
-        .rating-group:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px -8px rgba(99, 102, 241, 0.2);
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+            padding: 1.5rem 2rem;
+            margin: 0;
+            background-color: #f9fafb;
+            border-bottom: 1px solid var(--border-color);
         }
-
-        .rating-header {
+        .section-title .emoji {
+            margin-right: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Lista de Avaliação */
+        .rating-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .rating-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
         }
-
-        .rating-title {
-            font-size: 1.25rem;
+        .rating-item:hover {
+            background-color: #fcfdff;
+        }
+        .rating-item:last-child {
+            border-bottom: none;
+        }
+        .rating-info .rating-title {
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-color);
+            margin: 0;
+        }
+        .rating-info .help-text {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .rating-stars {
+            flex-shrink: 0;
         }
 
-        .emoji {
-            font-size: 2rem;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
+        /* Estrelas */
         .stars {
             display: flex;
-            gap: 0.5rem;
+            flex-direction: row-reverse;
+            gap: 0.25rem;
             justify-content: center;
-            margin-bottom: 1rem;
         }
-
-        .star-rating {
-            display: none;
-        }
-
+        .star-rating { display: none; }
         .star-label {
             cursor: pointer;
-            font-size: 2.5rem;
+            font-size: 2.25rem;
             color: #e5e7eb;
             transition: all 0.2s;
+            padding: 0 0.1rem;
         }
-
         .star-label:hover,
         .star-label:hover ~ .star-label,
         .star-rating:checked ~ .star-label {
             color: var(--star-color);
             transform: scale(1.1);
         }
-
-        .emoji-feedback {
-            height: 3rem;
-            text-align: center;
-            font-size: 2rem;
-            transition: all 0.3s;
+        
+        /* Inputs de Texto e Textarea */
+        .input-box {
+            padding: 1.5rem 2rem;
+            position: relative; /* Para as sugestões */
+        }
+        .form-label-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        input[type="text"], textarea {
+            width: 100%; 
+            padding: 0.75rem 1rem; 
+            border: 1px solid var(--border-color); 
+            border-radius: 0.5rem; 
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
-        .help-text {
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.875rem;
+        /* Sugestões de Restaurante */
+        .suggestions {
+            position: absolute;
+            width: calc(100% - 4rem); /* Desconta o padding do .input-box */
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 0.5rem 0.5rem;
+            background-color: white;
+            z-index: 999;
+            margin-top: -1px; /* Gruda no input */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+        .suggestion-item { padding: 0.75rem 1rem; cursor: pointer; }
+        .suggestion-item:hover { background-color: #f1f5f9; }
 
+        /* Botão de Envio Fixo */
+        .submit-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
         .submit-button {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            background-color: var(--primary-color);
             color: white;
             border: none;
             padding: 1.25rem 2rem;
-            border-radius: 1rem;
+            border-radius: 0.75rem;
             font-size: 1.125rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 2rem;
             width: 100%;
+            max-width: 900px;
+            display: block;
+            margin: 0 auto;
         }
-
         .submit-button:hover {
+            background-color: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 8px 16px rgba(var(--primary-rgb), 0.2);
         }
-
-        .suggestions {
-            position: absolute;
-            width: 100%;
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: white;
-            z-index: 999;
-            margin-top: 5px;
-        }
-
-        .suggestion-item {
-            padding: 0.5rem;
-            cursor: pointer;
-        }
-
-        .suggestion-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
+        
+        @media (max-width: 600px) {
+            .rating-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
             }
-
-            .rating-group {
-                padding: 1.5rem;
+            .rating-stars {
+                width: 100%;
+                justify-content: flex-end;
             }
-
-            .star-label {
-                font-size: 2rem;
+            .profile-header h1 {
+                font-size: 1rem;
             }
-                    .avatar-container {
-          width: 80px;
-          height: 80px;
-          overflow: hidden;
-          border-radius: 50%;
-          flex-shrink: 0;
-      }
+            .profile-header p {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
+
+    <div class="page-header-fixed">
         <div class="header-content">
-            <a href="{% url 'home' %}" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-                Voltar
+            <div class="profile-header">
+                <img src="{{ colaborador.imagem.url }}" alt="Avatar" class="avatar-image">
+                <div>
+                    <h1>{{ colaborador.nome }}</h1>
+                    <p>Avaliação do Restaurante</p>
+                </div>
+            </div>
+            <a href="{% url 'home' %}" class="btn-back">
+                <i class="bi bi-x-lg"></i> Fechar
             </a>
-            <div class="avatar-container" style="display: flex; justify-content: center; align-items: center;">
-                <img 
-                    src="{{ colaborador.imagem.url }}" 
-                    alt="Avatar do Colaborador" 
-                    class="avatar-image" 
-                    style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            </div>
-            <div class="employee-info">
-                <h1>{{ colaborador.nome }}</h1>
-            </div>
         </div>
     </div>
 
     <div class="container">
         <form method="post" class="evaluation-form" id="evaluationForm">
             {% csrf_token %}
-
-            <!-- Avaliador -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">📝</span>
-                    <h3 class="rating-title">Avaliador</h3>
+            
+            <div class="form-section">
+                <h2 class="section-title"><span class="emoji">📝</span> Suas Informações</h2>
+                <div class="input-box" style="border-bottom: 1px solid var(--border-color);">
+                    <label class="form-label-title" for="loja">Nome do seu Restaurante <span style="color: var(--primary-color);_">*</span></label>
+                    <input type="text" name="nome_restaurante" id="loja" placeholder="Digite o nome do seu restaurante" required>
+                    <div id="suggestions-container" class="suggestions" style="display: none;"></div>
                 </div>
-                <input type="text" name="avaliador" placeholder="Nome do avaliador" required 
-                       style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
+                <div class="input-box">
+                    <label class="form-label-title" for="nome_avaliador_restaurante">Seu Nome (Opcional)</label>
+                    <input type="text" name="nome_avaliador_restaurante" id="nome_avaliador_restaurante" placeholder="Digite seu nome (opcional)">
+                </div>
             </div>
 
-            <!-- Loja -->
-            <div class="rating-group" style="position: relative;">
-                <div class="rating-header">
-                    <span class="emoji">🏬</span>
-                    <h3 class="rating-title">Restaurante</h3>
-                </div>
-                <input type="text" name="loja" id="loja" placeholder="Nome do restaurante" required 
-                       style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
-                <div id="suggestions-container" class="suggestions" style="display: none;"></div>
+            <div class="form-section">
+                <h2 class="section-title"><span class="emoji">⭐</span> Avalie o Atendimento</h2>
+                <ul class="rating-list">
+                    
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Rapidez no Atendimento</h3>
+                            <p class="help-text">O colaborador foi ágil ao te atender?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="rapidez_atendimento" value="{{ i }}" id="rapidez_atendimento_{{ i }}" class="star-rating" required><label class="star-label" for="rapidez_atendimento_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Eficiência na Resolução</h3>
+                            <p class="help-text">Resolveu seus problemas rapidamente?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="eficiencia_resolucao" value="{{ i }}" id="eficiencia_resolucao_{{ i }}" class="star-rating" required><label class="star-label" for="eficiencia_resolucao_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Clareza na Comunicação</h3>
+                            <p class="help-text">A comunicação foi clara e fácil de entender?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="clareza_comunicacao" value="{{ i }}" id="clareza_comunicacao_{{ i }}" class="star-rating" required><label class="star-label" for="clareza_comunicacao_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Profissionalismo</h3>
+                            <p class="help-text">O colaborador foi educado e profissional?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="profissionalismo" value="{{ i }}" id="profissionalismo_{{ i }}" class="star-rating" required><label class="star-label" for="profissionalismo_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Suporte na Gestão de Pedidos</h3>
+                            <p class="help-text">Ajudou de forma eficiente na gestão dos pedidos?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="suporte_gestao_pedidos" value="{{ i }}" id="suporte_gestao_pedidos_{{ i }}" class="star-rating" required><label class="star-label" for="suporte_gestao_pedidos_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Proatividade</h3>
+                            <p class="help-text">O colaborador se antecipou aos problemas?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="proatividade" value="{{ i }}" id="proatividade_{{ i }}" class="star-rating" required><label class="star-label" for="proatividade_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Disponibilidade</h3>
+                            <p class="help-text">Foi fácil encontrar e falar com o colaborador?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="disponibilidade" value="{{ i }}" id="disponibilidade_{{ i }}" class="star-rating" required><label class="star-label" for="disponibilidade_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+
+                    <li class="rating-item">
+                        <div class="rating-info">
+                            <h3 class="rating-title">Satisfação Geral</h3>
+                            <p class="help-text">Qual sua nota geral para este colaborador?</p>
+                        </div>
+                        <div class="stars rating-stars">
+                            {% for i in '54321'|make_list %}<input type="radio" name="satisfacao_geral" value="{{ i }}" id="satisfacao_geral_{{ i }}" class="star-rating" required><label class="star-label" for="satisfacao_geral_{{ i }}">★</label>{% endfor %}
+                        </div>
+                    </li>
+                </ul>
             </div>
 
-            <!-- Rapidez no Atendimento -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">⚡</span>
-                    <h3 class="rating-title">Rapidez no Atendimento</h3>
+            <div class="form-section">
+                <h2 class="section-title"><span class="emoji">💬</span> Comentário Adicional</h2>
+                <div class="input-box">
+                    <label class="form-label-title" for="comentario">Deixe um comentário (Opcional)</label>
+                    <textarea name="comentario" id="comentario" rows="4" placeholder="Compartilhe sua experiência e sugestões de melhoria..."></textarea>
                 </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="rapidez_atendimento" value="{{ i }}" id="rapidez_atendimento_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="rapidez_atendimento_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="rapidez_atendimento_feedback"></div>
-                <p class="help-text">Avalie a rapidez no atendimento do restaurante</p>
             </div>
 
-            <!-- Eficiência na Resolução -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">🎯</span>
-                    <h3 class="rating-title">Eficiência na Resolução</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="eficiencia_resolucao" value="{{ i }}" id="eficiencia_resolucao_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="eficiencia_resolucao_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="eficiencia_resolucao_feedback"></div>
-                <p class="help-text">Avalie a eficiência na resolução de problemas</p>
+            <div class="submit-footer">
+                <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
             </div>
+        </form>
+    </div>
 
-            <!-- Clareza na Comunicação -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">💬</span>
-                    <h3 class="rating-title">Clareza na Comunicação</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="clareza_comunicacao" value="{{ i }}" id="clareza_comunicacao_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="clareza_comunicacao_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="clareza_comunicacao_feedback"></div>
-                <p class="help-text">Avalie a clareza na comunicação</p>
-            </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
-            <!-- Profissionalismo -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">👔</span>
-                    <h3 class="rating-title">Profissionalismo</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="profissionalismo" value="{{ i }}" id="profissionalismo_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="profissionalismo_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="profissionalismo_feedback"></div>
-                <p class="help-text">Avalie o profissionalismo demonstrado</p>
-            </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const restaurantes = [
+                "Arabi's", "Bello Pastel", "Cacau Show", "Chikens do Mc",
+                "Croasonho", "Di Gramado", "Gelobel",
+                "Ice Creamy", "Kekala", "Mc Donald's", "Milanetto",
+                "Mister Cuca", "Mr. Cheff", "Naturela", "Patroni Pizza",
+                "Pop Corn Gourmet", "Popeyes Chiken", "Santo Strogonoff",
+                "Spedini Trattoria", "The B Burger", "Trilha Verde", "Ponto Grill",
+                "Subway", "10 Pastéis", "Johnny Smash Burger",
+                "Toutsie", "The Waffle King", "Havanna", "Mr. Fritz",
+                "Doce Mania", "Baldes do Popeyes", "Biscoitê",
+                "Mania de Churrasco", "Burger King", "Feijuca",
+                "Hot and Roll", "Menu Poke", "Montana Burger",
+                "Montana Grill", "Original Prime Grill",
+                "Spoleto", "Oakberry Açai", "Pastel Mel", "Praça Food",
+                "Kopenhagen", "Sucão",
+                "Lugano", "La Pasta Gialla", "Villa Fontana",
+                "Açaí Official", "Bacio Di Latte", "Bello Strogonoff",
+                "Bobs", "Buona Massa", "Fast Grill", "Frango no Pote", "KFC",
+                "Koni", "Lindt", "My Poke", "Naturalle",
+                "Panelinhas do Brasil", "Peixe na Rede",
+                "Poke Land", "Vivenda do Camarão", "Sushiloko",
+                "American Cookies", "Dom Casero", "La Guapa",
+                "Madero", "Marvin Burger", "Marietta", "Munch",
+                "Nespresso", "Páprica Burger", "Pobre Juan"
+            ];
 
-            <!-- Suporte na Gestão de Pedidos -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">📋</span>
-                    <h3 class="rating-title">Suporte na Gestão de Pedidos</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="suporte_gestao_pedidos" value="{{ i }}" id="suporte_gestao_pedidos_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="suporte_gestao_pedidos_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="suporte_gestao_pedidos_feedback"></div>
-                <p class="help-text">Avalie o suporte oferecido na gestão dos pedidos</p>
-            </div>
+            const lojaInput = document.getElementById('loja');
+            const suggestionsContainer = document.getElementById('suggestions-container');
 
-            <!-- Proatividade -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">🚀</span>
-                    <h3 class="rating-title">Proatividade</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="proatividade" value="{{ i }}" id="proatividade_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="proatividade_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="proatividade_feedback"></div>
-                <p class="help-text">Avalie a proatividade demonstrada</p>
-            </div>
+            lojaInput.addEventListener('input', function() {
+                const inputValue = this.value.toLowerCase();
+                
+                if (inputValue === '') {
+                    suggestionsContainer.style.display = 'none';
+                    return;
+                }
 
-            <!-- Disponibilidade -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">⏰</span>
-                    <h3 class="rating-title">Disponibilidade</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="disponibilidade" value="{{ i }}" id="disponibilidade_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="disponibilidade_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="disponibilidade_feedback"></div>
-                <p class="help-text">Avalie a disponibilidade do serviço</p>
-            </div>
+                const restaurantesFiltrados = restaurantes.filter(restaurante => 
+                    restaurante.toLowerCase().includes(inputValue)
+                );
 
-            <!-- Satisfação Geral -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">⭐</span>
-                    <h3 class="rating-title">Satisfação Geral</h3>
-                </div>
-                <div class="stars">
-                    {% for i in '54321'|make_list %}
-                    <input type="radio" name="satisfacao_geral" value="{{ i }}" id="satisfacao_geral_{{ i }}" class="star-rating" required>
-                    <label class="star-label" for="satisfacao_geral_{{ i }}">★</label>
-                    {% endfor %}
-                </div>
-                <div class="emoji-feedback" id="satisfacao_geral_feedback"></div>
-                <p class="help-text">Avalie sua satisfação geral com o serviço</p>
-            </div>
+                suggestionsContainer.innerHTML = '';
 
-            <!-- Comentário -->
-            <div class="rating-group">
-                <div class="rating-header">
-                    <span class="emoji">📝</span>
-                    <h3 class="rating-title">Comentário</h3>
-                </div>
-                <textarea name="comentario" rows="4" placeholder="Deixe seu comentário ou observação (opcional)" 
-                style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: none;"></textarea>
-            <p class="help-text">Compartilhe sua experiência e sugestões de melhoria</p>
-        </div>
+                if (restaurantesFiltrados.length > 0) {
+                    suggestionsContainer.style.display = 'block';
+                    restaurantesFiltrados.forEach(restaurante => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.classList.add('suggestion-item');
+                        suggestionItem.textContent = restaurante;
+                        suggestionItem.addEventListener('click', function() {
+                            lojaInput.value = restaurante;
+                            suggestionsContainer.style.display = 'none';
+                        });
+                        suggestionsContainer.appendChild(suggestionItem);
+                    });
+                } else {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
 
-        <button type="submit" class="submit-button">Enviar Avaliação ✨</button>
-    </form>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const emojiMap = {
-            1: '😢',
-            2: '😕',
-            3: '😊',
-            4: '😃',
-            5: '🤩'
-        };
-
-        const fields = [
-            'rapidez_atendimento', 'eficiencia_resolucao', 
-            'clareza_comunicacao', 'profissionalismo',
-            'suporte_gestao_pedidos', 'proatividade', 
-            'disponibilidade', 'satisfacao_geral'
-        ];
-
-        fields.forEach(field => {
-            const inputs = document.querySelectorAll(`input[name="${field}"]`);
-            const feedback = document.getElementById(`${field}_feedback`);
-
-            inputs.forEach(input => {
-                input.addEventListener('change', function() {
-                    feedback.textContent = emojiMap[this.value];
-                });
+            // Esconder sugestões ao clicar fora
+            document.addEventListener('click', function(event) {
+                if (!lojaInput.contains(event.target) && !suggestionsContainer.contains(event.target)) {
+                    suggestionsContainer.style.display = 'none';
+                }
             });
         });
-    });
-
-    // Lista de restaurantes
-    const restaurantes = [
-        "Arabi's", "Bello Pastel", "Cacau Show", "Chikens do Mc",
-        "Croasonho", "Di Gramado", "Gelobel",
-        "Ice Creamy", "Kekala", "Mc Donald's", "Milanetto",
-        "Mister Cuca", "Mr. Cheff", "Naturela", "Patroni Pizza",
-        "Pop Corn Gourmet", "Popeyes Chiken", "Santo Strogonoff",
-        "Spedini Trattoria", "The B Burger", "Trilha Verde", "Ponto Grill",
-        "Subway", "10 Pastéis", "Johnny Smash Burger",
-        "Toutsie", "The Waffle King", "Havanna", "Mr. Fritz",
-        "Doce Mania", "Baldes do Popeyes", "Biscoitê",
-        "Mania de Churrasco", "Burger King", "Feijuca",
-        "Hot and Roll", "Menu Poke", "Montana Burger",
-        "Montana Grill", "Original Prime Grill",
-        "Spoleto", "Oakberry Açai", "Pastel Mel", "Praça Food",
-        "Kopenhagen", "Sucão",
-        "Lugano", "La Pasta Gialla", "Villa Fontana",
-        "Açaí Official", "Bacio Di Latte", "Bello Strogonoff",
-        "Bobs", "Buona Massa", "Fast Grill", "Frango no Pote", "KFC",
-        "Koni", "Lindt", "My Poke", "Naturalle",
-        "Panelinhas do Brasil", "Peixe na Rede",
-        "Poke Land", "Vivenda do Camarão", "Sushiloko",
-        "American Cookies", "Dom Casero", "La Guapa",
-        "Madero", "Marvin Burger", "Marietta", "Munch",
-        "Nespresso", "Páprica Burger", "Pobre Juan"
-    ];
-
-    // Função para filtrar restaurantes
-    document.getElementById('loja').addEventListener('input', function() {
-        const inputValue = this.value.toLowerCase();
-        const suggestionsContainer = document.getElementById('suggestions-container');
-
-        if (inputValue === '') {
-            suggestionsContainer.style.display = 'none';
-            return;
-        }
-
-        const restaurantesFiltrados = restaurantes.filter(restaurante => 
-            restaurante.toLowerCase().includes(inputValue)
-        );
-
-        suggestionsContainer.innerHTML = '';
-
-        if (restaurantesFiltrados.length > 0) {
-            suggestionsContainer.style.display = 'block';
-
-            restaurantesFiltrados.forEach(restaurante => {
-                const suggestionItem = document.createElement('div');
-                suggestionItem.classList.add('suggestion-item');
-                suggestionItem.textContent = restaurante;
-
-                suggestionItem.addEventListener('click', function() {
-                    document.getElementById('loja').value = restaurante;
-                    suggestionsContainer.style.display = 'none';
-                });
-
-                suggestionsContainer.appendChild(suggestionItem);
-            });
-        } else {
-            suggestionsContainer.style.display = 'none';
-        }
-    });
-
-    // Esconder sugestões ao clicar fora
-    document.addEventListener('click', function(event) {
-        if (!document.getElementById('loja').contains(event.target)) {
-            document.getElementById('suggestions-container').style.display = 'none';
-        }
-    });
-</script>
+    </script>
 </body>
 </html>

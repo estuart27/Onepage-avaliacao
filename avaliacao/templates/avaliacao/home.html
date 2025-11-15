@@ -2,62 +2,728 @@
 {% load repeat %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Sistema de Avaliação</title>
-    <link rel="icon" type="image/x-icon" href="{% static '/var/www/Onepage-avaliacao/static/assets/12.png'%}" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-    <!-- CSS do Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">   
+    
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/12.png'%}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- JavaScript do Bootstrap e dependências (Popper.js) -->
+    <style>
+        :root {
+            --primary-color: #3498DB;
+            --primary-dark: #2874A6;
+            --primary-light: #5DADE2;
+            --primary-ultra-light: #EBF5FB;
+            --secondary-color: #2C3E50;
+            --success-color: #27AE60;
+            --warning-color: #F39C12;
+            --danger-color: #E74C3C;
+            --light-gray: #F8F9FA;
+            --medium-gray: #E9ECEF;
+            --border-color: #DEE2E6;
+            --text-primary: #2C3E50;
+            --text-secondary: #5D6D7E;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+            color: var(--text-primary);
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        /* === NAVBAR === */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            box-shadow: var(--shadow-md);
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border: none;
+            font-weight: 600;
+            padding: 0.65rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            font-weight: 600;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        /* === HERO SECTION (ATUALIZADO) === */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-ultra-light) 0%, white 100%);
+            padding: 6rem 0 5rem; /* Mais padding */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content-new { /* Novo container de texto */
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .hero-title {
+            font-size: 3.8rem; /* Ajustado para H1 e mais impacto */
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.35rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            line-height: 1.6;
+            /* max-width e margin: auto removidos para alinhamento à esquerda */
+        }
+        
+        /* Estilo para a imagem de placeholder (ajuste o src no HTML) */
+        .hero-image-container img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-10px);
+        }
+
+        /* Removemos os pseudo-elementos */
+        .hero-section::before,
+        .hero-section::after {
+            display: none;
+        }
+
+
+        /* === FILTER SECTION === */
+        .filter-section {
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .filter-header {
+            background: linear-gradient(135deg, var(--primary-ultra-light) 0%, white 100%);
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .filter-title i {
+            color: var(--primary-color);
+            font-size: 2rem; /* AUMENTADO */
+        }
+
+        .filter-body {
+            padding: 2rem;
+        }
+
+        .form-select, .form-control {
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            background-color: var(--light-gray);
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+            background-color: white;
+        }
+
+        .input-group-text {
+            background: var(--primary-color);
+            color: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 12px 0 0 12px;
+            border-right: none;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* === TEAM CARDS === */
+        .team-grid {
+            padding: 3rem 0;
+        }
+
+        .team-card-modern {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-card-modern:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .card-profile-top {
+            background: linear-gradient(135deg, var(--primary-ultra-light) 0%, white 100%);
+            padding: 1.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem; /* AUMENTADO */
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 80px; /* AUMENTADO */
+            height: 80px; /* AUMENTADO */
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .member-role {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .card-medals {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .medal-icon-small {
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            transition: var(--transition);
+            filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.4));
+        }
+
+        .medal-icon-small:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .medal-count-badge {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+            transition: var(--transition);
+        }
+
+        .medal-count-badge:hover {
+            transform: scale(1.15);
+        }
+
+        .card-body {
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 1.25rem 0.75rem; /* AUMENTADO */
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .stat-item:hover {
+            background: var(--primary-ultra-light);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .stat-item i {
+            font-size: 1.85rem; /* AUMENTADO */
+            margin-bottom: 0.75rem; /* AUMENTADO */
+            display: block;
+        }
+
+        .stat-item span {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-item label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .action-buttons .btn {
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            transition: var(--transition);
+            border: 2px solid;
+        }
+
+        .btn-outline-secondary {
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+            background: var(--light-gray);
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        /* === MODAL === */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 1.5rem 2rem;
+            border: none;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .medalhas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .medalha-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light-gray);
+            border-radius: 16px;
+            transition: var(--transition);
+        }
+
+        .medalha-item:hover {
+            background: var(--primary-ultra-light);
+            transform: translateY(-4px);
+        }
+
+        .medalha-icon-large {
+            width: 90px;
+            height: 90px;
+            border: 3px solid gold;
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.5);
+            padding: 8px;
+            background: white;
+        }
+
+        .medalha-descricao {
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* === PAGINATION === */
+        .pagination-section {
+            padding: 2.5rem 0;
+        }
+
+        .pagination {
+            gap: 0.5rem;
+        }
+
+        .page-link {
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            font-weight: 600;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .page-link:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        /* === CTA SECTION === */
+        .cta-section {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #1A252F 100%);
+            padding: 4.5rem 0;
+            margin-top: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(52, 152, 219, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .cta-text {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.85);
+            font-weight: 400;
+        }
+
+        .btn-light {
+            background: white;
+            color: var(--primary-color);
+            font-weight: 700;
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+
+        .btn-light:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+            background: var(--light-gray);
+        }
+
+        /* === FOOTER === */
+        .footer {
+            background: var(--secondary-color);
+            color: rgba(255,255,255,0.85);
+            padding: 2.5rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer h5 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .footer a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            color: var(--primary-light);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 3rem; /* Ajuste para tablet */
+            }
+            .hero-section {
+                padding: 4rem 0 3rem;
+                text-align: center; /* Centraliza no tablet onde a imagem some */
+            }
+            .hero-subtitle {
+                margin: 0 auto; /* Recria a margem auto no tablet */
+                max-width: 600px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            .hero-title {
+                font-size: 2.5rem; /* Ajustado */
+            }
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            .filter-header, .filter-body {
+                padding: 1.5rem;
+            }
+            .cta-section {
+                text-align: center;
+            }
+            .cta-section .btn {
+                margin-top: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .brand-text {
+                display: none;
+            }
+            .hero-section {
+                padding: 2.5rem 0 2rem;
+            }
+            .hero-title {
+                font-size: 2rem; /* Ajustado */
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .navbar-actions {
+                gap: 0.5rem !important;
+            }
+            .navbar-actions .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-light">
-    <!-- Modern Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
                 <div class="brand-icon">FO</div>
                 <span class="brand-text">Feedback Otimizado</span>
             </a>
             <div class="navbar-actions d-flex gap-3">
-                <a class="btn btn-outline-primary" href="https://wa.me/message/AQEJXX47PJOLO1">
+                <a class="btn btn-outline-primary" href="https://wa.me/5543996341638">
                     <i class="bi-whatsapp me-2"></i>Suporte
                 </a>
-                {% comment %} <a class="btn btn-primary" href="{% url 'relatorio' %}">
-                    <i class="bi-person-badge me-2"></i>Sou Gestor
-                </a> {% endcomment %}
-                <a class="btn btn-primary" href="{% url 'ranking' %}">
-                    <i class="bi-person-badge me-2"></i>Competências (BETA) 
-                </a>
+            <a class="btn btn-primary d-flex align-items-center" href="{% url 'ranking' %}">
+                <i class="bi-trophy-fill me-2"></i>Ranking
+            </a>
+
+            <!-- Painel de Medalhas -->
+            <a class="btn btn-primary d-flex align-items-center" href="{% url 'painel_medalhas' %}">
+                <i class="bi-award-fill me-2"></i>Painel de Medalhas
+            </a>
+
             </div>
         </div>
     </nav>
     
-
-    <!-- Hero Section -->
-    <header class="hero-section">
+    {% comment %} <header class="hero-section">
         <div class="container">
-            <h1 class="hero-title">Sistema de Avaliação</h1>
-            <p class="hero-subtitle">Avalie e acompanhe o desempenho dos colaboradores</p>
-        </div>
-    </header>
+            <div class="row align-items-center g-5">
+                
+                <div class="col-lg-7">
+                    <div class="hero-content-new"> <span class="hero-badge">
+                            <i class="bi-shield-check me-2"></i>Sistema Profissional
+                        </span>
+                        <h1 class="hero-title">
+                            Sistema de Avaliação
+                        </h1>
+                        <p class="hero-subtitle">
+                            Gerencie e acompanhe o desempenho dos colaboradores com transparência e eficiência.
+                        </p>
+                    </div>
+                </div>
 
-    <!-- Enhanced Filters -->
+                <div class="col-lg-5 d-none d-lg-block">
+                    <div class="hero-image-container">
+                        <img src="{% static 'assets/img/pontos-de-apoio.jpg' %}" alt="Ilustração do Sistema" style="width: 75%; border-radius: 20px; box-shadow: var(--shadow-lg);">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header> {% endcomment %}
+
     <section class="filter-section">
         <div class="container">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="filter-title">Filtrar Colaboradores</h2>
-                    <form method="GET" action="{% url 'home' %}" class="filter-form">
+            <div class="filter-card">
+                <div class="filter-header">
+                    <h2 class="filter-title">
+                        <i class="bi-funnel-fill"></i>
+                        Filtrar Colaboradores
+                    </h2>
+                </div>
+                <div class="filter-body">
+                    <form method="GET" action="{% url 'home' %}">
                         <div class="row g-3">
-                            <div class="col-md-3">
+                            <div class="col-lg-3 col-md-6">
+                                <label class="form-label fw-semibold text-secondary small">Cargo</label>
                                 <select name="cargo" class="form-select">
                                     <option value="">Todos os Cargos</option>
                                     {% for cargo in cargos %}
@@ -65,7 +731,8 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-lg-3 col-md-6">
+                                <label class="form-label fw-semibold text-secondary small">Hub</label>
                                 <select name="hub" class="form-select">
                                     <option value="">Todos os Hubs</option>
                                     {% for hub in hubs %}
@@ -75,15 +742,18 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-lg-4 col-md-8">
+                                <label class="form-label fw-semibold text-secondary small">Pesquisar</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                    <input type="text" name="search" placeholder="Pesquisar colaboradores..." class="form-control" value="{{ request.GET.search }}">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" name="search" placeholder="Digite o nome do colaborador..." class="form-control" value="{{ request.GET.search }}">
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-lg-2 col-md-4 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi-funnel-fill me-2"></i>Filtrar
+                                    <i class="bi-search me-2"></i>Buscar
                                 </button>
                             </div>
                         </div>
@@ -93,125 +763,95 @@
         </div>
     </section>
 
-    <!-- Improved Team Grid -->
-    {% load static %}
     <section class="team-grid">
         <div class="container">
             <div class="row g-4">
                 {% for colaborador in colaboradores %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="team-card">
-                        <div class="card shadow-sm h-100">
-                            <div class="profile-image-wrapper">
-                                <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="profile-image" />
-                                {% if colaborador.medalhas.all %}
-                                    <div class="medals-overlay">
-                                        <!-- Exibe até 3 medalhas -->
-                                        {% for medalha in colaborador.medalhas.all|slice:":3" %}
-                                            <img src="{% static 'medalhas/' %}{{ medalha.tipo }}.png" alt="{{ medalha.get_tipo_display }}" class="medal-icon">
-                                        {% endfor %}
-                                        
-                                        <!-- Botão para abrir o modal com todas as medalhas -->
-                                        {% if colaborador.medalhas.all|length > 3 %}
-                                            <button class="btn-medal-toggle" data-bs-toggle="modal" data-bs-target="#medalhasModal-{{ colaborador.id }}">
-                                                +{{ colaborador.medalhas.all|length|add:"-3" }}
-                                            </button>
-                                        {% endif %}
-                                    </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="team-card-modern">
+                        <div class="card-profile-top">
+                            <img src="{{ colaborador.imagem.url }}" alt="{{ colaborador.nome }}" class="profile-avatar" />
+                            <div class="profile-info">
+                                <h3 class="member-name">{{ colaborador.nome }}</h3>
+                                <p class="member-role">{{ colaborador.get_cargo_display }}</p>
+                            </div>
+                            {% if colaborador.medalhas.all %}
+                            <div class="card-medals" data-bs-toggle="modal" data-bs-target="#medalhasModal-{{ colaborador.id }}">
+                                <img src="{% static 'medalhas/' %}{{ colaborador.medalhas.all.0.tipo }}.png" alt="{{ colaborador.medalhas.all.0.get_tipo_display }}" class="medal-icon-small">
+                                {% if colaborador.medalhas.all|length > 1 %}
+                                <span class="medal-count-badge">+{{ colaborador.medalhas.all|length|add:"-1" }}</span>
                                 {% endif %}
                             </div>
-                            <div class="card-body">
-                                <h3 class="member-name">{{ colaborador.nome }}</h3>
-                                <p class="member-role">{{ colaborador.cargo }}</p>
-                                <p class="member-hub">{{ colaborador.hub }}</p>
-                                
-                                
-                                <div class="stats-grid">
-                                    <div class="stat-item">
-                                        {% if request.user.is_superuser %}
-                                        <i class="bi-star-fill text-warning"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <i class="bi-star-fill text-warning"></i>
+                                    {% if request.user.is_superuser %}
                                         <span>{{ colaborador.media_avaliacao_total|floatformat:1 }}</span>
-                                        <label>Média Total</label>
-                                        {% else %}
-                                        <i class="bi-star-fill text-warning"></i>
-                                        <span> -- </span>
-                                        <label>Média Total</label>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="stat-item">
-                                        <i class="bi-people-fill text-primary"></i>
-                                        {% comment %} <span>{{ colaborador.total_avaliadores_total }}</span> {% endcomment %}
-                                        <span>{{ colaborador.total_avaliacoes_total }}</span>
-
-                                        <label>Total Avaliações</label>
-                                    </div>
-                                    <div class="stat-item">
-                                        <i class="bi bi-hourglass text-success"></i>
-                                        <span>{{ colaborador.tempo_na_empresa }}</span>
-                                        <label>Tempo</label>
-                                    </div>
+                                    {% else %}
+                                        <span>--</span>
+                                    {% endif %}
+                                    <label>Média</label>
                                 </div>
-    
-                                <div class="action-buttons">
-                                    <a href="{% url 'avaliar_colaborador' colaborador.id %}" class="btn btn-primary btn-action">
-                                        <i class="bi-star-fill me-2"></i>Avaliar Entrega
-                                    </a>
-                                    <a href="{% url 'avaliar_restaurante' colaborador.id %}" class="btn btn-success btn-action">
-                                        <i class="bi-shop me-2"></i>Avaliar Restaurante
-                                    </a>
-                                    
-                                    <!-- Botão para abrir o modal do perfil -->
-                                    <button class="btn btn-secondary btn-lg" type="button" data-bs-toggle="modal" data-bs-target="#profileModal-{{ colaborador.id }}">
-                                        <i class="bi bi-person-fill"></i> Ver Perfil
-                                    </button>
+                                <div class="stat-item">
+                                    <i class="bi-clipboard-check-fill text-primary"></i>
+                                    <span>{{ colaborador.total_avaliacoes_total }}</span>
+                                    <label>Avaliações</label>
                                 </div>
+                                <div class="stat-item">
+                                    <i class="bi-calendar-check text-success"></i>
+                                    <span>{{ colaborador.tempo_na_empresa|default:"N/A" }}</span>
+                                    <label>Tempo</label>
+                                </div>
+                            </div>
+                
+                            <div class="action-buttons">
+                                <a href="{% url 'perfil_colaborador' colaborador.id %}" class="btn btn-primary">
+                                    <i class="bi-person-fill me-2"></i>Ver Perfil Completo
+                                </a>
+                                <a href="{% url 'avaliar_colaborador' colaborador.id %}" class="btn btn-outline-secondary">
+                                    <i class="bi-star-fill me-2"></i>Avaliar Gestor
+                                </a>
+                                <a href="{% url 'avaliar_restaurante' colaborador.id %}" class="btn btn-outline-secondary">
+                                    <i class="bi-shop me-2"></i>Avaliar Restaurante
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
-    
-                <!-- Modal para exibir todas as medalhas -->
+
                 <div class="modal fade" id="medalhasModal-{{ colaborador.id }}" tabindex="-1" aria-labelledby="medalhasModalLabel-{{ colaborador.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="medalhasModalLabel-{{ colaborador.id }}">Todas as Medalhas de {{ colaborador.nome }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title" id="medalhasModalLabel-{{ colaborador.id }}">
+                                    <i class="bi-award-fill me-2"></i>Medalhas de {{ colaborador.nome }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="medalhas-grid">
                                     {% for medalha in colaborador.medalhas.all %}
-                                        <div class="medalha-item">
-                                            <img src="{% static 'medalhas/' %}{{ medalha.tipo }}.png" alt="{{ medalha.get_tipo_display }}" class="medalha-icon">
-                                            <p class="medalha-descricao">{{ medalha.get_tipo_display }}</p>
-                                        </div>
+                                    <div class="medalha-item">
+                                        <img src="{% static 'medalhas/' %}{{ medalha.tipo }}.png" alt="{{ medalha.get_tipo_display }}" class="medalha-icon-large">
+                                        <p class="medalha-descricao">{{ medalha.get_tipo_display }}</p>
+                                    </div>
                                     {% endfor %}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-    
-                <!-- Modal do perfil (já existente) -->
-                <div class="modal fade" id="profileModal-{{ colaborador.id }}" tabindex="-1" aria-labelledby="profileModalLabel-{{ colaborador.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="profileModalLabel-{{ colaborador.id }}">Perfil de {{ colaborador.nome }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="list-group">
-                                    <a href="{% url 'perfil_colaborador' colaborador.id %}" class="list-group-item list-group-item-action">
-                                        <i class="bi bi-person-circle me-2"></i> Perfil Avaliado por Gestor
-                                    </a>
-                                    <a href="{% url 'perfil_colaborador_restaurante' colaborador.id %}" class="list-group-item list-group-item-action">
-                                        <i class="bi bi-house-door me-2"></i> Perfil Avaliado por Restaurante
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="bi-search text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                        <p class="fs-4 text-muted mt-3 mb-2 fw-semibold">Nenhum colaborador encontrado</p>
+                        <p class="text-secondary">Tente ajustar os filtros de busca</p>
                     </div>
                 </div>
                 {% endfor %}
@@ -219,120 +859,37 @@
         </div>
     </section>
     
-    <style>
-        .profile-image-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-    
-        .medals-overlay {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px; /* Aumentei o espaçamento entre as medalhas */
-        }
-
-        .medal-icon {
-            width: 50px !important;  /* Tamanho desejado */
-            height: 50px !important; /* Tamanho desejado */
-            border: 2px solid gold;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-            transition: transform 0.2s ease;
-        }
-        
-        
-        .medal-icon:hover {
-            transform: scale(1.1); /* Efeito de zoom ao passar o mouse */
-        }
-        
-    
-        .btn-medal-toggle {
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 8px 12px; /* Aumentei o padding para melhorar a aparência */
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease; /* Adicionei uma transição suave */
-        }
-    
-        .btn-medal-toggle:hover {
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-    
-        .medalhas-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Ajustei o grid para medalhas maiores */
-            gap: 20px; /* Aumentei o espaçamento entre as medalhas no modal */
-        }
-    
-        .medalha-item {
-            text-align: center;
-        }
-    
-        .medalha-icon {
-            width: 100px; /* Aumentei o tamanho das medalhas no modal */
-            height: 100px; /* Aumentei o tamanho das medalhas no modal */
-            border: 2px solid gold;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-        }
-    
-        .medalha-descricao {
-            margin-top: 10px; /* Aumentei o espaçamento entre a medalha e a descrição */
-            font-size: 16px; /* Aumentei o tamanho da fonte da descrição */
-            color: #555;
-        }
-    
-        .team-card {
-            transition: transform 0.3s ease;
-        }
-    
-        .team-card:hover {
-            transform: translateY(-5px);
-        }
-        .btn-primary {
-            background-color: #3498DB !important;
-            border-color: #3498DB !important;
-        }
-
-    </style>
-
-    <!-- Enhanced Pagination -->
     <div class="pagination-section">
         <div class="container">
-            <nav aria-label="Page navigation">
+            <nav aria-label="Navegação de páginas">
                 <ul class="pagination justify-content-center">
                     {% if colaboradores.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page=1{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            <a class="page-link" href="?page=1{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="Primeira página">
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ colaboradores.previous_page_number }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            <a class="page-link" href="?page={{ colaboradores.previous_page_number }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="Página anterior">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
                     {% endif %}
 
                     <li class="page-item active">
-                        <span class="page-link">{{ colaboradores.number }} de {{ colaboradores.paginator.num_pages }}</span>
+                        <span class="page-link">
+                            Página {{ colaboradores.number }} de {{ colaboradores.paginator.num_pages }}
+                        </span>
                     </li>
 
                     {% if colaboradores.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ colaboradores.next_page_number }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            <a class="page-link" href="?page={{ colaboradores.next_page_number }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="Próxima página">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ colaboradores.paginator.num_pages }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            <a class="page-link" href="?page={{ colaboradores.paginator.num_pages }}{% if request.GET.cargo %}&cargo={{ request.GET.cargo }}{% endif %}{% if request.GET.hub %}&hub={{ request.GET.hub }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="Última página">
                                 <i class="bi bi-chevron-double-right"></i>
                             </a>
                         </li>
@@ -342,13 +899,16 @@
         </div>
     </div>
 
-    <!-- Modern CTA Section -->
     <section class="cta-section">
         <div class="container">
-            <div class="row align-items-center">
+            <div class="row align-items-center cta-content">
                 <div class="col-lg-8">
-                    <h2 class="cta-title">Junte-se ao Nosso Grupo!</h2>
-                    <p class="cta-text">Participe do nosso grupo e fique por dentro de todas as novidades</p>
+                    <h2 class="cta-title">
+                        <i class="bi-people-fill me-3"></i>Junte-se ao Nosso Grupo
+                    </h2>
+                    <p class="cta-text">
+                        Participe da nossa comunidade e fique por dentro de todas as novidades, atualizações e muito mais
+                    </p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     <a href="https://chat.whatsapp.com/EU86YgJXiFUDaalGEGSBFQ" class="btn btn-light btn-lg">
@@ -359,389 +919,66 @@
         </div>
     </section>
 
-    <!-- Enhanced Footer -->
-    <footer class="footer bg-dark text-light">
+    <footer class="footer">
         <div class="container">
-            <div class="row py-4">
-                <div class="col-lg-6">
-                    <h5 class="mb-3">Feedback Otimizado</h5>
-                    <p class="mb-0">© 2024 <a href="https://www.silvestrecode.shop" class="text-light">SilvestreCode</a>. Todos os direitos reservados.</p>
+            <div class="row py-4 align-items-center">
+                <div class="col-lg-6 mb-3 mb-lg-0">
+                    <h5>
+                        <i class="bi-clipboard-check-fill me-2"></i>Feedback Otimizado
+                    </h5>
+                    <p class="mb-0">
+                        © 2024 <a href="https://www.silvestrecode.shop">SilvestreCode</a>. Todos os direitos reservados.
+                    </p>
                 </div>
                 <div class="col-lg-6 text-lg-end">
-                    <div class="footer-links">
-                        <a href="https://wa.me/557798503042" class="text-light me-3">
-                            <i class="bi-whatsapp me-1"></i>Contato
+                    <div class="footer-links d-flex flex-wrap justify-content-lg-end gap-4">
+                        <a href="https://wa.me/5543996341638">
+                            <i class="bi-whatsapp me-2"></i>Contato
                         </a>
-                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hub.rmarques@hubentregas.com.br" class="text-light">
-                            <i class="bi-envelope me-1"></i>Email
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hub.esilvestre@hubentregas.com.br">
+                            <i class="bi-envelope me-2"></i>Email
+                        </a>
+                        <a href="{% url 'ranking' %}">
+                            <i class="bi-trophy me-2"></i>Ranking
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
+    
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-
-
-    <style>
-        :root {
-            --primary-color: #3498DB;
-            --primary-dark: #3498DB;
-            --secondary-color: #3e3e3e;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --border-radius: 12px;
-            --transition: all 0.3s ease;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            padding-top: 76px;
-        }
-
-        /* Navbar Styles */
-        .navbar {
-            backdrop-filter: blur(10px);
-            background-color: rgba(255, 255, 255, 0.95) !important;
-        }
-
-        .brand-icon {
-            background: var(--primary-color);
-            color: white;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            padding: 4rem 0;
-            color: white;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .hero-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        /* Filter Section */
-        .filter-section {
-            margin-bottom: 3rem;
-        }
-
-        .filter-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--secondary-color);
-        }
-
-        /* Team Grid */
-        .team-card {
-            height: 100%;
-        }
-
-        .profile-image-wrapper {
-            position: relative;
-            padding-top: 75%;
-            overflow: hidden;
-        }
-
-        .profile-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .medals-overlay {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .medal-icon {
-            width: 30px;
-            height: 30px;
-        }
-
-        .member-name {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .member-role {
-            color: var(--primary-color);
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .member-hub {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-            .stat-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 0.5rem;
-                border-radius: var(--border-radius);
-                background: #f8f9fa;
-            }
     
-            .stat-item i {
-                font-size: 1.2rem;
-                margin-bottom: 0.3rem;
+    <script>
+        // Efeito de scroll na navbar
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
-    
-            .stat-item span {
-                font-size: 1.1rem;
-                font-weight: 600;
-                margin-bottom: 0.2rem;
-            }
-    
-            .stat-item label {
-                font-size: 0.8rem;
-                color: #666;
-            }
-    
-            /* Action Buttons */
-            .action-buttons {
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-    
-            .btn-action {
-                width: 100%;
-                padding: 0.8rem;
-                border-radius: var(--border-radius);
-                font-weight: 500;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: var(--transition);
-            }
-    
-            .btn-action:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
-    
-            /* Pagination */
-            .pagination-section {
-                padding: 2rem 0;
-            }
-    
-            .pagination {
-                margin: 0;
-            }
-    
-            .page-link {
-                padding: 0.75rem 1rem;
-                border-radius: 8px;
-                margin: 0 0.25rem;
-                border: none;
-                color: var(--secondary-color);
-                transition: var(--transition);
-            }
-    
-            .page-link:hover {
-                background-color: var(--primary-color);
-                color: white;
-            }
-    
-            .page-item.active .page-link {
-                background-color: var(--primary-color);
-                border-color: var(--primary-color);
-            }
-    
-            /* CTA Section */
-            .cta-section {
-                background: linear-gradient(135deg, #2d3436 0%, #000000 100%);
-                padding: 4rem 0;
-                color: white;
-                margin-top: 3rem;
-            }
-    
-            .cta-title {
-                font-size: 2rem;
-                font-weight: 700;
-                margin-bottom: 1rem;
-            }
-    
-            .cta-text {
-                font-size: 1.1rem;
-                opacity: 0.9;
-                margin-bottom: 0;
-            }
-    
-            /* Footer */
-            .footer {
-                border-top: 1px solid rgba(255,255,255,0.1);
-            }
-    
-            .footer-links a {
-                text-decoration: none;
-                transition: var(--transition);
-            }
-    
-            .footer-links a:hover {
-                opacity: 0.8;
-            }
-    
-            /* Responsive Design */
-            @media (max-width: 992px) {
-                .hero-section {
-                    padding: 3rem 0;
+        });
+
+        // Animação suave ao aparecer os cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
                 }
-    
-                .hero-title {
-                    font-size: 2rem;
-                }
-    
-                .cta-section {
-                    text-align: center;
-                }
-    
-                .cta-section .btn {
-                    margin-top: 1.5rem;
-                }
-            }
-    
-            @media (max-width: 768px) {
-                .filter-form .row {
-                    row-gap: 1rem;
-                }
-    
-                .stats-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 0.5rem;
-                }
-    
-                .stat-item {
-                    padding: 0.3rem;
-                }
-    
-                .stat-item span {
-                    font-size: 1rem;
-                }
-    
-                .action-buttons {
-                    gap: 0.5rem;
-                }
-            }
-    
-            @media (max-width: 576px) {
-                .navbar-brand .brand-text {
-                    display: none;
-                }
-    
-                .hero-title {
-                    font-size: 1.75rem;
-                }
-    
-                .hero-subtitle {
-                    font-size: 1rem;
-                }
-    
-                .footer {
-                    text-align: center;
-                }
-    
-                .footer-links {
-                    margin-top: 1rem;
-                    justify-content: center;
-                }
-            }
-    
-            /* Animation Effects */
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-    
-            .team-card {
-                animation: fadeIn 0.6s ease-out;
-            }
-    
-            /* Custom Scrollbar */
-            ::-webkit-scrollbar {
-                width: 8px;
-            }
-    
-            ::-webkit-scrollbar-track {
-                background: #f1f1f1;
-            }
-    
-            ::-webkit-scrollbar-thumb {
-                background: var(--primary-color);
-                border-radius: 4px;
-            }
-    
-            ::-webkit-scrollbar-thumb:hover {
-                background: var(--primary-dark);
-            }
-            .modal-header {
-                background-color: #3498DB; /* Cor do cabeçalho do modal */
-                color: white; /* Cor do texto do cabeçalho */
-            }
-        
-            .modal-title {
-                font-size: 1.5rem;
-                font-weight: bold;
-            }
-        
-            .modal-body {
-                padding: 1.5rem;
-            }
-        
-            .list-group-item {
-                transition: background-color 0.2s ease;
-            }
-        
-            .list-group-item:hover {
-                background-color: #e9ecef; /* Cor de fundo ao passar o mouse */
-            }
-        
-            .list-group-item i {
-                font-size: 1.2rem; /* Tamanho dos ícones */
-            }
-        </style>
-    </body>
-    </html>
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.team-card-modern').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
