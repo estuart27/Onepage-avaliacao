@@ -276,11 +276,11 @@ def avaliar_colaborador(request, colaborador_id):
     FormClass = None
     if colaborador.cargo == 'Mensageiro':
         FormClass = AvaliacaoMensageiroForm
-    elif colaborador.cargo == 'Assistente de Logística':
+    elif colaborador.cargo == 'Assistente de Logística' or colaborador.cargo == 'Líder de Logística':
         FormClass = AvaliacaoAssistenteForm
     
-    # if not FormClass:
-    #     return render(request, 'erro.html', {'message': 'Não há formulário de avaliação para este cargo.'})
+    if not FormClass:
+        return render(request, 'erro.html', {'message': 'Não há formulário de avaliação para este cargo.'})
 
     if request.method == 'POST':
         form = FormClass(request.POST)
