@@ -1,122 +1,97 @@
-from langchain_community.document_loaders import WebBaseLoader
+import os
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
+from django.conf import settings
+from .models import Colaborador, AvaliacaoMensageiro, AvaliacaoAssistente, AvaliacaoRestaurante
 
-import os
+def formatar_dados_historicos(colaborador):
+    """
+    Coleta as últimas 6 avaliações de gestor e restaurante para criar uma linha do tempo.
+    """
+    historico_texto = f"DADOS DO COLABORADOR: {colaborador.nome} | Cargo: {colaborador.cargo} | Tempo de Casa: {colaborador.tempo_na_empresa}\n"
+    historico_texto += "=" * 50 + "\n\n"
 
-def analizar_partida(dados_avaliacao):
-    feedback = f"Feedback para {dados_avaliacao['nome']}:\n"
-    # Avaliações individuais (Nota máxima 5)
-    feedback += f"Pontualidade: {dados_avaliacao['pontualidade']}/5\n"
-    feedback += f"Organização: {dados_avaliacao['organizacao']}/5\n"
-    feedback += f"Comunicação: {dados_avaliacao['comunicacao']}/5\n"
-    feedback += f"Resolução de Problemas: {dados_avaliacao['resolucao_problemas']}/5\n"
-    feedback += f"Precisão: {dados_avaliacao['precisao']}/5\n"
-    feedback += f"Velocidade: {dados_avaliacao['velocidade']}/5\n"
-    feedback += f"Conhecimento de Ferramentas: {dados_avaliacao['conhecimento_ferramentas']}/5\n"
-    feedback += f"Flexibilidade: {dados_avaliacao['flexibilidade']}/5\n"
-    feedback += f"Postura Profissional: {dados_avaliacao['postura_profissional']}/5\n"
-    feedback += f"Priorização de Tarefas: {dados_avaliacao['priorizacao_tarefas']}/5\n"
-    feedback += f"Pontualidade: {dados_avaliacao['comentario']}/5\n"
-
+    # 1. Buscar avaliações de Gestor (Verifica qual o tipo de avaliação baseada no cargo ou busca em ambas)
+    # Trazemos as últimas 6 para análise de tendência
+    avs_mensageiro = AvaliacaoMensageiro.objects.filter(colaborador=colaborador).order_by('-data_avaliacao')[:6]
+    avs_assistente = AvaliacaoAssistente.objects.filter(colaborador=colaborador).order_by('-data_avaliacao')[:6]
     
-    # Calculando a nota média (com base em 5)
-    # nota_media = sum([dados_avaliacao[key] for key in dados_avaliacao if key != 'nome' and key != 'comentarios']) / 
-    nota_media = sum([dados_avaliacao[key] for key in dados_avaliacao if key != 'nome' and key != 'comentarios' and isinstance(dados_avaliacao[key], (int, float))]) / 10
+    # Junta as listas e reordena por data (caso o colaborador tenha mudado de cargo)
+    todas_avs_gestor = sorted(list(avs_mensageiro) + list(avs_assistente), key=lambda x: x.data_avaliacao, reverse=True)
 
-    feedback += f"\nNota Média: {nota_media:.2f}/5\n"
+    if not todas_avs_gestor:
+        historico_texto += "Nenhuma avaliação de gestor encontrada.\n"
+    
+    for av in todas_avs_gestor:
+        tipo = "Mensageiro" if isinstance(av, AvaliacaoMensageiro) else "Assistente"
+        historico_texto += f"--- AVALIAÇÃO GESTOR ({av.data_avaliacao.strftime('%d/%m/%Y')}) ---\n"
+        historico_texto += f"Tipo: {tipo} | Nota Final: {av.nota_final:.2f} (Comportamental: {av.nota_comportamental:.2f} | Operacional: {av.nota_operacional:.2f})\n"
+        
+        # Detalhes Críticos
+        historico_texto += f"Pontos: Proatividade {av.proatividade}, Responsabilidade {av.responsabilidade}, Trabalho em Equipe {av.trabalho_em_equipe}\n"
+        
+        # Adicionar métricas operacionais específicas se existirem
+        if tipo == "Mensageiro":
+            historico_texto += f"Operacional: TRM5 {av.trm5}, Erros {av.erros_pedido}, Metas {av.cumprimento_metas}\n"
+        elif tipo == "Assistente":
+            historico_texto += f"Operacional: Fila/NBA5 {av.controle_fila_nba5}, Eficiência {av.eficiencia_distribuicao}\n"
 
-    # Concatena conteúdo dos documentos
-    documento = feedback
-    # for doc in feedback:
-    #     documento = documento + doc.page_content
+        if av.comentario_comportamental:
+            historico_texto += f"Obs. Comportamental: {av.comentario_comportamental}\n"
+        if av.comentario_operacional:
+            historico_texto += f"Obs. Operacional: {av.comentario_operacional}\n"
+        historico_texto += "\n"
 
-    api_key = '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'
+    # 2. Buscar avaliações de Restaurantes (Visão Externa)
+    avs_restaurante = AvaliacaoRestaurante.objects.filter(colaborador=colaborador).order_by('-data_avaliacao')[:6]
+    
+    if avs_restaurante:
+        historico_texto += "-" * 50 + "\nFEEDBACK DOS RESTAURANTES (Visão Externa):\n"
+        for av in avs_restaurante:
+            historico_texto += f"Data: {av.data_avaliacao.strftime('%d/%m/%Y')} | Restaurante: {av.nome_restaurante} | Nota: {av.nota_final:.2f}\n"
+            historico_texto += f"Avaliação: Rapidez {av.rapidez_atendimento}, Profissionalismo {av.profissionalismo}\n"
+            if av.comentario:
+                historico_texto += f"Comentário: {av.comentario}\n"
+            historico_texto += "\n"
 
-    os.environ['GROQ_API_KEY'] = api_key
+    return historico_texto
 
-    # Inicializa o ChatGroq
-    chat = ChatGroq(model='llama-3.3-70b-versatile')
+def gerar_analise_ia_colaborador(colaborador_id):
+    try:
+        colaborador = Colaborador.objects.get(id=colaborador_id)
+    except Colaborador.DoesNotExist:
+        return "Colaborador não encontrado."
+
+    # Prepara os dados
+    dados_contexto = formatar_dados_historicos(colaborador)
+
+    # Configuração da API (Idealmente, use settings.py para a chave)
+
+    api_key = os.getenv("GROQ_API_KEY")    
+    os.environ['GROQ_API_KEY'] = api_key 
+
+    chat = ChatGroq(model='llama-3.3-70b-versatile', temperature=0.3) # Temperature baixa para ser mais analítico e menos criativo
 
     template = ChatPromptTemplate.from_messages([
-        ('system', 'Você será um analista de colaboradores e, com base nos dados fornecidos, irá fornecer feedback direto e objetivo sobre o colaborador. Seu feedback deve ser assertivo e focado nas ações e comportamentos descritos, evitando listas, tópicos ou formatação de quebra. Seja específico e claro, buscando sempre uma abordagem construtiva e prática. Os dados fornecidos são: {documentos_informados}.'),
-        ('user', '{input}')
-    ])
+        ('system', """
+         Você é um Consultor de RH Sênior especializado em Logística e Performance. 
+         Sua tarefa é analisar o histórico de avaliações de um colaborador e gerar um relatório de feedback para o gestor.
+         
+         Instruções:
+         1. **Análise de Tendência**: O colaborador está evoluindo, estagnado ou regredindo nas notas mês a mês?
+         2. **Cruzamento de Dados**: Compare a visão do GESTOR (Interna) com a do RESTAURANTE (Externa). Existe discrepância? (Ex: Gestor acha ótimo, mas restaurante reclama da demora).
+         3. **Pontos Fortes e Fracos**: Identifique padrões recorrentes nos dados numéricos e comentários.
+         4. **Plano de Ação**: Sugira 3 ações práticas para o gestor aplicar com esse colaborador no próximo ciclo.
 
-
-    chain = template | chat
-    resposta = chain.invoke({'documentos_informados': documento, 'input': "Forneça uma análise objetiva e prática sobre o colaborador, com base nos dados fornecidos, para que o gestor possa dar um feedback claro e construtivo. Destaque pontos fortes, áreas para desenvolvimento e recomendações diretas que o gestor possa comunicar ao colaborador de forma eficaz."})
-
-    return resposta.content
-
-
-
-def gerar_feedback_restaurante(dados_avaliacao):
-    feedback = f"Feedback para {dados_avaliacao['nome']}:\n"
-    feedback += f"Rapidez no Atendimento: {dados_avaliacao['rapidez_atendimento']}/5\n"
-    feedback += f"Eficiência na Resolução: {dados_avaliacao['eficiencia_resolucao']}/5\n"
-    feedback += f"Clareza na Comunicação: {dados_avaliacao['clareza_comunicacao']}/5\n"
-    feedback += f"Profissionalismo: {dados_avaliacao['profissionalismo']}/5\n"
-    feedback += f"Suporte na Gestão de Pedidos: {dados_avaliacao['suporte_gestao_pedidos']}/5\n"
-    feedback += f"Proatividade: {dados_avaliacao['proatividade']}/5\n"
-    feedback += f"Disponibilidade: {dados_avaliacao['disponibilidade']}/5\n"
-    feedback += f"Satisfação Geral: {dados_avaliacao['satisfacao_geral']}/5\n"
-
-    nota_media = sum([dados_avaliacao[key] for key in dados_avaliacao if key not in ['nome', 'comentario']]) / 8
-    feedback += f"\nNota Média: {nota_media:.2f}/5\n"
-
-    documento = feedback
-    # for doc in feedback:
-    #     documento = documento + doc.page_content
-
-    api_key = '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'
-
-    os.environ['GROQ_API_KEY'] = api_key
-
-    # Inicializa o ChatGroq
-    chat = ChatGroq(model='llama-3.3-70b-versatile')
-
-    template = ChatPromptTemplate.from_messages([
-        ('system', 'Você será um analista de colaboradores e, com base nos dados fornecidos, irá fornecer feedback direto e objetivo sobre o colaborador. Seu feedback deve ser assertivo e focado nas ações e comportamentos descritos, evitando listas, tópicos ou formatação de quebra. Seja específico e claro, buscando sempre uma abordagem construtiva e prática. Os dados fornecidos são: {documentos_informados}.'),
-        ('user', '{input}')
-    ])
-
-
-    chain = template | chat
-    resposta = chain.invoke({'documentos_informados': documento, 'input': "Forneça uma análise objetiva e prática sobre o colaborador, com base nos dados fornecidos, para que o gestor possa dar um feedback claro e construtivo. Destaque pontos fortes, áreas para desenvolvimento e recomendações diretas que o gestor possa comunicar ao colaborador de forma eficaz."})
-
-    return resposta.content
-
-
-def relatorio(dados, custom_prompt=None):
-    documento_relatorio = dados
-
-    # Get API key from environment for security
-    api_key = os.environ.get('GROQ_API_KEY')
-    if not api_key:
-        # Fallback to the key in the request (not recommended for production)
-        api_key = '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'
-        os.environ['GROQ_API_KEY'] = api_key
-
-    # Initialize ChatGroq
-    chat = ChatGroq(model='llama-3.3-70b-versatile')
-
-    # Use custom prompt if provided
-    if not custom_prompt:
-        custom_prompt =""" Faça um relatório analítico da operação com base nos registros do dia, destacando:
-                1. Principais ocorrências e seus impactos
-                2. Padrões ou repetições de problemas
-                3. Recomendações para melhoria operacional
-                4. Pontos positivos a serem mantidos
-                Mantenha o foco na análise operacional, não em indivíduos.
-                """
-    template = ChatPromptTemplate.from_messages([
-        ('system', 'Você é um analista operacional. Gere relatórios técnicos sobre a operação com base nos dados: {documentos_informados}.'),  # Modificado
-        ('user', '{input}')
+         Formatação de Saída (Use Markdown):
+         - Use emojis moderados para leitura agradável.
+         - Seja direto. Não encha linguiça.
+         - Foco total em melhoria de performance.
+         """),
+        ('user', 'Analise os seguintes dados históricos deste colaborador e me dê o resumo executivo:\n\n{dados_historicos}')
     ])
 
     chain = template | chat
-    resposta = chain.invoke({'documentos_informados': documento_relatorio, 'input': custom_prompt})
+    resposta = chain.invoke({'dados_historicos': dados_contexto})
 
-    # print(resposta.content)
     return resposta.content

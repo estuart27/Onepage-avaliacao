@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Colaborador, Hub, AvaliacaoMensageiro, AvaliacaoAssistente,Medalha, SugestaoMedalha
 # Imports atualizados
 from .forms import AvaliacaoRestauranteForm, AvaliacaoMensageiroForm, AvaliacaoAssistenteForm
-from .utils import analizar_partida,relatorio
+from .utils import gerar_analise_ia_colaborador
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator
 from django.db.models.functions import Coalesce
@@ -16,7 +16,6 @@ from django.views.decorators.http import require_POST
 import json
 from django.conf import settings
 from django.utils import timezone
-
 
 def home(request):
     if not request.session.get('codigo_acesso_validado'):
@@ -324,19 +323,6 @@ def relatorio_op(request):
     return render(request, 'avaliacao/relatorio.html')
 
 
-@csrf_exempt
-@require_POST
-def generate_report(request):
-    try:
-        data = json.loads(request.body)
-        feedback = data.get('feedback', '')
-        prompt = data.get('prompt', '')
-        result = relatorio(feedback, prompt)
-        return JsonResponse({'report': result})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
 def ranking(request):
     if not request.user.is_superuser:
         return redirect('/admin/login/?next=' + request.path)
@@ -571,3 +557,21 @@ def excluir_sugestao(request, sugestao_id):
     sugestao.delete()
     return redirect("painel_medalhas")
 
+
+@require_POST
+def api_analise_ia(request):
+    # Se estiver usando fetch com POST e JSON body
+    try:
+        data = json.loads(request.body)
+        colaborador_id = data.get('colaborador_id')
+        
+        if not colaborador_id:
+            return JsonResponse({'error': 'ID do colaborador não fornecido'}, status=400)
+
+        analise = gerar_analise_ia_colaborador(colaborador_id)
+        
+        # Retorna o markdown renderizado ou texto puro para o front tratar
+        return JsonResponse({'success': True, 'analise': analise})
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
