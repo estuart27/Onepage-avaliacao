@@ -67,7 +67,10 @@ def gerar_analise_ia_colaborador(colaborador_id):
 
     # Configuração da API (Idealmente, use settings.py para a chave)
 
-    api_key = os.getenv("GROQ_API_KEY")    
+    api_key = settings.GROQ_API_KEY
+    if not api_key:
+        raise ValueError("A variável de ambiente GROQ_API_KEY não está definida.")
+
     os.environ['GROQ_API_KEY'] = api_key 
 
     chat = ChatGroq(model='llama-3.3-70b-versatile', temperature=0.3) # Temperature baixa para ser mais analítico e menos criativo

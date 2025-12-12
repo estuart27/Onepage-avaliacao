@@ -154,5 +154,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/admin/login/'
 
 # CODIGO_CORRETO = config('CODIGO_CORRETO')
-CODIGO_CORRETO = 'gestao2025'
+CODIGO_CORRETO = config('CODIGO_CORRETO')
 
+GROQ_API_KEY = config("GROQ_API_KEY")
